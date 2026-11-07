@@ -1,0 +1,11 @@
+{
+  "address": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "fixtureId": "sender",
+  "scope": {
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "maxTransactions": 100
+  }
+}

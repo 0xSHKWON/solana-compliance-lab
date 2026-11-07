@@ -1,0 +1,58 @@
+{
+  "requestId": "unresolved-evaluation-request",
+  "snapshot": {
+    "schemaVersion": "0.1.0",
+    "snapshotId": "unresolved-snapshot",
+    "requestId": "unresolved-request",
+    "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "network": "mainnet-beta",
+    "mode": "FIXTURE",
+    "transfers": [
+      {
+        "id": "transfer-8",
+        "signature": "MxNopkq48oapj97ZKWzUFbaz7NWxMLTePUJ6ssX1JmxKxxrry6tcikFoQFL3RkUAVbaSbtSxvPWRRciXG4dt3qK",
+        "slot": 108,
+        "timestamp": "2026-11-01T00:00:00Z",
+        "instructionIndex": 0,
+        "innerInstructionIndex": null,
+        "transferOrdinal": 0,
+        "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "toAddress": null,
+        "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "destinationAccount": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+        "asset": {
+          "type": "SPL",
+          "mint": "QWmroo4YnnMqYW3cnxWkFdaTxGD3P7vMSzwMHGbUzwF",
+          "decimals": 6
+        },
+        "amountRaw": "1000000000",
+        "ownerResolved": false
+      }
+    ],
+    "labels": [],
+    "labelDataset": {
+      "source": "TEST_FIXTURE",
+      "version": "1.0.0",
+      "fetchedAt": "2026-11-02T00:00:00Z"
+    },
+    "coverage": {
+      "status": "PARTIAL",
+      "reasons": [
+        "OWNER_UNRESOLVED"
+      ],
+      "fromTime": "2026-11-01T00:00:00Z",
+      "toTime": "2026-11-02T00:00:00Z",
+      "snapshotSlot": 1000,
+      "transactionCount": 1,
+      "transferCount": 1,
+      "reachedTimeBoundary": true
+    },
+    "collectedAt": "2026-11-02T00:00:00Z",
+    "dataProvenance": {
+      "dataType": "SYNTHETIC",
+      "source": "TEST_FIXTURE",
+      "reference": "https://example.invalid/synthetic-fixtures"
+    }
+  },
+  "rulesetVersion": "1.0.0"
+}

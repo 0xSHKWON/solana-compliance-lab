@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "block-experiment",
+  "intentId": "sanctioned-intent",
+  "routeId": "block",
+  "outcome": "SUBMISSION_REJECTED",
+  "policyApplied": true,
+  "reasonCodes": [
+    "POLICY_BLOCK"
+  ],
+  "actualBroadcast": false
+}

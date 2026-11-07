@@ -1,0 +1,96 @@
+{
+  "requestId": "repeat-evaluation-request",
+  "snapshot": {
+    "schemaVersion": "0.1.0",
+    "snapshotId": "repeat-snapshot",
+    "requestId": "repeat-request",
+    "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "network": "mainnet-beta",
+    "mode": "FIXTURE",
+    "transfers": [
+      {
+        "id": "transfer-5",
+        "signature": "JTpB28XNwqVBmnRoGRzZNq9zFybdTcYsVPkFZj6fvUo78yDYyRF1mTP113GsMdDyFAUsLQYJbpkrMWmGYtN4shG",
+        "slot": 105,
+        "timestamp": "2026-11-01T00:00:00Z",
+        "instructionIndex": 0,
+        "innerInstructionIndex": null,
+        "transferOrdinal": 0,
+        "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "toAddress": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "destinationAccount": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "asset": {
+          "type": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000",
+        "ownerResolved": true
+      },
+      {
+        "id": "transfer-6",
+        "signature": "KdLPHfxc1VX4kuKicnzXfkdesmuQRXBo85vsLSa7iaWr5dmKdynt5tLboSdG3fe2zeBPkuBC3M1NiDR27wnfw5H",
+        "slot": 106,
+        "timestamp": "2026-11-01T00:00:20Z",
+        "instructionIndex": 0,
+        "innerInstructionIndex": null,
+        "transferOrdinal": 0,
+        "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "toAddress": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "destinationAccount": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "asset": {
+          "type": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000",
+        "ownerResolved": true
+      },
+      {
+        "id": "transfer-7",
+        "signature": "LnrbZDPq59Ywk2Ddy9zVxg7KVaDBPRpikn7V7A3ZWgEb2JK6JYLkQKJCbqyeji46k7svBPp5UsFu4v4mh1DGzTJ",
+        "slot": 107,
+        "timestamp": "2026-11-01T00:00:40Z",
+        "instructionIndex": 0,
+        "innerInstructionIndex": null,
+        "transferOrdinal": 0,
+        "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "toAddress": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "destinationAccount": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "asset": {
+          "type": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000",
+        "ownerResolved": true
+      }
+    ],
+    "labels": [],
+    "labelDataset": {
+      "source": "TEST_FIXTURE",
+      "version": "1.0.0",
+      "fetchedAt": "2026-11-02T00:00:00Z"
+    },
+    "coverage": {
+      "status": "COMPLETE",
+      "reasons": [],
+      "fromTime": "2026-11-01T00:00:00Z",
+      "toTime": "2026-11-02T00:00:00Z",
+      "snapshotSlot": 1000,
+      "transactionCount": 3,
+      "transferCount": 3,
+      "reachedTimeBoundary": true
+    },
+    "collectedAt": "2026-11-02T00:00:00Z",
+    "dataProvenance": {
+      "dataType": "SYNTHETIC",
+      "source": "TEST_FIXTURE",
+      "reference": "https://example.invalid/synthetic-fixtures"
+    }
+  },
+  "rulesetVersion": "1.0.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "allow-experiment",
+  "intentId": "normal-intent",
+  "routeId": "allow",
+  "outcome": "SUBMISSION_ALLOWED",
+  "policyApplied": true,
+  "reasonCodes": [
+    "POLICY_ALLOW"
+  ],
+  "actualBroadcast": false
+}

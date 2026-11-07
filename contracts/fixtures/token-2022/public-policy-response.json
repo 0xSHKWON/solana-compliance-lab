@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "0.1.0",
+  "requestId": "token-2022-public-policy-request",
+  "intent": {
+    "intentId": "token-2022-intent",
+    "network": "mainnet-beta",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "type": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z"
+  },
+  "assessments": {
+    "sender": {
+      "schemaVersion": "0.1.0",
+      "subjectAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "snapshotId": "sender-snapshot",
+      "rulesetVersion": "1.0.0",
+      "riskScore": 0,
+      "riskLevel": "LOW",
+      "detectedRules": [],
+      "evidences": []
+    },
+    "recipient": {
+      "schemaVersion": "0.1.0",
+      "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "snapshotId": "token-2022-snapshot",
+      "rulesetVersion": "1.0.0",
+      "riskScore": 0,
+      "riskLevel": "LOW",
+      "detectedRules": [],
+      "evidences": []
+    }
+  },
+  "decision": {
+    "schemaVersion": "0.1.0",
+    "decisionId": "decision-c8d00ad2d70c90eb03f4c234b403cbc6a40fa624d6dc8b2c20bb6677c9d154f2",
+    "intentId": "token-2022-intent",
+    "action": "ALLOW",
+    "riskScore": 0,
+    "riskLevel": "LOW",
+    "reasonCodes": [
+      "NO_RISK_SIGNALS"
+    ],
+    "referencedEvidenceIds": [],
+    "policyVersion": "1.0.0",
+    "evaluatedAt": "2026-11-02T00:00:00Z"
+  }
+}

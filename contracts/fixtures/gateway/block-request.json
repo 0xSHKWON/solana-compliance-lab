@@ -1,0 +1,37 @@
+{
+  "requestId": "block-request",
+  "intent": {
+    "intentId": "sanctioned-intent",
+    "network": "mainnet-beta",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "type": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z"
+  },
+  "decision": {
+    "schemaVersion": "0.1.0",
+    "decisionId": "decision-859a9cbc8d5c03ce71ab83e0940c1e8b2d2ff047e0bbabe7ee779bde056404e8",
+    "intentId": "sanctioned-intent",
+    "action": "BLOCK",
+    "riskScore": 100,
+    "riskLevel": "HIGH",
+    "reasonCodes": [
+      "SANCTION_EXACT_MATCH"
+    ],
+    "referencedEvidenceIds": [
+      "evidence-fddad3d4df2a3b78e608c95908369807c1e21ced0517ed11d07fa1dce18db584"
+    ],
+    "policyVersion": "1.0.0",
+    "evaluatedAt": "2026-11-02T00:00:00Z"
+  },
+  "route": {
+    "routeId": "block",
+    "policyEnforced": true,
+    "warningAcknowledged": false
+  }
+}

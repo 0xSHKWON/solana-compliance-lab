@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-fa486756760dde9312051539e7b03567def16cb556fe41cdc507e0b1297f2493",
+  "intentId": "missing-time-intent",
+  "action": "REVIEW",
+  "riskScore": null,
+  "riskLevel": null,
+  "reasonCodes": [
+    "INSUFFICIENT_ASSESSMENT"
+  ],
+  "referencedEvidenceIds": [],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

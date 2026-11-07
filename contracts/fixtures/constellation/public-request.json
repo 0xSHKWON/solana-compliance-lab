@@ -1,0 +1,13 @@
+{
+  "intentId": "sanctioned-intent",
+  "decisionId": "decision-859a9cbc8d5c03ce71ab83e0940c1e8b2d2ff047e0bbabe7ee779bde056404e8",
+  "protocolModelVersion": "0.0.0-research-pending",
+  "scenario": {
+    "proposerCount": 4,
+    "rejectingProposerCount": 1,
+    "submittedToAcceptingProposer": true,
+    "psliceAvailable": true,
+    "attestationPercent": 100,
+    "leaderAttemptsExclusion": true
+  }
+}

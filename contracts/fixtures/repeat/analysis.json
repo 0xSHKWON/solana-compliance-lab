@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "repeat-analysis",
+  "requestId": "repeat-request",
+  "status": "COMPLETED",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshotId": "repeat-snapshot",
+  "coverage": {
+    "status": "COMPLETE",
+    "reasons": [],
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 3,
+    "transferCount": 3,
+    "reachedTimeBoundary": true
+  },
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
+  },
+  "evaluation": {
+    "schemaVersion": "0.1.0",
+    "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "snapshotId": "repeat-snapshot",
+    "rulesetVersion": "1.0.0",
+    "riskScore": 25,
+    "riskLevel": "MEDIUM",
+    "detectedRules": [
+      {
+        "ruleId": "RAPID_REPEAT",
+        "ruleVersion": "1.0.0",
+        "riskLevel": "MEDIUM",
+        "scoreContribution": 25,
+        "evidenceIds": [
+          "evidence-184b4398ca1b76d4f8bd76a4a6011d3c25677e1e835c869e3367578ab9b7f593"
+        ]
+      }
+    ],
+    "evidences": [
+      {
+        "evidenceId": "evidence-184b4398ca1b76d4f8bd76a4a6011d3c25677e1e835c869e3367578ab9b7f593",
+        "type": "TEMPORAL_PATTERN",
+        "transactionSignatures": [
+          "JTpB28XNwqVBmnRoGRzZNq9zFybdTcYsVPkFZj6fvUo78yDYyRF1mTP113GsMdDyFAUsLQYJbpkrMWmGYtN4shG",
+          "KdLPHfxc1VX4kuKicnzXfkdesmuQRXBo85vsLSa7iaWr5dmKdynt5tLboSdG3fe2zeBPkuBC3M1NiDR27wnfw5H",
+          "LnrbZDPq59Ywk2Ddy9zVxg7KVaDBPRpikn7V7A3ZWgEb2JK6JYLkQKJCbqyeji46k7svBPp5UsFu4v4mh1DGzTJ"
+        ],
+        "transferIds": [
+          "transfer-5",
+          "transfer-6",
+          "transfer-7"
+        ],
+        "relatedAddresses": [
+          "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+          "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8"
+        ],
+        "labelReferenceIds": [],
+        "source": {
+          "snapshotId": "repeat-snapshot",
+          "network": "mainnet-beta",
+          "mode": "FIXTURE",
+          "dataProvenance": {
+            "dataType": "SYNTHETIC",
+            "source": "TEST_FIXTURE",
+            "reference": "https://example.invalid/synthetic-fixtures"
+          },
+          "labelDataset": {
+            "source": "TEST_FIXTURE",
+            "version": "1.0.0",
+            "fetchedAt": "2026-11-02T00:00:00Z"
+          }
+        }
+      }
+    ]
+  },
+  "error": null
+}

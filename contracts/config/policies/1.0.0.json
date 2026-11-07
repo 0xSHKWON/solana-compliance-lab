@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "supportedRulesetVersions": [
+    "1.0.0"
+  ],
+  "directFlowAction": "REVIEW",
+  "warningAction": "WARN",
+  "highRiskAction": "REVIEW"
+}

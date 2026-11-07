@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "0.1.0",
+  "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "snapshotId": "direct-flow-snapshot",
+  "rulesetVersion": "1.0.0",
+  "riskScore": 80,
+  "riskLevel": "HIGH",
+  "detectedRules": [
+    {
+      "ruleId": "SANCTION_DIRECT_FLOW",
+      "ruleVersion": "1.0.0",
+      "riskLevel": "HIGH",
+      "scoreContribution": 80,
+      "evidenceIds": [
+        "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556"
+      ]
+    }
+  ],
+  "evidences": [
+    {
+      "evidenceId": "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556",
+      "type": "DIRECT_FLOW",
+      "transactionSignatures": [
+        "DojKwxnUhDMfqJr7ryzgD9FKnnNXbz1Axd1nUsCtk5v9NK2UKB3YVjYboRsJbTZiFFgmeRzkqjkkviAGGefeeBC"
+      ],
+      "transferIds": [
+        "transfer-1"
+      ],
+      "relatedAddresses": [
+        "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+        "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+      ],
+      "labelReferenceIds": [
+        "synthetic-sanction-001"
+      ],
+      "source": {
+        "snapshotId": "direct-flow-snapshot",
+        "network": "mainnet-beta",
+        "mode": "FIXTURE",
+        "dataProvenance": {
+          "dataType": "SYNTHETIC",
+          "source": "TEST_FIXTURE",
+          "reference": "https://example.invalid/synthetic-fixtures"
+        },
+        "labelDataset": {
+          "source": "TEST_FIXTURE",
+          "version": "1.0.0",
+          "fetchedAt": "2026-11-02T00:00:00Z"
+        }
+      }
+    }
+  ]
+}

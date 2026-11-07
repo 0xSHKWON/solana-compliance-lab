@@ -1,11 +1,16 @@
 {
   "schemaVersion": "0.1.0",
-  "analysisId": "example-analysis",
-  "requestId": "example-request",
+  "analysisId": "normal-analysis",
+  "requestId": "normal-request",
   "status": "RUNNING",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
   "createdAt": "2026-11-02T00:00:00Z",
   "updatedAt": "2026-11-02T00:00:00Z",
-  "snapshot": null,
+  "snapshotId": null,
+  "coverage": null,
+  "dataProvenance": null,
   "evaluation": null,
   "error": null
 }

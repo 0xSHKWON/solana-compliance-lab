@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-63b4d3abdec98667f366bbc44a0cad8da3d98ab2e50935fae11c27f5f3a2020c",
+  "intentId": "empty-intent",
+  "action": "ALLOW",
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "reasonCodes": [
+    "NO_RISK_SIGNALS"
+  ],
+  "referencedEvidenceIds": [],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

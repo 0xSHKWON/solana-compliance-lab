@@ -3,75 +3,38 @@
   "analysisId": "partial-analysis",
   "requestId": "partial-request",
   "status": "PARTIAL",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
   "createdAt": "2026-11-02T00:00:00Z",
   "updatedAt": "2026-11-02T00:00:00Z",
-  "snapshot": {
-    "schemaVersion": "0.1.0",
-    "snapshotId": "partial-snapshot",
-    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-    "provenance": {
-      "mode": "FIXTURE",
-      "dataKind": "SYNTHETIC",
-      "network": "SOLANA_MAINNET",
-      "sourceName": "synthetic-demo",
-      "collectedAt": "2026-11-02T00:00:00Z",
-      "fixtureId": "partial"
-    },
-    "coverage": {
-      "status": "PARTIAL",
-      "requestedRange": {
-        "from": "2026-11-01T00:00:00Z",
-        "to": "2026-11-02T00:00:00Z"
-      },
-      "observedRange": {
-        "from": "2026-11-01T00:00:00Z",
-        "to": "2026-11-01T00:00:00Z"
-      },
-      "maxTransactions": 100,
-      "fetchedTransactionCount": 1,
-      "normalizedTransactionCount": 1,
-      "issues": [
-        {
-          "code": "LABEL_SOURCE_UNAVAILABLE",
-          "message": "합성 레이블 소스 조회 실패",
-          "signature": null
-        }
-      ]
-    },
-    "transfers": [
-      {
-        "transferId": "partial-transfer",
-        "signature": "99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3BbeqPevr5E1iCbpTjqHuTFLtfxTTD5ekfVuZFzQyEQf8",
-        "slot": 1,
-        "blockTime": "2026-11-01T00:00:00Z",
-        "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
-        "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-        "asset": {
-          "kind": "SOL",
-          "mint": null,
-          "decimals": 9
-        },
-        "amountRaw": "1000000000"
-      }
+  "snapshotId": "partial-snapshot",
+  "coverage": {
+    "status": "PARTIAL",
+    "reasons": [
+      "TRANSACTION_LIMIT_REACHED"
     ],
-    "labels": []
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 1,
+    "transferCount": 1,
+    "reachedTimeBoundary": false
+  },
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
   },
   "evaluation": {
     "schemaVersion": "0.1.0",
-    "evaluationId": "partial-evaluation",
+    "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
     "snapshotId": "partial-snapshot",
-    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-    "evaluatedAt": "2026-11-02T00:00:00Z",
-    "ruleSetId": "demo-rules",
-    "ruleSetVersion": "0.1.0",
-    "coverageStatus": "PARTIAL",
+    "rulesetVersion": "1.0.0",
     "riskScore": null,
-    "riskLevel": "UNKNOWN",
-    "findings": [],
-    "unevaluatedRuleIds": [
-      "sanction-address",
-      "sanction-direct"
-    ]
+    "riskLevel": null,
+    "detectedRules": [],
+    "evidences": []
   },
   "error": null
 }

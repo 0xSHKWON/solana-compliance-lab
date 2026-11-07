@@ -1,15 +1,12 @@
 openapi: 3.1.0
 info:
-  title: 이상거래 — 공통 API 계약
+  title: Team-wide Solana Compliance Lab contracts
   version: 0.1.0
-  description: Draft v2.1 기반 제안 계약. PUBLIC은 Backend API이며 INTERNAL은 모듈 경계입니다. 실제 거래 전송은 지원하지 않습니다. 공개 배포와 인증 정책은
-    별도 합의가 필요합니다.
+  description: Unified team draft. Constellation rules pending research approval. All examples are synthetic.
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 tags:
 - name: PUBLIC
-  description: Frontend가 호출하는 Backend 전용 API
 - name: INTERNAL
-  description: Backend와 내부 모듈 간 계약. 브라우저에 노출하지 않습니다.
 paths:
   /api/v1/analyses:
     post:
@@ -20,69 +17,134 @@ paths:
       summary: createAnalysis
       responses:
         '202':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/api.schema.json#/$defs/AnalysisAccepted
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
                   externalValue: fixtures/api/accepted.json
           headers:
             Location:
-              description: 분석 작업 조회 URL
+              description: Analysis polling URL
               schema:
                 type: string
                 format: uri-reference
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
@@ -91,9 +153,14 @@ paths:
               $ref: schemas/api.schema.json#/$defs/AnalysisRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
-                externalValue: fixtures/normal/collection-request.json
-  /api/v1/analyses/{analysisId}:
+                externalValue: fixtures/normal/analysis-request.json
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/analyses/{id}:
     get:
       operationId: getAnalysis
       tags:
@@ -102,374 +169,885 @@ paths:
       summary: getAnalysis
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/api.schema.json#/$defs/KYTAnalysisResult
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
                   externalValue: fixtures/normal/analysis.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       parameters:
-      - name: analysisId
+      - name: id
         in: path
         required: true
         schema:
           $ref: schemas/common.schema.json#/$defs/Id
-  /api/v1/policy-decisions:
-    post:
-      operationId: createPolicyDecision
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/analyses/{id}/transfers:
+    get:
+      operationId: getAnalysisTransfers
       tags:
       - PUBLIC
       x-audience: PUBLIC
-      summary: createPolicyDecision
+      summary: getAnalysisTransfers
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
-                $ref: schemas/policy.schema.json#/$defs/ComplianceDecision
+                $ref: schemas/api.schema.json#/$defs/TransferPage
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
-                  externalValue: fixtures/normal/decision.json
+                  externalValue: fixtures/api/transfers.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/compliance/evaluate:
+    post:
+      operationId: evaluateCompliance
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: evaluateCompliance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: schemas/api.schema.json#/$defs/ComplianceResponse
+              examples:
+                synthetic:
+                  externalValue: fixtures/normal/public-policy-response.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '400':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '404':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '409':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '422':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '429':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '500':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '502':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '503':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/api.schema.json#/$defs/PublicPolicyRequest
+              $ref: schemas/api.schema.json#/$defs/ComplianceRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
                 externalValue: fixtures/normal/public-policy-request.json
-  /api/v1/gateway-experiments:
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/experiments/gateway:
     post:
-      operationId: createGatewayExperiment
+      operationId: experimentGateway
       tags:
       - PUBLIC
       x-audience: PUBLIC
-      summary: createGatewayExperiment
+      summary: experimentGateway
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/experiment.schema.json#/$defs/GatewayExperimentResult
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
-                  externalValue: fixtures/normal/gateway-result.json
+                  externalValue: fixtures/gateway/block-result.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/api.schema.json#/$defs/PublicGatewayRequest
+              $ref: schemas/api.schema.json#/$defs/GatewayRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
-                externalValue: fixtures/normal/public-gateway-request.json
-  /api/v1/constellation-simulations:
+                externalValue: fixtures/api/gateway-request.json
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/experiments/constellation:
     post:
-      operationId: createConstellationSimulation
+      operationId: experimentConstellation
       tags:
       - PUBLIC
       x-audience: PUBLIC
-      summary: createConstellationSimulation
+      summary: experimentConstellation
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/experiment.schema.json#/$defs/ConstellationSimulationResult
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
-                  externalValue: fixtures/constellation/proof-satisfied-result.json
+                  externalValue: fixtures/constellation/mock-result.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/experiment.schema.json#/$defs/SimulationRequest
+              $ref: schemas/api.schema.json#/$defs/ConstellationRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
-                externalValue: fixtures/constellation/proof-satisfied-request.json
-  /internal/v1/collector/snapshots:
+                externalValue: fixtures/constellation/public-request.json
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /internal/v1/collect:
     post:
-      operationId: collectSnapshot
+      operationId: collect
       tags:
       - INTERNAL
       x-audience: INTERNAL
-      summary: collectSnapshot
+      summary: collect
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/collector.schema.json#/$defs/KYTDataSnapshot
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
                   externalValue: fixtures/normal/snapshot.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/collector.schema.json#/$defs/CollectionRequest
+              $ref: schemas/collector.schema.json#/$defs/KYTCollectionRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
                 externalValue: fixtures/normal/collection-request.json
-  /internal/v1/kyt/evaluations:
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /internal/v1/kyt/evaluate:
     post:
       operationId: evaluateKyt
       tags:
@@ -478,74 +1056,145 @@ paths:
       summary: evaluateKyt
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/kyt.schema.json#/$defs/KYTEvaluation
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
                   externalValue: fixtures/normal/evaluation.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/kyt.schema.json#/$defs/EvaluationRequest
+              $ref: schemas/kyt.schema.json#/$defs/KYTEvaluationRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
                 externalValue: fixtures/normal/evaluation-request.json
-  /internal/v1/policy/decisions:
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /internal/v1/policy/decide:
     post:
       operationId: decidePolicy
       tags:
@@ -554,226 +1203,435 @@ paths:
       summary: decidePolicy
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/policy.schema.json#/$defs/ComplianceDecision
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
                   externalValue: fixtures/normal/decision.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/policy.schema.json#/$defs/DecisionRequest
+              $ref: schemas/policy.schema.json#/$defs/PolicyDecisionRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
                 externalValue: fixtures/normal/policy-request.json
-  /internal/v1/gateway/experiments:
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /internal/v1/gateway/experiment:
     post:
-      operationId: runGatewayExperiment
+      operationId: runGateway
       tags:
       - INTERNAL
       x-audience: INTERNAL
-      summary: runGatewayExperiment
+      summary: runGateway
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/experiment.schema.json#/$defs/GatewayExperimentResult
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
-                  externalValue: fixtures/normal/gateway-result.json
+                  externalValue: fixtures/gateway/block-result.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/experiment.schema.json#/$defs/GatewayRequest
+              $ref: schemas/experiment.schema.json#/$defs/GatewayExperimentRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
-                externalValue: fixtures/normal/gateway-request.json
-  /internal/v1/constellation/simulations:
+                externalValue: fixtures/gateway/block-request.json
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /internal/v1/constellation/simulate:
     post:
-      operationId: runConstellationSimulation
+      operationId: runConstellation
       tags:
       - INTERNAL
       x-audience: INTERNAL
-      summary: runConstellationSimulation
+      summary: runConstellation
       responses:
         '200':
-          description: 성공
+          description: Success
           content:
             application/json:
               schema:
                 $ref: schemas/experiment.schema.json#/$defs/ConstellationSimulationResult
               examples:
                 synthetic:
-                  summary: 합성 데이터 예시
-                  externalValue: fixtures/constellation/proof-satisfied-result.json
+                  externalValue: fixtures/constellation/mock-result.json
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '400':
-          description: 잘못된 요청 또는 계약 검증 실패
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '404':
-          description: 리소스를 찾을 수 없음
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '409':
-          description: 참조/버전/상태 불일치
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '413':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
+        '415':
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '422':
-          description: 지원하지 않는 계약 버전
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '429':
-          description: 요청 제한
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '500':
-          description: 내부 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '502':
-          description: 상위 데이터 제공자 오류
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
         '503':
-          description: 일시적 서비스 불가
+          description: Structured error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: schemas/common.schema.json#/$defs/ErrorResponse
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                $ref: schemas/common.schema.json#/$defs/Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: schemas/experiment.schema.json#/$defs/SimulationRequest
+              $ref: schemas/experiment.schema.json#/$defs/ConstellationSimulationRequest
             examples:
               synthetic:
-                summary: 합성 데이터 예시
-                externalValue: fixtures/constellation/proof-satisfied-request.json
-components:
-  schemas:
-    ErrorResponse:
-      $ref: schemas/common.schema.json#/$defs/ErrorResponse
+                externalValue: fixtures/constellation/mock-request.json
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id

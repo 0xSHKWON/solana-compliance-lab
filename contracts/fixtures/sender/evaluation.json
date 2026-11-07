@@ -1,14 +1,10 @@
 {
   "schemaVersion": "0.1.0",
-  "evaluationId": "sender-evaluation",
+  "subjectAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
   "snapshotId": "sender-snapshot",
-  "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
-  "evaluatedAt": "2026-11-02T00:00:00Z",
-  "ruleSetId": "demo-rules",
-  "ruleSetVersion": "0.1.0",
-  "coverageStatus": "COMPLETE",
+  "rulesetVersion": "1.0.0",
   "riskScore": 0,
   "riskLevel": "LOW",
-  "findings": [],
-  "unevaluatedRuleIds": []
+  "detectedRules": [],
+  "evidences": []
 }

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "empty-analysis",
+  "requestId": "empty-request",
+  "status": "COMPLETED",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshotId": "empty-snapshot",
+  "coverage": {
+    "status": "COMPLETE",
+    "reasons": [],
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 0,
+    "transferCount": 0,
+    "reachedTimeBoundary": true
+  },
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
+  },
+  "evaluation": {
+    "schemaVersion": "0.1.0",
+    "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "snapshotId": "empty-snapshot",
+    "rulesetVersion": "1.0.0",
+    "riskScore": 0,
+    "riskLevel": "LOW",
+    "detectedRules": [],
+    "evidences": []
+  },
+  "error": null
+}

@@ -1,47 +1,16 @@
 {
   "schemaVersion": "0.1.0",
-  "decisionId": "sanctioned-decision",
-  "transferRequestId": "sanctioned-transfer-request",
-  "decision": "BLOCK",
-  "decidedAt": "2026-11-02T00:00:00Z",
-  "policyId": "demo-policy",
-  "policyVersion": "0.1.0",
-  "evaluationIds": [
-    "sender-evaluation",
-    "sanctioned-evaluation"
+  "decisionId": "decision-859a9cbc8d5c03ce71ab83e0940c1e8b2d2ff047e0bbabe7ee779bde056404e8",
+  "intentId": "sanctioned-intent",
+  "action": "BLOCK",
+  "riskScore": 100,
+  "riskLevel": "HIGH",
+  "reasonCodes": [
+    "SANCTION_EXACT_MATCH"
   ],
-  "executionMode": "SIMULATION_ONLY",
-  "reasons": [
-    {
-      "code": "RISK_POLICY_MATCH",
-      "message": "예시 정책에 따른 주소 위험 등급 판단",
-      "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
-      "evaluationId": "sender-evaluation",
-      "evidence": []
-    },
-    {
-      "code": "RISK_POLICY_MATCH",
-      "message": "예시 정책에 따른 주소 위험 등급 판단",
-      "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-      "evaluationId": "sanctioned-evaluation",
-      "evidence": [
-        {
-          "snapshotId": "sanctioned-snapshot",
-          "transferIds": [],
-          "labelIds": [
-            "synthetic-sanction"
-          ]
-        },
-        {
-          "snapshotId": "sanctioned-snapshot",
-          "transferIds": [
-            "sanctioned-transfer"
-          ],
-          "labelIds": [
-            "synthetic-sanction"
-          ]
-        }
-      ]
-    }
-  ]
+  "referencedEvidenceIds": [
+    "evidence-fddad3d4df2a3b78e608c95908369807c1e21ced0517ed11d07fa1dce18db584"
+  ],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
 }

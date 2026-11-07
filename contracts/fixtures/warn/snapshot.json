@@ -1,73 +1,92 @@
 {
   "schemaVersion": "0.1.0",
   "snapshotId": "warn-snapshot",
-  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-  "provenance": {
-    "mode": "FIXTURE",
-    "dataKind": "SYNTHETIC",
-    "network": "SOLANA_MAINNET",
-    "sourceName": "synthetic-demo",
-    "collectedAt": "2026-11-02T00:00:00Z",
-    "fixtureId": "warn"
+  "requestId": "warn-request",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "transfers": [
+    {
+      "id": "transfer-2",
+      "signature": "EyFYDWDhksPYpRk3DLzeW4izQagJZte6bKCQFagLYBdtJyaEyjbQpAWCbqDhHVymzjPJ4vdeHG1HHQp1qi6FhZD",
+      "slot": 102,
+      "timestamp": "2026-11-01T00:00:00Z",
+      "instructionIndex": 0,
+      "innerInstructionIndex": null,
+      "transferOrdinal": 0,
+      "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "toAddress": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+      "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "destinationAccount": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+      "asset": {
+        "type": "SOL",
+        "mint": null,
+        "decimals": 9
+      },
+      "amountRaw": "1000000000",
+      "ownerResolved": true
+    },
+    {
+      "id": "transfer-3",
+      "signature": "G8mkV3evpXRRoYdxZhzcnzCf2Nz5XoH2E1P22J9nLHMdFe81eJ9H8bToQEa5yYPqkD5pVRGXinFoe7TmQmWrkwE",
+      "slot": 103,
+      "timestamp": "2026-11-01T00:01:00Z",
+      "instructionIndex": 0,
+      "innerInstructionIndex": null,
+      "transferOrdinal": 0,
+      "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "toAddress": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+      "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "destinationAccount": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+      "asset": {
+        "type": "SOL",
+        "mint": null,
+        "decimals": 9
+      },
+      "amountRaw": "1000000000",
+      "ownerResolved": true
+    },
+    {
+      "id": "transfer-4",
+      "signature": "HJHxkb69tBTJnfXsv4zb5ugKeBHrVhuwrhZdo1dE8P5NCJfnJrh9T2RQCdvUfaouVgnLuuuRAJWKzp7WypwTpKF",
+      "slot": 104,
+      "timestamp": "2026-11-01T00:02:00Z",
+      "instructionIndex": 0,
+      "innerInstructionIndex": null,
+      "transferOrdinal": 0,
+      "fromAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "toAddress": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+      "sourceAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "destinationAccount": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+      "asset": {
+        "type": "SOL",
+        "mint": null,
+        "decimals": 9
+      },
+      "amountRaw": "1000000000",
+      "ownerResolved": true
+    }
+  ],
+  "labels": [],
+  "labelDataset": {
+    "source": "TEST_FIXTURE",
+    "version": "1.0.0",
+    "fetchedAt": "2026-11-02T00:00:00Z"
   },
   "coverage": {
     "status": "COMPLETE",
-    "requestedRange": {
-      "from": "2026-11-01T00:00:00Z",
-      "to": "2026-11-02T00:00:00Z"
-    },
-    "observedRange": {
-      "from": "2026-11-01T00:00:00Z",
-      "to": "2026-11-01T00:02:00Z"
-    },
-    "maxTransactions": 100,
-    "fetchedTransactionCount": 3,
-    "normalizedTransactionCount": 3,
-    "issues": []
+    "reasons": [],
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 3,
+    "transferCount": 3,
+    "reachedTimeBoundary": true
   },
-  "transfers": [
-    {
-      "transferId": "warn-transfer-1",
-      "signature": "BUguQsv2ZuHus54HAFzjdJHzZBkygAjKhEeYwSG19tUfUyvvz3worsdQCdAXDNjakJHioSiyxhFiDJrm8XpSXRA",
-      "slot": 1,
-      "blockTime": "2026-11-01T00:00:00Z",
-      "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-      "recipient": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
-      "asset": {
-        "kind": "SOL",
-        "mint": null,
-        "decimals": 9
-      },
-      "amountRaw": "1000000000"
-    },
-    {
-      "transferId": "warn-transfer-2",
-      "signature": "CeD7gRMFdZKnrBxCWczhvDmfAz4ke5NFKvqAi9jSwzCQReUhecVgBJb112WuuR9eVmzFDwMsQDWEa1WWhbF3aoB",
-      "slot": 2,
-      "blockTime": "2026-11-01T00:01:00Z",
-      "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-      "recipient": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
-      "asset": {
-        "kind": "SOL",
-        "mint": null,
-        "decimals": 9
-      },
-      "amountRaw": "1000000000"
-    },
-    {
-      "transferId": "warn-transfer-3",
-      "signature": "DojKwxnUhDMfqJr7ryzgD9FKnnNXbz1Axd1nUsCtk5v9NK2UKB3YVjYboRsJbTZiFFgmeRzkqjkkviAGGefeeBC",
-      "slot": 3,
-      "blockTime": "2026-11-01T00:02:00Z",
-      "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-      "recipient": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
-      "asset": {
-        "kind": "SOL",
-        "mint": null,
-        "decimals": 9
-      },
-      "amountRaw": "1000000000"
-    }
-  ],
-  "labels": []
+  "collectedAt": "2026-11-02T00:00:00Z",
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
+  }
 }

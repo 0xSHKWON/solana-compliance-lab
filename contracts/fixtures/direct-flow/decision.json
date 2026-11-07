@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-7e6e8faa18a19c031dfcb21308c142747c3f84139b1cdb4fb8165a0122dade76",
+  "intentId": "direct-flow-intent",
+  "action": "REVIEW",
+  "riskScore": 80,
+  "riskLevel": "HIGH",
+  "reasonCodes": [
+    "SANCTION_DIRECT_FLOW_REVIEW"
+  ],
+  "referencedEvidenceIds": [
+    "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556"
+  ],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

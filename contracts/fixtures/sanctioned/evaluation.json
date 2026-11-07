@@ -1,41 +1,48 @@
 {
   "schemaVersion": "0.1.0",
-  "evaluationId": "sanctioned-evaluation",
+  "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
   "snapshotId": "sanctioned-snapshot",
-  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-  "evaluatedAt": "2026-11-02T00:00:00Z",
-  "ruleSetId": "demo-rules",
-  "ruleSetVersion": "0.1.0",
-  "coverageStatus": "COMPLETE",
+  "rulesetVersion": "1.0.0",
   "riskScore": 100,
-  "riskLevel": "CRITICAL",
-  "findings": [
+  "riskLevel": "HIGH",
+  "detectedRules": [
     {
-      "findingId": "sanction-match",
-      "ruleId": "sanction-address",
-      "summary": "합성 제재 레이블과 분석 주소 일치",
-      "evidence": {
-        "snapshotId": "sanctioned-snapshot",
-        "transferIds": [],
-        "labelIds": [
-          "synthetic-sanction"
-        ]
-      }
-    },
-    {
-      "findingId": "sanction-transfer",
-      "ruleId": "sanction-direct",
-      "summary": "합성 제재 주소와 직접 자금 이동",
-      "evidence": {
-        "snapshotId": "sanctioned-snapshot",
-        "transferIds": [
-          "sanctioned-transfer"
-        ],
-        "labelIds": [
-          "synthetic-sanction"
-        ]
-      }
+      "ruleId": "SANCTION_EXACT",
+      "ruleVersion": "1.0.0",
+      "riskLevel": "HIGH",
+      "scoreContribution": 100,
+      "evidenceIds": [
+        "evidence-fddad3d4df2a3b78e608c95908369807c1e21ced0517ed11d07fa1dce18db584"
+      ]
     }
   ],
-  "unevaluatedRuleIds": []
+  "evidences": [
+    {
+      "evidenceId": "evidence-fddad3d4df2a3b78e608c95908369807c1e21ced0517ed11d07fa1dce18db584",
+      "type": "ADDRESS_LABEL",
+      "transactionSignatures": [],
+      "transferIds": [],
+      "relatedAddresses": [
+        "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+      ],
+      "labelReferenceIds": [
+        "synthetic-sanction-001"
+      ],
+      "source": {
+        "snapshotId": "sanctioned-snapshot",
+        "network": "mainnet-beta",
+        "mode": "FIXTURE",
+        "dataProvenance": {
+          "dataType": "SYNTHETIC",
+          "source": "TEST_FIXTURE",
+          "reference": "https://example.invalid/synthetic-fixtures"
+        },
+        "labelDataset": {
+          "source": "TEST_FIXTURE",
+          "version": "1.0.0",
+          "fetchedAt": "2026-11-02T00:00:00Z"
+        }
+      }
+    }
+  ]
 }

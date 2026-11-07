@@ -1,17 +1,10 @@
 {
   "schemaVersion": "0.1.0",
-  "evaluationId": "partial-evaluation",
+  "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
   "snapshotId": "partial-snapshot",
-  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-  "evaluatedAt": "2026-11-02T00:00:00Z",
-  "ruleSetId": "demo-rules",
-  "ruleSetVersion": "0.1.0",
-  "coverageStatus": "PARTIAL",
+  "rulesetVersion": "1.0.0",
   "riskScore": null,
-  "riskLevel": "UNKNOWN",
-  "findings": [],
-  "unevaluatedRuleIds": [
-    "sanction-address",
-    "sanction-direct"
-  ]
+  "riskLevel": null,
+  "detectedRules": [],
+  "evidences": []
 }

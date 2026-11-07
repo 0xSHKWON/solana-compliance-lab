@@ -1,0 +1,9 @@
+{
+  "intentId": "sanctioned-intent",
+  "decisionId": "decision-859a9cbc8d5c03ce71ab83e0940c1e8b2d2ff047e0bbabe7ee779bde056404e8",
+  "route": {
+    "routeId": "block",
+    "policyEnforced": true,
+    "warningAcknowledged": false
+  }
+}

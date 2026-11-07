@@ -2,10 +2,69 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/api.schema.json",
   "title": "api",
-  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
+  "$comment": "Unified team specifications; initial draft 0.1.0.",
   "$defs": {
     "AnalysisRequest": {
-      "$ref": "collector.schema.json#/$defs/CollectionRequest"
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "$ref": "common.schema.json#/$defs/Address"
+        },
+        "network": {
+          "$ref": "common.schema.json#/$defs/Network"
+        },
+        "mode": {
+          "$ref": "common.schema.json#/$defs/Mode"
+        },
+        "fixtureId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "scope": {
+          "$ref": "common.schema.json#/$defs/Scope"
+        },
+        "rulesetVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
+        }
+      },
+      "required": [
+        "address",
+        "network",
+        "mode",
+        "scope"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "FIXTURE"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "fixtureId"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "LIVE"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "fixtureId"
+              ]
+            }
+          }
+        }
+      ]
     },
     "AnalysisAccepted": {
       "type": "object",
@@ -17,18 +76,18 @@
         "analysisId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "status": {
-          "const": "QUEUED"
-        },
         "requestId": {
           "$ref": "common.schema.json#/$defs/Id"
+        },
+        "status": {
+          "const": "QUEUED"
         }
       },
       "required": [
         "schemaVersion",
         "analysisId",
-        "status",
-        "requestId"
+        "requestId",
+        "status"
       ]
     },
     "KYTAnalysisResult": {
@@ -47,16 +106,45 @@
         "status": {
           "$ref": "common.schema.json#/$defs/JobStatus"
         },
+        "address": {
+          "$ref": "common.schema.json#/$defs/Address"
+        },
+        "network": {
+          "$ref": "common.schema.json#/$defs/Network"
+        },
+        "mode": {
+          "$ref": "common.schema.json#/$defs/Mode"
+        },
         "createdAt": {
           "$ref": "common.schema.json#/$defs/UtcTimestamp"
         },
         "updatedAt": {
           "$ref": "common.schema.json#/$defs/UtcTimestamp"
         },
-        "snapshot": {
+        "snapshotId": {
           "anyOf": [
             {
-              "$ref": "collector.schema.json#/$defs/KYTDataSnapshot"
+              "$ref": "common.schema.json#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "collector.schema.json#/$defs/Coverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataProvenance": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/DataProvenance"
             },
             {
               "type": "null"
@@ -89,9 +177,14 @@
         "analysisId",
         "requestId",
         "status",
+        "address",
+        "network",
+        "mode",
         "createdAt",
         "updatedAt",
-        "snapshot",
+        "snapshotId",
+        "coverage",
+        "dataProvenance",
         "evaluation",
         "error"
       ],
@@ -109,7 +202,13 @@
           },
           "then": {
             "properties": {
-              "snapshot": {
+              "snapshotId": {
+                "type": "null"
+              },
+              "coverage": {
+                "type": "null"
+              },
+              "dataProvenance": {
                 "type": "null"
               },
               "evaluation": {
@@ -134,8 +233,14 @@
           },
           "then": {
             "properties": {
-              "snapshot": {
-                "$ref": "collector.schema.json#/$defs/KYTDataSnapshot"
+              "snapshotId": {
+                "$ref": "common.schema.json#/$defs/Id"
+              },
+              "coverage": {
+                "$ref": "collector.schema.json#/$defs/Coverage"
+              },
+              "dataProvenance": {
+                "$ref": "common.schema.json#/$defs/DataProvenance"
               },
               "evaluation": {
                 "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
@@ -156,21 +261,20 @@
           },
           "then": {
             "properties": {
-              "snapshot": {
+              "coverage": {
                 "properties": {
-                  "coverage": {
-                    "properties": {
-                      "status": {
-                        "const": "COMPLETE"
-                      }
-                    }
+                  "status": {
+                    "const": "COMPLETE"
                   }
                 }
               },
               "evaluation": {
                 "properties": {
-                  "coverageStatus": {
-                    "const": "COMPLETE"
+                  "riskScore": {
+                    "type": "integer"
+                  },
+                  "riskLevel": {
+                    "$ref": "common.schema.json#/$defs/RiskLevel"
                   }
                 }
               }
@@ -187,21 +291,20 @@
           },
           "then": {
             "properties": {
-              "snapshot": {
+              "coverage": {
                 "properties": {
-                  "coverage": {
-                    "properties": {
-                      "status": {
-                        "const": "PARTIAL"
-                      }
-                    }
+                  "status": {
+                    "const": "PARTIAL"
                   }
                 }
               },
               "evaluation": {
                 "properties": {
-                  "coverageStatus": {
-                    "const": "PARTIAL"
+                  "riskScore": {
+                    "type": "null"
+                  },
+                  "riskLevel": {
+                    "type": "null"
                   }
                 }
               }
@@ -218,39 +321,90 @@
           },
           "then": {
             "properties": {
-              "snapshot": {
+              "error": {
+                "$ref": "common.schema.json#/$defs/Error"
+              },
+              "snapshotId": {
+                "type": "null"
+              },
+              "coverage": {
+                "type": "null"
+              },
+              "dataProvenance": {
                 "type": "null"
               },
               "evaluation": {
                 "type": "null"
-              },
-              "error": {
-                "$ref": "common.schema.json#/$defs/Error"
               }
             }
           }
         }
       ]
     },
-    "PublicPolicyRequest": {
+    "TransferPage": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "schemaVersion": {
           "const": "0.1.0"
         },
-        "transferRequest": {
-          "$ref": "policy.schema.json#/$defs/TransferRequest"
+        "analysisId": {
+          "$ref": "common.schema.json#/$defs/Id"
         },
-        "analysisIds": {
+        "snapshotId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "items": {
           "type": "array",
           "items": {
-            "$ref": "common.schema.json#/$defs/Id"
-          },
-          "maxItems": 2,
-          "uniqueItems": true
+            "$ref": "collector.schema.json#/$defs/NormalizedTransfer"
+          }
         },
-        "policyId": {
+        "pagination": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "nextCursor": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "limit",
+            "nextCursor"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "analysisId",
+        "snapshotId",
+        "items",
+        "pagination"
+      ]
+    },
+    "ComplianceRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intent": {
+          "$ref": "policy.schema.json#/$defs/TransactionIntent"
+        },
+        "senderAnalysisId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "recipientAnalysisId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
         "policyVersion": {
@@ -258,56 +412,95 @@
         }
       },
       "required": [
-        "schemaVersion",
-        "transferRequest",
-        "analysisIds",
-        "policyId",
+        "intent",
+        "senderAnalysisId",
+        "recipientAnalysisId",
         "policyVersion"
       ]
     },
-    "PublicGatewayRequest": {
+    "ComplianceResponse": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "schemaVersion": {
           "const": "0.1.0"
         },
-        "transferRequestId": {
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "intent": {
+          "$ref": "policy.schema.json#/$defs/TransactionIntent"
+        },
+        "assessments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sender": {
+              "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
+            },
+            "recipient": {
+              "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
+            }
+          },
+          "required": [
+            "sender",
+            "recipient"
+          ]
+        },
+        "decision": {
+          "$ref": "policy.schema.json#/$defs/ComplianceDecision"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "intent",
+        "assessments",
+        "decision"
+      ]
+    },
+    "GatewayRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intentId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
         "decisionId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "routes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "routeId": {
-                "$ref": "common.schema.json#/$defs/Id"
-              },
-              "appliesPolicy": {
-                "type": "boolean"
-              },
-              "userConfirmedWarning": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "routeId",
-              "appliesPolicy",
-              "userConfirmedWarning"
-            ]
-          },
-          "minItems": 1
+        "route": {
+          "$ref": "experiment.schema.json#/$defs/GatewayRoute"
         }
       },
       "required": [
-        "schemaVersion",
-        "transferRequestId",
+        "intentId",
         "decisionId",
-        "routes"
+        "route"
+      ]
+    },
+    "ConstellationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intentId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "decisionId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "protocolModelVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
+        },
+        "scenario": {
+          "$ref": "experiment.schema.json#/$defs/ConstellationScenario"
+        }
+      },
+      "required": [
+        "intentId",
+        "decisionId",
+        "protocolModelVersion",
+        "scenario"
       ]
     }
   }

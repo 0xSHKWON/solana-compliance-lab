@@ -1,30 +1,14 @@
 {
   "schemaVersion": "0.1.0",
-  "decisionId": "normal-decision",
-  "transferRequestId": "normal-transfer-request",
-  "decision": "ALLOW",
-  "decidedAt": "2026-11-02T00:00:00Z",
-  "policyId": "demo-policy",
-  "policyVersion": "0.1.0",
-  "evaluationIds": [
-    "sender-evaluation",
-    "normal-evaluation"
+  "decisionId": "decision-b93f545078067301da12817e12b264f71d94611e0166693a25ae48b7a447e243",
+  "intentId": "normal-intent",
+  "action": "ALLOW",
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "reasonCodes": [
+    "NO_RISK_SIGNALS"
   ],
-  "executionMode": "SIMULATION_ONLY",
-  "reasons": [
-    {
-      "code": "RISK_POLICY_MATCH",
-      "message": "예시 정책에 따른 주소 위험 등급 판단",
-      "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
-      "evaluationId": "sender-evaluation",
-      "evidence": []
-    },
-    {
-      "code": "RISK_POLICY_MATCH",
-      "message": "예시 정책에 따른 주소 위험 등급 판단",
-      "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-      "evaluationId": "normal-evaluation",
-      "evidence": []
-    }
-  ]
+  "referencedEvidenceIds": [],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
 }

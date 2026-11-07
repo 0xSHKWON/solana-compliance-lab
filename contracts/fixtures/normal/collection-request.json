@@ -1,11 +1,12 @@
 {
-  "schemaVersion": "0.1.0",
-  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
-  "timeRange": {
-    "from": "2026-11-01T00:00:00Z",
-    "to": "2026-11-02T00:00:00Z"
-  },
-  "maxTransactions": 100,
+  "requestId": "normal-request",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
   "mode": "FIXTURE",
-  "fixtureId": "normal"
+  "fixtureId": "normal",
+  "scope": {
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "maxTransactions": 100
+  }
 }

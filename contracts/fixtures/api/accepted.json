@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1.0",
-  "analysisId": "example-analysis",
-  "status": "QUEUED",
-  "requestId": "example-request"
+  "analysisId": "normal-analysis",
+  "requestId": "normal-request",
+  "status": "QUEUED"
 }

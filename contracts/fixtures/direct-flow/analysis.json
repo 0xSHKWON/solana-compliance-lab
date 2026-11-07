@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "direct-flow-analysis",
+  "requestId": "direct-flow-request",
+  "status": "COMPLETED",
+  "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshotId": "direct-flow-snapshot",
+  "coverage": {
+    "status": "COMPLETE",
+    "reasons": [],
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 1,
+    "transferCount": 1,
+    "reachedTimeBoundary": true
+  },
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
+  },
+  "evaluation": {
+    "schemaVersion": "0.1.0",
+    "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "snapshotId": "direct-flow-snapshot",
+    "rulesetVersion": "1.0.0",
+    "riskScore": 80,
+    "riskLevel": "HIGH",
+    "detectedRules": [
+      {
+        "ruleId": "SANCTION_DIRECT_FLOW",
+        "ruleVersion": "1.0.0",
+        "riskLevel": "HIGH",
+        "scoreContribution": 80,
+        "evidenceIds": [
+          "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556"
+        ]
+      }
+    ],
+    "evidences": [
+      {
+        "evidenceId": "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556",
+        "type": "DIRECT_FLOW",
+        "transactionSignatures": [
+          "DojKwxnUhDMfqJr7ryzgD9FKnnNXbz1Axd1nUsCtk5v9NK2UKB3YVjYboRsJbTZiFFgmeRzkqjkkviAGGefeeBC"
+        ],
+        "transferIds": [
+          "transfer-1"
+        ],
+        "relatedAddresses": [
+          "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+          "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+        ],
+        "labelReferenceIds": [
+          "synthetic-sanction-001"
+        ],
+        "source": {
+          "snapshotId": "direct-flow-snapshot",
+          "network": "mainnet-beta",
+          "mode": "FIXTURE",
+          "dataProvenance": {
+            "dataType": "SYNTHETIC",
+            "source": "TEST_FIXTURE",
+            "reference": "https://example.invalid/synthetic-fixtures"
+          },
+          "labelDataset": {
+            "source": "TEST_FIXTURE",
+            "version": "1.0.0",
+            "fetchedAt": "2026-11-02T00:00:00Z"
+          }
+        }
+      }
+    ]
+  },
+  "error": null
+}

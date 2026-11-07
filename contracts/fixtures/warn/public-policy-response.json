@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "0.1.0",
+  "requestId": "warn-public-policy-request",
+  "intent": {
+    "intentId": "warn-intent",
+    "network": "mainnet-beta",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "type": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z"
+  },
+  "assessments": {
+    "sender": {
+      "schemaVersion": "0.1.0",
+      "subjectAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "snapshotId": "sender-snapshot",
+      "rulesetVersion": "1.0.0",
+      "riskScore": 0,
+      "riskLevel": "LOW",
+      "detectedRules": [],
+      "evidences": []
+    },
+    "recipient": {
+      "schemaVersion": "0.1.0",
+      "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "snapshotId": "warn-snapshot",
+      "rulesetVersion": "1.0.0",
+      "riskScore": 35,
+      "riskLevel": "MEDIUM",
+      "detectedRules": [
+        {
+          "ruleId": "RAPID_FAN_OUT",
+          "ruleVersion": "1.0.0",
+          "riskLevel": "MEDIUM",
+          "scoreContribution": 35,
+          "evidenceIds": [
+            "evidence-c9986ec4bcca988babe2a6cde600494d73aa6e1a28335b650c0beccef9c83729"
+          ]
+        }
+      ],
+      "evidences": [
+        {
+          "evidenceId": "evidence-c9986ec4bcca988babe2a6cde600494d73aa6e1a28335b650c0beccef9c83729",
+          "type": "TEMPORAL_PATTERN",
+          "transactionSignatures": [
+            "EyFYDWDhksPYpRk3DLzeW4izQagJZte6bKCQFagLYBdtJyaEyjbQpAWCbqDhHVymzjPJ4vdeHG1HHQp1qi6FhZD",
+            "G8mkV3evpXRRoYdxZhzcnzCf2Nz5XoH2E1P22J9nLHMdFe81eJ9H8bToQEa5yYPqkD5pVRGXinFoe7TmQmWrkwE",
+            "HJHxkb69tBTJnfXsv4zb5ugKeBHrVhuwrhZdo1dE8P5NCJfnJrh9T2RQCdvUfaouVgnLuuuRAJWKzp7WypwTpKF"
+          ],
+          "transferIds": [
+            "transfer-2",
+            "transfer-3",
+            "transfer-4"
+          ],
+          "relatedAddresses": [
+            "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+            "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+            "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+            "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY"
+          ],
+          "labelReferenceIds": [],
+          "source": {
+            "snapshotId": "warn-snapshot",
+            "network": "mainnet-beta",
+            "mode": "FIXTURE",
+            "dataProvenance": {
+              "dataType": "SYNTHETIC",
+              "source": "TEST_FIXTURE",
+              "reference": "https://example.invalid/synthetic-fixtures"
+            },
+            "labelDataset": {
+              "source": "TEST_FIXTURE",
+              "version": "1.0.0",
+              "fetchedAt": "2026-11-02T00:00:00Z"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "decision": {
+    "schemaVersion": "0.1.0",
+    "decisionId": "decision-79d95cfaca0ed117e9943378afaf6f4948f5d1ac63cdd9e4e915dba4710cb017",
+    "intentId": "warn-intent",
+    "action": "WARN",
+    "riskScore": 35,
+    "riskLevel": "MEDIUM",
+    "reasonCodes": [
+      "RISK_SIGNALS_DETECTED"
+    ],
+    "referencedEvidenceIds": [
+      "evidence-c9986ec4bcca988babe2a6cde600494d73aa6e1a28335b650c0beccef9c83729"
+    ],
+    "policyVersion": "1.0.0",
+    "evaluatedAt": "2026-11-02T00:00:00Z"
+  }
+}

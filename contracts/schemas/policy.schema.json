@@ -2,15 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/policy.schema.json",
   "title": "policy",
-  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
-  "$ref": "#/$defs/ComplianceDecision",
+  "$comment": "Unified team specifications; initial draft 0.1.0.",
   "$defs": {
-    "TransferRequest": {
+    "TransactionIntent": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "transferRequestId": {
+        "intentId": {
           "$ref": "common.schema.json#/$defs/Id"
+        },
+        "network": {
+          "$ref": "common.schema.json#/$defs/Network"
         },
         "sender": {
           "$ref": "common.schema.json#/$defs/Address"
@@ -27,155 +29,67 @@
         },
         "requestedAt": {
           "$ref": "common.schema.json#/$defs/UtcTimestamp"
-        },
-        "executionMode": {
-          "const": "SIMULATION_ONLY"
         }
       },
       "required": [
-        "transferRequestId",
+        "intentId",
+        "network",
         "sender",
         "recipient",
         "asset",
         "amountRaw",
-        "requestedAt",
-        "executionMode"
+        "requestedAt"
       ]
     },
-    "PolicyConfig": {
+    "PolicyDecisionRequest": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "policyId": {
+        "requestId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "version": {
-          "$ref": "common.schema.json#/$defs/Version"
+        "intent": {
+          "$ref": "policy.schema.json#/$defs/TransactionIntent"
         },
-        "riskActions": {
+        "assessments": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "LOW": {
-              "$ref": "common.schema.json#/$defs/Decision"
+            "sender": {
+              "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
             },
-            "MEDIUM": {
-              "$ref": "common.schema.json#/$defs/Decision"
-            },
-            "HIGH": {
-              "$ref": "common.schema.json#/$defs/Decision"
-            },
-            "CRITICAL": {
-              "$ref": "common.schema.json#/$defs/Decision"
+            "recipient": {
+              "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
             }
           },
           "required": [
-            "LOW",
-            "MEDIUM",
-            "HIGH",
-            "CRITICAL"
+            "sender",
+            "recipient"
           ]
         },
-        "onMissingEvaluation": {
-          "const": "REVIEW"
-        },
-        "onPartialData": {
-          "const": "REVIEW"
-        },
-        "onUnknownRisk": {
-          "const": "REVIEW"
-        },
-        "maxEvaluationAgeSeconds": {
-          "type": "integer",
-          "minimum": 1
+        "policyVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
         }
       },
       "required": [
-        "policyId",
-        "version",
-        "riskActions",
-        "onMissingEvaluation",
-        "onPartialData",
-        "onUnknownRisk",
-        "maxEvaluationAgeSeconds"
+        "requestId",
+        "intent",
+        "assessments",
+        "policyVersion"
       ]
     },
-    "DecisionRequest": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "schemaVersion": {
-          "const": "0.1.0"
-        },
-        "transferRequest": {
-          "$ref": "policy.schema.json#/$defs/TransferRequest"
-        },
-        "evaluations": {
-          "type": "array",
-          "items": {
-            "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
-          },
-          "maxItems": 2
-        },
-        "policy": {
-          "$ref": "policy.schema.json#/$defs/PolicyConfig"
-        },
-        "asOf": {
-          "$ref": "common.schema.json#/$defs/UtcTimestamp"
-        }
-      },
-      "required": [
-        "schemaVersion",
-        "transferRequest",
-        "evaluations",
-        "policy",
-        "asOf"
-      ]
-    },
-    "Reason": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "type": "string",
-          "enum": [
-            "RISK_POLICY_MATCH",
-            "MISSING_EVALUATION",
-            "PARTIAL_DATA",
-            "UNKNOWN_RISK",
-            "STALE_EVALUATION"
-          ]
-        },
-        "message": {
-          "type": "string",
-          "minLength": 1
-        },
-        "walletAddress": {
-          "$ref": "common.schema.json#/$defs/Address"
-        },
-        "evaluationId": {
-          "anyOf": [
-            {
-              "$ref": "common.schema.json#/$defs/Id"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "evidence": {
-          "type": "array",
-          "items": {
-            "$ref": "common.schema.json#/$defs/EvidenceRef"
-          }
-        }
-      },
-      "required": [
-        "code",
-        "message",
-        "walletAddress",
-        "evaluationId",
-        "evidence"
+    "ReasonCode": {
+      "type": "string",
+      "enum": [
+        "NO_RISK_SIGNALS",
+        "SANCTION_EXACT_MATCH",
+        "SANCTION_DIRECT_FLOW_REVIEW",
+        "SANCTION_DIRECT_FLOW_BLOCK",
+        "INSUFFICIENT_ASSESSMENT",
+        "RISK_SIGNALS_DETECTED",
+        "HIGH_RISK_REVIEW",
+        "HIGH_RISK_BLOCK",
+        "HIGH_RISK_WARN"
       ]
     },
     "ComplianceDecision": {
@@ -188,51 +102,177 @@
         "decisionId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "transferRequestId": {
+        "intentId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "decision": {
-          "$ref": "common.schema.json#/$defs/Decision"
+        "action": {
+          "$ref": "common.schema.json#/$defs/Action"
         },
-        "decidedAt": {
-          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        "riskScore": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "policyId": {
-          "$ref": "common.schema.json#/$defs/Id"
+        "riskLevel": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/RiskLevel"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "policyVersion": {
-          "$ref": "common.schema.json#/$defs/Version"
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "$ref": "policy.schema.json#/$defs/ReasonCode"
+          },
+          "minItems": 1,
+          "uniqueItems": true
         },
-        "evaluationIds": {
+        "referencedEvidenceIds": {
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/Id"
           },
           "uniqueItems": true
         },
-        "reasons": {
-          "type": "array",
-          "items": {
-            "$ref": "policy.schema.json#/$defs/Reason"
-          },
-          "minItems": 1
+        "policyVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
         },
-        "executionMode": {
-          "const": "SIMULATION_ONLY"
+        "evaluatedAt": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
         }
       },
       "required": [
         "schemaVersion",
         "decisionId",
-        "transferRequestId",
-        "decision",
-        "decidedAt",
-        "policyId",
+        "intentId",
+        "action",
+        "riskScore",
+        "riskLevel",
+        "reasonCodes",
+        "referencedEvidenceIds",
         "policyVersion",
-        "evaluationIds",
-        "reasons",
-        "executionMode"
+        "evaluatedAt"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "riskScore": {
+                "const": null
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "riskLevel": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "riskLevel": {
+                "$ref": "common.schema.json#/$defs/RiskLevel"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "riskScore": {
+                "const": 0
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "riskLevel": {
+                "const": "LOW"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "riskScore": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "riskLevel": {
+                "type": "string",
+                "enum": [
+                  "MEDIUM",
+                  "HIGH"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "$ref": "common.schema.json#/$defs/Version"
+        },
+        "supportedRulesetVersions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Version"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "directFlowAction": {
+          "type": "string",
+          "enum": [
+            "REVIEW",
+            "BLOCK"
+          ]
+        },
+        "warningAction": {
+          "type": "string",
+          "enum": [
+            "WARN",
+            "REVIEW"
+          ]
+        },
+        "highRiskAction": {
+          "type": "string",
+          "enum": [
+            "WARN",
+            "REVIEW",
+            "BLOCK"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "supportedRulesetVersions",
+        "directFlowAction",
+        "warningAction",
+        "highRiskAction"
       ]
     }
-  }
+  },
+  "$ref": "#/$defs/ComplianceDecision"
 }

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "review-experiment",
+  "intentId": "partial-intent",
+  "routeId": "review",
+  "outcome": "REVIEW_REQUIRED",
+  "policyApplied": true,
+  "reasonCodes": [
+    "POLICY_REVIEW"
+  ],
+  "actualBroadcast": false
+}

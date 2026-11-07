@@ -1,0 +1,18 @@
+{
+  "intent": {
+    "intentId": "repeat-intent",
+    "network": "mainnet-beta",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "type": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z"
+  },
+  "senderAnalysisId": "sender-analysis",
+  "recipientAnalysisId": "repeat-analysis",
+  "policyVersion": "1.0.0"
+}

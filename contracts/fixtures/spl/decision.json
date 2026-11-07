@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-a7696cd41cb772269010c9a9d09ad8d4bee2e1a44bda8f0be8e10f648a722973",
+  "intentId": "spl-intent",
+  "action": "ALLOW",
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "reasonCodes": [
+    "NO_RISK_SIGNALS"
+  ],
+  "referencedEvidenceIds": [],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

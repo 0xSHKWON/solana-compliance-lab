@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "highRiskThreshold": 70,
+  "rules": {
+    "SANCTION_EXACT": {
+      "ruleVersion": "1.0.0",
+      "enabled": true,
+      "score": 100,
+      "riskLevel": "HIGH"
+    },
+    "SANCTION_DIRECT_FLOW": {
+      "ruleVersion": "1.0.0",
+      "enabled": true,
+      "score": 80,
+      "riskLevel": "HIGH"
+    },
+    "RAPID_FAN_OUT": {
+      "ruleVersion": "1.0.0",
+      "enabled": true,
+      "score": 35,
+      "riskLevel": "MEDIUM",
+      "windowSeconds": 300,
+      "minRecipients": 3
+    },
+    "RAPID_REPEAT": {
+      "ruleVersion": "1.0.0",
+      "enabled": true,
+      "score": 25,
+      "riskLevel": "MEDIUM",
+      "windowSeconds": 60,
+      "minTransactions": 3
+    }
+  }
+}

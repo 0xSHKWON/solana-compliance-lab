@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "0.1.0",
+  "subjectAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "snapshotId": "partial-sanctioned-snapshot",
+  "rulesetVersion": "1.0.0",
+  "riskScore": null,
+  "riskLevel": null,
+  "detectedRules": [
+    {
+      "ruleId": "SANCTION_EXACT",
+      "ruleVersion": "1.0.0",
+      "riskLevel": "HIGH",
+      "scoreContribution": 100,
+      "evidenceIds": [
+        "evidence-df1aaca81368a38b6803095c62a3dd37e8515c257e6a2a1aff3a22209ae85b5b"
+      ]
+    }
+  ],
+  "evidences": [
+    {
+      "evidenceId": "evidence-df1aaca81368a38b6803095c62a3dd37e8515c257e6a2a1aff3a22209ae85b5b",
+      "type": "ADDRESS_LABEL",
+      "transactionSignatures": [],
+      "transferIds": [],
+      "relatedAddresses": [
+        "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+      ],
+      "labelReferenceIds": [
+        "synthetic-sanction-001"
+      ],
+      "source": {
+        "snapshotId": "partial-sanctioned-snapshot",
+        "network": "mainnet-beta",
+        "mode": "FIXTURE",
+        "dataProvenance": {
+          "dataType": "SYNTHETIC",
+          "source": "TEST_FIXTURE",
+          "reference": "https://example.invalid/synthetic-fixtures"
+        },
+        "labelDataset": {
+          "source": "TEST_FIXTURE",
+          "version": "1.0.0",
+          "fetchedAt": "2026-11-02T00:00:00Z"
+        }
+      }
+    }
+  ]
+}

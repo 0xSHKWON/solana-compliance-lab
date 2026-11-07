@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-81fe2ab27aeba615c714207102f8d960934d4a1e5430650fbb48553cf9aaad7f",
+  "intentId": "direct-flow-intent",
+  "action": "BLOCK",
+  "riskScore": 80,
+  "riskLevel": "HIGH",
+  "reasonCodes": [
+    "SANCTION_DIRECT_FLOW_BLOCK"
+  ],
+  "referencedEvidenceIds": [
+    "evidence-97813b714f6de1212a6eb4aefbc4872f2bf3e6a059bd3aee91086403093cc556"
+  ],
+  "policyVersion": "1.1.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

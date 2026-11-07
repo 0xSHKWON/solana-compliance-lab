@@ -1,22 +1,18 @@
 {
-  "schemaVersion": "0.1.0",
-  "transferRequest": {
-    "transferRequestId": "sanctioned-transfer-request",
+  "intent": {
+    "intentId": "sanctioned-intent",
+    "network": "mainnet-beta",
     "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
     "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
     "asset": {
-      "kind": "SOL",
+      "type": "SOL",
       "mint": null,
       "decimals": 9
     },
     "amountRaw": "1000000000",
-    "requestedAt": "2026-11-02T00:00:00Z",
-    "executionMode": "SIMULATION_ONLY"
+    "requestedAt": "2026-11-02T00:00:00Z"
   },
-  "analysisIds": [
-    "sender-analysis",
-    "sanctioned-analysis"
-  ],
-  "policyId": "demo-policy",
-  "policyVersion": "0.1.0"
+  "senderAnalysisId": "sender-analysis",
+  "recipientAnalysisId": "sanctioned-analysis",
+  "policyVersion": "1.0.0"
 }

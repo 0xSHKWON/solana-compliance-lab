@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-3f2b65c20b4c30df5932bf6a4cfb760896179d4ebb05aabb3e44edd95d158ced",
+  "intentId": "partial-sanctioned-intent",
+  "action": "BLOCK",
+  "riskScore": null,
+  "riskLevel": null,
+  "reasonCodes": [
+    "INSUFFICIENT_ASSESSMENT",
+    "SANCTION_EXACT_MATCH"
+  ],
+  "referencedEvidenceIds": [
+    "evidence-df1aaca81368a38b6803095c62a3dd37e8515c257e6a2a1aff3a22209ae85b5b"
+  ],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-c8d00ad2d70c90eb03f4c234b403cbc6a40fa624d6dc8b2c20bb6677c9d154f2",
+  "intentId": "token-2022-intent",
+  "action": "ALLOW",
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "reasonCodes": [
+    "NO_RISK_SIGNALS"
+  ],
+  "referencedEvidenceIds": [],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

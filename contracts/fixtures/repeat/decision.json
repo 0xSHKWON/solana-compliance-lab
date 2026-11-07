@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "decision-56b43b8f41173d3ef57711ba5410c48a206af8028d60ed6f271205e55c344d58",
+  "intentId": "repeat-intent",
+  "action": "WARN",
+  "riskScore": 25,
+  "riskLevel": "MEDIUM",
+  "reasonCodes": [
+    "RISK_SIGNALS_DETECTED"
+  ],
+  "referencedEvidenceIds": [
+    "evidence-184b4398ca1b76d4f8bd76a4a6011d3c25677e1e835c869e3367578ab9b7f593"
+  ],
+  "policyVersion": "1.0.0",
+  "evaluatedAt": "2026-11-02T00:00:00Z"
+}

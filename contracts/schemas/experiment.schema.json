@@ -2,98 +2,61 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/experiment.schema.json",
   "title": "experiment",
-  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
+  "$comment": "Unified team specifications; initial draft 0.1.0.",
   "$defs": {
-    "GatewayRequest": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "schemaVersion": {
-          "const": "0.1.0"
-        },
-        "experimentId": {
-          "$ref": "common.schema.json#/$defs/Id"
-        },
-        "transferRequest": {
-          "$ref": "policy.schema.json#/$defs/TransferRequest"
-        },
-        "complianceDecision": {
-          "$ref": "policy.schema.json#/$defs/ComplianceDecision"
-        },
-        "routes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "routeId": {
-                "$ref": "common.schema.json#/$defs/Id"
-              },
-              "appliesPolicy": {
-                "type": "boolean"
-              },
-              "userConfirmedWarning": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "routeId",
-              "appliesPolicy",
-              "userConfirmedWarning"
-            ]
-          },
-          "minItems": 1
-        }
-      },
-      "required": [
-        "schemaVersion",
-        "experimentId",
-        "transferRequest",
-        "complianceDecision",
-        "routes"
-      ]
-    },
-    "GatewayRouteResult": {
+    "GatewayRoute": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "routeId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "policyApplied": {
+        "policyEnforced": {
           "type": "boolean"
         },
-        "outcome": {
-          "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "REJECTED",
-            "AWAITING_CONFIRMATION",
-            "HELD_FOR_REVIEW"
-          ]
-        },
-        "reasonCode": {
-          "type": "string",
-          "enum": [
-            "POLICY_ALLOW",
-            "POLICY_BLOCK",
-            "POLICY_REVIEW",
-            "WARNING_CONFIRMATION_REQUIRED",
-            "WARNING_CONFIRMED",
-            "POLICY_NOT_APPLIED"
-          ]
-        },
-        "message": {
-          "type": "string",
-          "minLength": 1
+        "warningAcknowledged": {
+          "type": "boolean"
         }
       },
       "required": [
         "routeId",
-        "policyApplied",
-        "outcome",
-        "reasonCode",
-        "message"
+        "policyEnforced",
+        "warningAcknowledged"
+      ]
+    },
+    "GatewayExperimentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "intent": {
+          "$ref": "policy.schema.json#/$defs/TransactionIntent"
+        },
+        "decision": {
+          "$ref": "policy.schema.json#/$defs/ComplianceDecision"
+        },
+        "route": {
+          "$ref": "experiment.schema.json#/$defs/GatewayRoute"
+        }
+      },
+      "required": [
+        "requestId",
+        "intent",
+        "decision",
+        "route"
+      ]
+    },
+    "GatewayReason": {
+      "type": "string",
+      "enum": [
+        "POLICY_NOT_ENFORCED",
+        "POLICY_ALLOW",
+        "POLICY_BLOCK",
+        "POLICY_REVIEW",
+        "WARNING_NOT_ACKNOWLEDGED",
+        "WARNING_ACKNOWLEDGED"
       ]
     },
     "GatewayExperimentResult": {
@@ -106,110 +69,124 @@
         "experimentId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "transferRequestId": {
+        "intentId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "decisionId": {
+        "routeId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "executionMode": {
-          "const": "SIMULATION_ONLY"
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "SUBMISSION_ALLOWED",
+            "SUBMISSION_REJECTED",
+            "REVIEW_REQUIRED"
+          ]
         },
-        "executedAt": {
-          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        "policyApplied": {
+          "type": "boolean"
         },
-        "routes": {
+        "reasonCodes": {
           "type": "array",
           "items": {
-            "$ref": "experiment.schema.json#/$defs/GatewayRouteResult"
+            "$ref": "experiment.schema.json#/$defs/GatewayReason"
           },
-          "minItems": 1
+          "minItems": 1,
+          "uniqueItems": true
         },
-        "networkSubmitted": {
+        "actualBroadcast": {
           "const": false
         }
       },
       "required": [
         "schemaVersion",
         "experimentId",
-        "transferRequestId",
-        "decisionId",
-        "executionMode",
-        "executedAt",
-        "routes",
-        "networkSubmitted"
+        "intentId",
+        "routeId",
+        "outcome",
+        "policyApplied",
+        "reasonCodes",
+        "actualBroadcast"
       ]
     },
-    "SimulationRequest": {
+    "ConstellationScenario": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "schemaVersion": {
-          "const": "0.1.0"
+        "proposerCount": {
+          "type": "integer",
+          "minimum": 1
         },
-        "simulationId": {
-          "$ref": "common.schema.json#/$defs/Id"
+        "rejectingProposerCount": {
+          "type": "integer",
+          "minimum": 0
         },
-        "transferRequestId": {
-          "$ref": "common.schema.json#/$defs/Id"
+        "submittedToAcceptingProposer": {
+          "type": "boolean"
         },
-        "modelVersion": {
-          "$ref": "common.schema.json#/$defs/Version"
+        "psliceAvailable": {
+          "type": "boolean"
         },
-        "assumptionsVersion": {
-          "$ref": "common.schema.json#/$defs/Version"
-        },
-        "proposers": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "proposerId": {
-                "$ref": "common.schema.json#/$defs/Id"
-              },
-              "acceptsTransaction": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "proposerId",
-              "acceptsTransaction"
-            ]
-          },
-          "minItems": 1
-        },
-        "proof": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "conditionSatisfied": {
-              "type": "boolean"
-            },
-            "assumption": {
-              "type": "string",
-              "minLength": 1,
-              "description": "독립적인 증명 조건 입력. 제안자 수만으로 도출하지 않습니다."
-            }
-          },
-          "required": [
-            "conditionSatisfied",
-            "assumption"
-          ]
+        "attestationPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
         },
         "leaderAttemptsExclusion": {
           "type": "boolean"
         }
       },
       "required": [
-        "schemaVersion",
-        "simulationId",
-        "transferRequestId",
-        "modelVersion",
-        "assumptionsVersion",
-        "proposers",
-        "proof",
+        "proposerCount",
+        "rejectingProposerCount",
+        "submittedToAcceptingProposer",
+        "psliceAvailable",
+        "attestationPercent",
         "leaderAttemptsExclusion"
+      ]
+    },
+    "ConstellationSimulationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "intentId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "decisionId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "protocolModelVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
+        },
+        "scenario": {
+          "$ref": "experiment.schema.json#/$defs/ConstellationScenario"
+        }
+      },
+      "required": [
+        "requestId",
+        "intentId",
+        "decisionId",
+        "protocolModelVersion",
+        "scenario"
+      ]
+    },
+    "SimulationExplanation": {
+      "type": "string",
+      "enum": [
+        "NO_ACCEPTING_PROPOSER",
+        "NOT_SUBMITTED_TO_ACCEPTING_PROPOSER",
+        "PSLICE_UNAVAILABLE",
+        "ATTESTATION_CONDITION_NOT_MET",
+        "ATTESTATION_CONDITION_MET",
+        "LEADER_EXCLUSION_VALID",
+        "LEADER_EXCLUSION_INVALID",
+        "NO_EXCLUSION_ATTEMPT",
+        "REJECTING_COUNT_EXCEEDS_TOTAL",
+        "CONTRADICTORY_SUBMISSION_PATH",
+        "MOCK_RESULT_NOT_PROTOCOL_VALIDATED"
       ]
     },
     "ConstellationSimulationResult": {
@@ -222,82 +199,138 @@
         "simulationId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "transferRequestId": {
+        "intentId": {
           "$ref": "common.schema.json#/$defs/Id"
         },
-        "modelVersion": {
+        "protocolModelVersion": {
           "$ref": "common.schema.json#/$defs/Version"
         },
-        "assumptionsVersion": {
-          "$ref": "common.schema.json#/$defs/Version"
-        },
-        "executionMode": {
-          "const": "SIMULATION_ONLY"
-        },
-        "executedAt": {
-          "$ref": "common.schema.json#/$defs/UtcTimestamp"
-        },
-        "acceptingProposerCount": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "rejectingProposerCount": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "alternativeSubmissionPathExists": {
+        "proposerPathAvailable": {
           "type": "boolean"
         },
-        "proofConditionSatisfied": {
+        "psliceInclusionEnforced": {
           "type": "boolean"
         },
-        "inclusionForced": {
-          "type": "boolean"
-        },
-        "leaderCanExclude": {
-          "type": "boolean"
-        },
-        "singleLeaderCanExclude": {
-          "const": true
-        },
-        "reasonCode": {
-          "type": "string",
-          "enum": [
-            "NO_ACCEPTING_PROPOSER",
-            "PROOF_NOT_SATISFIED",
-            "PROOF_SATISFIED"
+        "leaderExclusionValid": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "limitations": {
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "NO_SUBMISSION_PATH",
+            "INCLUSION_NOT_ENFORCED",
+            "INCLUSION_ENFORCED",
+            "INVALID_SCENARIO"
+          ]
+        },
+        "explanationCodes": {
           "type": "array",
           "items": {
-            "type": "string",
-            "minLength": 1
+            "$ref": "experiment.schema.json#/$defs/SimulationExplanation"
           },
-          "minItems": 1
+          "minItems": 1,
+          "uniqueItems": true
         },
-        "networkSubmitted": {
-          "const": false
+        "simulationOnly": {
+          "const": true
         }
       },
       "required": [
         "schemaVersion",
         "simulationId",
-        "transferRequestId",
-        "modelVersion",
-        "assumptionsVersion",
-        "executionMode",
-        "executedAt",
-        "acceptingProposerCount",
-        "rejectingProposerCount",
-        "alternativeSubmissionPathExists",
-        "proofConditionSatisfied",
-        "inclusionForced",
-        "leaderCanExclude",
-        "singleLeaderCanExclude",
-        "reasonCode",
-        "limitations",
-        "networkSubmitted"
+        "intentId",
+        "protocolModelVersion",
+        "proposerPathAvailable",
+        "psliceInclusionEnforced",
+        "leaderExclusionValid",
+        "outcome",
+        "explanationCodes",
+        "simulationOnly"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "INCLUSION_ENFORCED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proposerPathAvailable": {
+                "const": true
+              },
+              "psliceInclusionEnforced": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "NO_SUBMISSION_PATH"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proposerPathAvailable": {
+                "const": false
+              },
+              "psliceInclusionEnforced": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "INCLUSION_NOT_ENFORCED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "psliceInclusionEnforced": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "INVALID_SCENARIO"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proposerPathAvailable": {
+                "const": false
+              },
+              "psliceInclusionEnforced": {
+                "const": false
+              },
+              "leaderExclusionValid": {
+                "type": "null"
+              }
+            }
+          }
+        }
       ]
     }
   }
