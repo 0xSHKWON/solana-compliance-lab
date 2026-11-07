@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solana-compliance-engines"
+version = "0.1.0"
+description = "Offline deterministic KYT and compliance policy engines"
+requires-python = ">=3.11"
+dependencies = ["jsonschema[format]>=4.23,<5"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "PyYAML>=6,<7", "openapi-spec-validator>=0.7.2,<0.9"]
+
+[project.scripts]
+kyt-engine = "kyt_engine.__main__:main"
+policy-engine = "policy_engine.__main__:main"
+
+[tool.setuptools]
+packages = ["engine_common", "kyt_engine", "policy_engine", "compliance_contracts"]
+
+[tool.setuptools.package-dir]
+engine_common = "services/engine-common/src/engine_common"
+kyt_engine = "services/kyt-engine/src/kyt_engine"
+policy_engine = "services/policy-engine/src/policy_engine"
+compliance_contracts = "contracts"
+
+[tool.setuptools.package-data]
+compliance_contracts = ["schemas/*.json", "config/rulesets/*.json", "config/policies/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

@@ -35,13 +35,15 @@
 
 시간창은 양 끝을 포함하여 시간차 <= windowSeconds입니다. 동일 시각 정렬은 signature·명령어 위치·id로 안정화합니다. 미확인 timestamp는 시간 규칙에서 제외하며 전체 분석은 PARTIAL로 남깁니다. 소유자 미확인 거래의 계정 주소를 수신 지갑으로 간주하여 패턴을 확정하지 않습니다. 직접 거래 규칙은 확인된 반대편 계정과 제재 레이블의 정확한 일치를 근거로 남길 수 있습니다.
 
-Fan-out은 자산별 수량 합산 없이 고유 수신자를 셉니다. Repeat는 recipient + asset.type + mint별로 그룹화하며 동일 서명의 여러 명령어를 여러 거래로 세지 않습니다. 수신자 지갑을 확인할 수 없는 전송은 시간 패턴의 근거로 사용하지 않습니다.
+Fan-out은 자산별 수량 합산 없이 고유 수신자를 셉니다. Repeat는 recipient + asset.type + mint별로 그룹화하며 동일 서명의 여러 명령어를 여러 거래로 세지 않습니다. 수신자 지갑을 확인할 수 없는 전송과 자기 지갑으로의 전송은 시간 패턴의 근거로 사용하지 않습니다.
 
 예시 Ruleset 1.0.0은 EXACT 100, DIRECT_FLOW 80, FAN_OUT 35, REPEAT 25점을 사용합니다. 같은 규칙은 여러 번 탐지되어도 점수에 한 번만 기여합니다. 총점은 min(100, 고유 탐지 규칙 기여도 합)입니다. 완전한 데이터에서 0점·탐지 없음은 LOW, 양수·70점 미만은 MEDIUM, 70점 이상은 HIGH입니다. 각 detectedRule의 riskLevel은 개별 신호의 수준입니다.
 
 coverage.status가 PARTIAL이면 종합 riskScore와 riskLevel은 모두 null입니다. 이미 발견한 detectedRules와 evidences는 보존합니다. null을 탐지 없음으로 해석하지 않습니다. LOW도 적법성·안전성을 보장하지 않습니다.
 
 각 detectedRule은 ruleId·ruleVersion·scoreContribution·evidenceIds를 제공합니다. Evidence는 원본 signature, transfer id, 관련 주소, 레이블 원본 referenceId, Snapshot·레이블 데이터셋 출처를 기록합니다. 주소 자체 일치는 거래 없이도 탐지 가능하므로 해당 근거의 transferIds와 transactionSignatures가 비어 있을 수 있습니다. 근거 ID는 유일하고 탐지 규칙에서 참조되어야 하며, 참조한 전송·레이블은 Snapshot에 존재해야 합니다.
+
+직접 일치의 근거는 ADDRESS_LABEL과 레이블 참조를, 직접 거래의 근거는 DIRECT_FLOW와 전송·서명·레이블 참조를 요구합니다. 시간 패턴은 TEMPORAL_PATTERN과 복수 전송을, 반복 거래는 서로 다른 복수 서명을 요구합니다. 모든 근거의 relatedAddresses에는 분석 대상이 포함되어야 합니다.
 
 ## Policy
 

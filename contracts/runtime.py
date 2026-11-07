@@ -43,13 +43,20 @@ def read_json(relative):
 
 
 def walk(value):
-    if isinstance(value, dict):
-        yield value
-        for child in value.values():
-            yield from walk(child)
-    elif isinstance(value, list):
-        for child in value:
-            yield from walk(child)
+    pending = [(value, 0)]
+    while pending:
+        item, depth = pending.pop()
+        require(depth <= 64, "Input nesting exceeds 64 levels")
+        if isinstance(item, dict):
+            yield item
+            pending.extend((child, depth + 1) for child in item.values())
+        elif isinstance(item, list):
+            pending.extend((child, depth + 1) for child in item)
+        elif isinstance(item, str):
+            try:
+                item.encode("utf-8")
+            except UnicodeError:
+                raise ContractViolation("Invalid Unicode scalar value", "INVALID_REQUEST") from None
 
 
 def unique(values, description):
@@ -154,10 +161,23 @@ def evaluation_checks(evaluation):
     unique((r["ruleId"] for r in rules), "detected rule")
     unique((e["evidenceId"] for e in evidences), "evidence ID")
     ids = {e["evidenceId"] for e in evidences}
+    by_id = {e["evidenceId"]: e for e in evidences}
     used = {eid for r in rules for eid in r["evidenceIds"]}
     require(ids == used, "Missing or orphan evidence")
     for evidence in evidences:
         require(evidence["source"]["snapshotId"] == evaluation["snapshotId"], "Evidence snapshot mismatch")
+        require(evaluation["subjectAddress"] in evidence["relatedAddresses"], "Evidence subject mismatch")
+    for rule in rules:
+        for eid in rule["evidenceIds"]:
+            evidence = by_id[eid]
+            if rule["ruleId"] == "SANCTION_EXACT":
+                require(evidence["type"] == "ADDRESS_LABEL" and bool(evidence["labelReferenceIds"]), "Exact match requires label evidence")
+            elif rule["ruleId"] == "SANCTION_DIRECT_FLOW":
+                require(evidence["type"] == "DIRECT_FLOW" and bool(evidence["labelReferenceIds"]) and bool(evidence["transferIds"]) and bool(evidence["transactionSignatures"]), "Direct flow requires transfer and label evidence")
+            else:
+                require(evidence["type"] == "TEMPORAL_PATTERN" and len(evidence["transferIds"]) >= 2, "Pattern requires transfer evidence")
+                if rule["ruleId"] == "RAPID_REPEAT":
+                    require(len(evidence["transactionSignatures"]) >= 2, "Repeat requires distinct transaction signatures")
     if evaluation["riskScore"] is not None:
         require(evaluation["riskScore"] == min(100, sum(r["scoreContribution"] for r in rules)), "Score contribution mismatch")
 
