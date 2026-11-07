@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "0.1.0",
+  "decisionId": "normal-decision",
+  "transferRequestId": "normal-transfer-request",
+  "decision": "ALLOW",
+  "decidedAt": "2026-11-02T00:00:00Z",
+  "policyId": "demo-policy",
+  "policyVersion": "0.1.0",
+  "evaluationIds": [
+    "sender-evaluation",
+    "normal-evaluation"
+  ],
+  "executionMode": "SIMULATION_ONLY",
+  "reasons": [
+    {
+      "code": "RISK_POLICY_MATCH",
+      "message": "예시 정책에 따른 주소 위험 등급 판단",
+      "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "evaluationId": "sender-evaluation",
+      "evidence": []
+    },
+    {
+      "code": "RISK_POLICY_MATCH",
+      "message": "예시 정책에 따른 주소 위험 등급 판단",
+      "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "evaluationId": "normal-evaluation",
+      "evidence": []
+    }
+  ]
+}

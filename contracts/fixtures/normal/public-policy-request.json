@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "0.1.0",
+  "transferRequest": {
+    "transferRequestId": "normal-transfer-request",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "kind": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z",
+    "executionMode": "SIMULATION_ONLY"
+  },
+  "analysisIds": [
+    "sender-analysis",
+    "normal-analysis"
+  ],
+  "policyId": "demo-policy",
+  "policyVersion": "0.1.0"
+}

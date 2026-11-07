@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "0.1.0",
+  "transferRequest": {
+    "transferRequestId": "partial-transfer-request",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "kind": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z",
+    "executionMode": "SIMULATION_ONLY"
+  },
+  "evaluations": [
+    {
+      "schemaVersion": "0.1.0",
+      "evaluationId": "sender-evaluation",
+      "snapshotId": "sender-snapshot",
+      "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "evaluatedAt": "2026-11-02T00:00:00Z",
+      "ruleSetId": "demo-rules",
+      "ruleSetVersion": "0.1.0",
+      "coverageStatus": "COMPLETE",
+      "riskScore": 0,
+      "riskLevel": "LOW",
+      "findings": [],
+      "unevaluatedRuleIds": []
+    },
+    {
+      "schemaVersion": "0.1.0",
+      "evaluationId": "partial-evaluation",
+      "snapshotId": "partial-snapshot",
+      "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "evaluatedAt": "2026-11-02T00:00:00Z",
+      "ruleSetId": "demo-rules",
+      "ruleSetVersion": "0.1.0",
+      "coverageStatus": "PARTIAL",
+      "riskScore": null,
+      "riskLevel": "UNKNOWN",
+      "findings": [],
+      "unevaluatedRuleIds": [
+        "sanction-address",
+        "sanction-direct"
+      ]
+    }
+  ],
+  "policy": {
+    "policyId": "demo-policy",
+    "version": "0.1.0",
+    "riskActions": {
+      "LOW": "ALLOW",
+      "MEDIUM": "WARN",
+      "HIGH": "BLOCK",
+      "CRITICAL": "BLOCK"
+    },
+    "onMissingEvaluation": "REVIEW",
+    "onPartialData": "REVIEW",
+    "onUnknownRisk": "REVIEW",
+    "maxEvaluationAgeSeconds": 3600
+  },
+  "asOf": "2026-11-02T00:00:00Z"
+}

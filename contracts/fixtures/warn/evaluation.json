@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.1.0",
+  "evaluationId": "warn-evaluation",
+  "snapshotId": "warn-snapshot",
+  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "evaluatedAt": "2026-11-02T00:00:00Z",
+  "ruleSetId": "demo-rules",
+  "ruleSetVersion": "0.1.0",
+  "coverageStatus": "COMPLETE",
+  "riskScore": 40,
+  "riskLevel": "MEDIUM",
+  "findings": [
+    {
+      "findingId": "fan-out-match",
+      "ruleId": "rapid-fan-out",
+      "summary": "5분 내 서로 다른 수신자 3개로 합성 송금",
+      "evidence": {
+        "snapshotId": "warn-snapshot",
+        "transferIds": [
+          "warn-transfer-1",
+          "warn-transfer-2",
+          "warn-transfer-3"
+        ],
+        "labelIds": []
+      }
+    }
+  ],
+  "unevaluatedRuleIds": []
+}

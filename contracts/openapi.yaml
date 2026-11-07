@@ -1,0 +1,779 @@
+openapi: 3.1.0
+info:
+  title: 이상거래 — 공통 API 계약
+  version: 0.1.0
+  description: Draft v2.1 기반 제안 계약. PUBLIC은 Backend API이며 INTERNAL은 모듈 경계입니다. 실제 거래 전송은 지원하지 않습니다. 공개 배포와 인증 정책은
+    별도 합의가 필요합니다.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+tags:
+- name: PUBLIC
+  description: Frontend가 호출하는 Backend 전용 API
+- name: INTERNAL
+  description: Backend와 내부 모듈 간 계약. 브라우저에 노출하지 않습니다.
+paths:
+  /api/v1/analyses:
+    post:
+      operationId: createAnalysis
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: createAnalysis
+      responses:
+        '202':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/api.schema.json#/$defs/AnalysisAccepted
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/api/accepted.json
+          headers:
+            Location:
+              description: 분석 작업 조회 URL
+              schema:
+                type: string
+                format: uri-reference
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/api.schema.json#/$defs/AnalysisRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/collection-request.json
+  /api/v1/analyses/{analysisId}:
+    get:
+      operationId: getAnalysis
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: getAnalysis
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/api.schema.json#/$defs/KYTAnalysisResult
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/analysis.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - name: analysisId
+        in: path
+        required: true
+        schema:
+          $ref: schemas/common.schema.json#/$defs/Id
+  /api/v1/policy-decisions:
+    post:
+      operationId: createPolicyDecision
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: createPolicyDecision
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/policy.schema.json#/$defs/ComplianceDecision
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/decision.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/api.schema.json#/$defs/PublicPolicyRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/public-policy-request.json
+  /api/v1/gateway-experiments:
+    post:
+      operationId: createGatewayExperiment
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: createGatewayExperiment
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/experiment.schema.json#/$defs/GatewayExperimentResult
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/gateway-result.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/api.schema.json#/$defs/PublicGatewayRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/public-gateway-request.json
+  /api/v1/constellation-simulations:
+    post:
+      operationId: createConstellationSimulation
+      tags:
+      - PUBLIC
+      x-audience: PUBLIC
+      summary: createConstellationSimulation
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/experiment.schema.json#/$defs/ConstellationSimulationResult
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/constellation/proof-satisfied-result.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/experiment.schema.json#/$defs/SimulationRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/constellation/proof-satisfied-request.json
+  /internal/v1/collector/snapshots:
+    post:
+      operationId: collectSnapshot
+      tags:
+      - INTERNAL
+      x-audience: INTERNAL
+      summary: collectSnapshot
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/collector.schema.json#/$defs/KYTDataSnapshot
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/snapshot.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/collector.schema.json#/$defs/CollectionRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/collection-request.json
+  /internal/v1/kyt/evaluations:
+    post:
+      operationId: evaluateKyt
+      tags:
+      - INTERNAL
+      x-audience: INTERNAL
+      summary: evaluateKyt
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/kyt.schema.json#/$defs/KYTEvaluation
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/evaluation.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/kyt.schema.json#/$defs/EvaluationRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/evaluation-request.json
+  /internal/v1/policy/decisions:
+    post:
+      operationId: decidePolicy
+      tags:
+      - INTERNAL
+      x-audience: INTERNAL
+      summary: decidePolicy
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/policy.schema.json#/$defs/ComplianceDecision
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/decision.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/policy.schema.json#/$defs/DecisionRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/policy-request.json
+  /internal/v1/gateway/experiments:
+    post:
+      operationId: runGatewayExperiment
+      tags:
+      - INTERNAL
+      x-audience: INTERNAL
+      summary: runGatewayExperiment
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/experiment.schema.json#/$defs/GatewayExperimentResult
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/normal/gateway-result.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/experiment.schema.json#/$defs/GatewayRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/normal/gateway-request.json
+  /internal/v1/constellation/simulations:
+    post:
+      operationId: runConstellationSimulation
+      tags:
+      - INTERNAL
+      x-audience: INTERNAL
+      summary: runConstellationSimulation
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:
+              schema:
+                $ref: schemas/experiment.schema.json#/$defs/ConstellationSimulationResult
+              examples:
+                synthetic:
+                  summary: 합성 데이터 예시
+                  externalValue: fixtures/constellation/proof-satisfied-result.json
+        '400':
+          description: 잘못된 요청 또는 계약 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 리소스를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 참조/버전/상태 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 지원하지 않는 계약 버전
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 요청 제한
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 내부 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: 상위 데이터 제공자 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: 일시적 서비스 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: schemas/experiment.schema.json#/$defs/SimulationRequest
+            examples:
+              synthetic:
+                summary: 합성 데이터 예시
+                externalValue: fixtures/constellation/proof-satisfied-request.json
+components:
+  schemas:
+    ErrorResponse:
+      $ref: schemas/common.schema.json#/$defs/ErrorResponse

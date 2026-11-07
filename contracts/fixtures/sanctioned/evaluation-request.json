@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "0.1.0",
+  "snapshot": {
+    "schemaVersion": "0.1.0",
+    "snapshotId": "sanctioned-snapshot",
+    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "provenance": {
+      "mode": "FIXTURE",
+      "dataKind": "SYNTHETIC",
+      "network": "SOLANA_MAINNET",
+      "sourceName": "synthetic-demo",
+      "collectedAt": "2026-11-02T00:00:00Z",
+      "fixtureId": "sanctioned"
+    },
+    "coverage": {
+      "status": "COMPLETE",
+      "requestedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "observedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-01T00:00:00Z"
+      },
+      "maxTransactions": 100,
+      "fetchedTransactionCount": 1,
+      "normalizedTransactionCount": 1,
+      "issues": []
+    },
+    "transfers": [
+      {
+        "transferId": "sanctioned-transfer",
+        "signature": "99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3BbeqPevr5E1iCbpTjqHuTFLtfxTTD5ekfVuZFzQyEQf8",
+        "slot": 1,
+        "blockTime": "2026-11-01T00:00:00Z",
+        "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+        "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "asset": {
+          "kind": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000"
+      }
+    ],
+    "labels": [
+      {
+        "labelId": "synthetic-sanction",
+        "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "category": "SANCTIONED",
+        "sourceName": "synthetic-demo",
+        "sourceUrl": "https://example.invalid/synthetic-sanctions",
+        "retrievedAt": "2026-11-02T00:00:00Z",
+        "dataKind": "SYNTHETIC"
+      }
+    ]
+  },
+  "ruleSet": {
+    "ruleSetId": "demo-rules",
+    "version": "0.1.0",
+    "scoreAggregation": "CAPPED_SUM_PER_RULE",
+    "thresholds": {
+      "medium": 30,
+      "high": 60,
+      "critical": 90
+    },
+    "rules": [
+      {
+        "ruleId": "sanction-address",
+        "enabled": true,
+        "kind": "SANCTION_ADDRESS_MATCH",
+        "scoreWeight": 100,
+        "parameters": {}
+      },
+      {
+        "ruleId": "sanction-direct",
+        "enabled": true,
+        "kind": "SANCTION_DIRECT_TRANSFER",
+        "scoreWeight": 80,
+        "parameters": {}
+      },
+      {
+        "ruleId": "rapid-fan-out",
+        "enabled": true,
+        "kind": "RAPID_FAN_OUT",
+        "scoreWeight": 40,
+        "parameters": {
+          "windowSeconds": 300,
+          "minDistinctRecipients": 3
+        }
+      }
+    ]
+  }
+}

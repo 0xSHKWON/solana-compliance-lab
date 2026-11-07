@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "0.1.0",
+  "snapshotId": "empty-snapshot",
+  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "provenance": {
+    "mode": "FIXTURE",
+    "dataKind": "SYNTHETIC",
+    "network": "SOLANA_MAINNET",
+    "sourceName": "synthetic-demo",
+    "collectedAt": "2026-11-02T00:00:00Z",
+    "fixtureId": "normal"
+  },
+  "coverage": {
+    "status": "COMPLETE",
+    "requestedRange": {
+      "from": "2026-11-01T00:00:00Z",
+      "to": "2026-11-02T00:00:00Z"
+    },
+    "observedRange": null,
+    "maxTransactions": 100,
+    "fetchedTransactionCount": 0,
+    "normalizedTransactionCount": 0,
+    "issues": []
+  },
+  "transfers": [],
+  "labels": []
+}

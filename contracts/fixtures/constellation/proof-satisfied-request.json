@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1.0",
+  "simulationId": "proof-satisfied",
+  "transferRequestId": "sanctioned-transfer-request",
+  "modelVersion": "0.1.0",
+  "assumptionsVersion": "0.1.0",
+  "proposers": [
+    {
+      "proposerId": "proposer-1",
+      "acceptsTransaction": true
+    },
+    {
+      "proposerId": "proposer-2",
+      "acceptsTransaction": false
+    },
+    {
+      "proposerId": "proposer-3",
+      "acceptsTransaction": false
+    }
+  ],
+  "proof": {
+    "conditionSatisfied": true,
+    "assumption": "증명 조건은 독립 입력이며 실제 정족수를 구현하지 않음"
+  },
+  "leaderAttemptsExclusion": true
+}

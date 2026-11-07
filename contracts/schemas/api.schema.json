@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/api.schema.json",
+  "title": "api",
+  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
+  "$defs": {
+    "AnalysisRequest": {
+      "$ref": "collector.schema.json#/$defs/CollectionRequest"
+    },
+    "AnalysisAccepted": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "analysisId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "status": {
+          "const": "QUEUED"
+        },
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "analysisId",
+        "status",
+        "requestId"
+      ]
+    },
+    "KYTAnalysisResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "analysisId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "status": {
+          "$ref": "common.schema.json#/$defs/JobStatus"
+        },
+        "createdAt": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "updatedAt": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "collector.schema.json#/$defs/KYTDataSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evaluation": {
+          "anyOf": [
+            {
+              "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "analysisId",
+        "requestId",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "snapshot",
+        "evaluation",
+        "error"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "QUEUED",
+                  "RUNNING"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "snapshot": {
+                "type": "null"
+              },
+              "evaluation": {
+                "type": "null"
+              },
+              "error": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "COMPLETED",
+                  "PARTIAL"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "snapshot": {
+                "$ref": "collector.schema.json#/$defs/KYTDataSnapshot"
+              },
+              "evaluation": {
+                "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
+              },
+              "error": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "COMPLETED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "snapshot": {
+                "properties": {
+                  "coverage": {
+                    "properties": {
+                      "status": {
+                        "const": "COMPLETE"
+                      }
+                    }
+                  }
+                }
+              },
+              "evaluation": {
+                "properties": {
+                  "coverageStatus": {
+                    "const": "COMPLETE"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "PARTIAL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "snapshot": {
+                "properties": {
+                  "coverage": {
+                    "properties": {
+                      "status": {
+                        "const": "PARTIAL"
+                      }
+                    }
+                  }
+                }
+              },
+              "evaluation": {
+                "properties": {
+                  "coverageStatus": {
+                    "const": "PARTIAL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "snapshot": {
+                "type": "null"
+              },
+              "evaluation": {
+                "type": "null"
+              },
+              "error": {
+                "$ref": "common.schema.json#/$defs/Error"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PublicPolicyRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "transferRequest": {
+          "$ref": "policy.schema.json#/$defs/TransferRequest"
+        },
+        "analysisIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "policyId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "policyVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "transferRequest",
+        "analysisIds",
+        "policyId",
+        "policyVersion"
+      ]
+    },
+    "PublicGatewayRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "transferRequestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "decisionId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "routeId": {
+                "$ref": "common.schema.json#/$defs/Id"
+              },
+              "appliesPolicy": {
+                "type": "boolean"
+              },
+              "userConfirmedWarning": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "routeId",
+              "appliesPolicy",
+              "userConfirmedWarning"
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "transferRequestId",
+        "decisionId",
+        "routes"
+      ]
+    }
+  }
+}

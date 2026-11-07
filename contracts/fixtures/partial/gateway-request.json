@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "partial-gateway",
+  "transferRequest": {
+    "transferRequestId": "partial-transfer-request",
+    "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+    "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "asset": {
+      "kind": "SOL",
+      "mint": null,
+      "decimals": 9
+    },
+    "amountRaw": "1000000000",
+    "requestedAt": "2026-11-02T00:00:00Z",
+    "executionMode": "SIMULATION_ONLY"
+  },
+  "complianceDecision": {
+    "schemaVersion": "0.1.0",
+    "decisionId": "partial-decision",
+    "transferRequestId": "partial-transfer-request",
+    "decision": "REVIEW",
+    "decidedAt": "2026-11-02T00:00:00Z",
+    "policyId": "demo-policy",
+    "policyVersion": "0.1.0",
+    "evaluationIds": [
+      "sender-evaluation",
+      "partial-evaluation"
+    ],
+    "executionMode": "SIMULATION_ONLY",
+    "reasons": [
+      {
+        "code": "RISK_POLICY_MATCH",
+        "message": "예시 정책에 따른 주소 위험 등급 판단",
+        "walletAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+        "evaluationId": "sender-evaluation",
+        "evidence": []
+      },
+      {
+        "code": "PARTIAL_DATA",
+        "message": "레이블 소스 실패로 인한 추가 검토",
+        "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "evaluationId": "partial-evaluation",
+        "evidence": []
+      }
+    ]
+  },
+  "routes": [
+    {
+      "routeId": "our-service",
+      "appliesPolicy": true,
+      "userConfirmedWarning": false
+    },
+    {
+      "routeId": "alternative-path",
+      "appliesPolicy": false,
+      "userConfirmedWarning": false
+    }
+  ]
+}

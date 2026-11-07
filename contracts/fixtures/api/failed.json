@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "example-analysis",
+  "requestId": "example-request",
+  "status": "FAILED",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshot": null,
+  "evaluation": null,
+  "error": {
+    "code": "UPSTREAM_UNAVAILABLE",
+    "message": "데이터 제공자 조회 실패",
+    "retryable": true
+  }
+}

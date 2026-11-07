@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/common.schema.json",
+  "title": "common",
+  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "불투명 식별자. 클라이언트가 구조를 해석하지 않습니다."
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "UtcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "Address": {
+      "type": "string",
+      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+      "description": "Solana Base58 주소의 문자 및 길이 검사. 디코딩 후 32바이트인지는 모듈에서 검증합니다."
+    },
+    "Signature": {
+      "type": "string",
+      "pattern": "^[1-9A-HJ-NP-Za-km-z]{64,88}$",
+      "description": "거래 서명의 문자 및 길이 검사. 디코딩 후 64바이트인지는 모듈에서 검증합니다."
+    },
+    "RawAmount": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "description": "최소 단위의 음이 아닌 십진 정수 문자열. 부동소수점 변환을 금지합니다."
+    },
+    "Mode": {
+      "type": "string",
+      "enum": [
+        "LIVE",
+        "FIXTURE"
+      ]
+    },
+    "DataKind": {
+      "type": "string",
+      "enum": [
+        "ON_CHAIN",
+        "SYNTHETIC"
+      ]
+    },
+    "JobStatus": {
+      "type": "string",
+      "enum": [
+        "QUEUED",
+        "RUNNING",
+        "COMPLETED",
+        "PARTIAL",
+        "FAILED"
+      ]
+    },
+    "RiskLevel": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL",
+        "UNKNOWN"
+      ]
+    },
+    "Decision": {
+      "type": "string",
+      "enum": [
+        "ALLOW",
+        "WARN",
+        "REVIEW",
+        "BLOCK"
+      ]
+    },
+    "TimeRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "to": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "Asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "SOL",
+            "SPL_TOKEN"
+          ]
+        },
+        "mint": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Address"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "required": [
+        "kind",
+        "mint",
+        "decimals"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "SOL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mint": {
+                "type": "null"
+              },
+              "decimals": {
+                "const": 9
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "SPL_TOKEN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mint": {
+                "$ref": "common.schema.json#/$defs/Address"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "INVALID_REQUEST",
+        "NOT_FOUND",
+        "CONFLICT",
+        "UNSUPPORTED_VERSION",
+        "UPSTREAM_UNAVAILABLE",
+        "RATE_LIMITED",
+        "CONTRACT_VALIDATION_FAILED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "common.schema.json#/$defs/ErrorCode"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "$ref": "common.schema.json#/$defs/Error"
+        },
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        }
+      },
+      "required": [
+        "error",
+        "requestId"
+      ]
+    },
+    "EvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "snapshotId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "transferIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "uniqueItems": true
+        },
+        "labelIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "snapshotId",
+        "transferIds",
+        "labelIds"
+      ]
+    }
+  }
+}

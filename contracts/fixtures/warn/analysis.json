@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "warn-analysis",
+  "requestId": "warn-request",
+  "status": "COMPLETED",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshot": {
+    "schemaVersion": "0.1.0",
+    "snapshotId": "warn-snapshot",
+    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "provenance": {
+      "mode": "FIXTURE",
+      "dataKind": "SYNTHETIC",
+      "network": "SOLANA_MAINNET",
+      "sourceName": "synthetic-demo",
+      "collectedAt": "2026-11-02T00:00:00Z",
+      "fixtureId": "warn"
+    },
+    "coverage": {
+      "status": "COMPLETE",
+      "requestedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "observedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-01T00:02:00Z"
+      },
+      "maxTransactions": 100,
+      "fetchedTransactionCount": 3,
+      "normalizedTransactionCount": 3,
+      "issues": []
+    },
+    "transfers": [
+      {
+        "transferId": "warn-transfer-1",
+        "signature": "BUguQsv2ZuHus54HAFzjdJHzZBkygAjKhEeYwSG19tUfUyvvz3worsdQCdAXDNjakJHioSiyxhFiDJrm8XpSXRA",
+        "slot": 1,
+        "blockTime": "2026-11-01T00:00:00Z",
+        "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "recipient": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+        "asset": {
+          "kind": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000"
+      },
+      {
+        "transferId": "warn-transfer-2",
+        "signature": "CeD7gRMFdZKnrBxCWczhvDmfAz4ke5NFKvqAi9jSwzCQReUhecVgBJb112WuuR9eVmzFDwMsQDWEa1WWhbF3aoB",
+        "slot": 2,
+        "blockTime": "2026-11-01T00:01:00Z",
+        "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "recipient": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+        "asset": {
+          "kind": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000"
+      },
+      {
+        "transferId": "warn-transfer-3",
+        "signature": "DojKwxnUhDMfqJr7ryzgD9FKnnNXbz1Axd1nUsCtk5v9NK2UKB3YVjYboRsJbTZiFFgmeRzkqjkkviAGGefeeBC",
+        "slot": 3,
+        "blockTime": "2026-11-01T00:02:00Z",
+        "sender": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "recipient": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+        "asset": {
+          "kind": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000"
+      }
+    ],
+    "labels": []
+  },
+  "evaluation": {
+    "schemaVersion": "0.1.0",
+    "evaluationId": "warn-evaluation",
+    "snapshotId": "warn-snapshot",
+    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "evaluatedAt": "2026-11-02T00:00:00Z",
+    "ruleSetId": "demo-rules",
+    "ruleSetVersion": "0.1.0",
+    "coverageStatus": "COMPLETE",
+    "riskScore": 40,
+    "riskLevel": "MEDIUM",
+    "findings": [
+      {
+        "findingId": "fan-out-match",
+        "ruleId": "rapid-fan-out",
+        "summary": "5분 내 서로 다른 수신자 3개로 합성 송금",
+        "evidence": {
+          "snapshotId": "warn-snapshot",
+          "transferIds": [
+            "warn-transfer-1",
+            "warn-transfer-2",
+            "warn-transfer-3"
+          ],
+          "labelIds": []
+        }
+      }
+    ],
+    "unevaluatedRuleIds": []
+  },
+  "error": null
+}

@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "0.1.0",
+  "description": "모든 지갑·레이블·거래는 합성 데이터이며 실제 위험 사례가 아닙니다.",
+  "fixtures": [
+    {
+      "path": "normal/collection-request.json",
+      "schema": "../schemas/collector.schema.json#/$defs/CollectionRequest"
+    },
+    {
+      "path": "normal/snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "normal/evaluation-request.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/EvaluationRequest"
+    },
+    {
+      "path": "normal/evaluation.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/KYTEvaluation"
+    },
+    {
+      "path": "normal/policy-request.json",
+      "schema": "../schemas/policy.schema.json#/$defs/DecisionRequest"
+    },
+    {
+      "path": "normal/decision.json",
+      "schema": "../schemas/policy.schema.json#/$defs/ComplianceDecision"
+    },
+    {
+      "path": "normal/analysis.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "normal/gateway-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayRequest"
+    },
+    {
+      "path": "normal/gateway-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayExperimentResult"
+    },
+    {
+      "path": "normal/public-policy-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicPolicyRequest"
+    },
+    {
+      "path": "normal/public-gateway-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicGatewayRequest"
+    },
+    {
+      "path": "sanctioned/collection-request.json",
+      "schema": "../schemas/collector.schema.json#/$defs/CollectionRequest"
+    },
+    {
+      "path": "sanctioned/snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "sanctioned/evaluation-request.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/EvaluationRequest"
+    },
+    {
+      "path": "sanctioned/evaluation.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/KYTEvaluation"
+    },
+    {
+      "path": "sanctioned/policy-request.json",
+      "schema": "../schemas/policy.schema.json#/$defs/DecisionRequest"
+    },
+    {
+      "path": "sanctioned/decision.json",
+      "schema": "../schemas/policy.schema.json#/$defs/ComplianceDecision"
+    },
+    {
+      "path": "sanctioned/analysis.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "sanctioned/gateway-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayRequest"
+    },
+    {
+      "path": "sanctioned/gateway-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayExperimentResult"
+    },
+    {
+      "path": "sanctioned/public-policy-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicPolicyRequest"
+    },
+    {
+      "path": "sanctioned/public-gateway-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicGatewayRequest"
+    },
+    {
+      "path": "partial/collection-request.json",
+      "schema": "../schemas/collector.schema.json#/$defs/CollectionRequest"
+    },
+    {
+      "path": "partial/snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "partial/evaluation-request.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/EvaluationRequest"
+    },
+    {
+      "path": "partial/evaluation.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/KYTEvaluation"
+    },
+    {
+      "path": "partial/policy-request.json",
+      "schema": "../schemas/policy.schema.json#/$defs/DecisionRequest"
+    },
+    {
+      "path": "partial/decision.json",
+      "schema": "../schemas/policy.schema.json#/$defs/ComplianceDecision"
+    },
+    {
+      "path": "partial/analysis.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "partial/gateway-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayRequest"
+    },
+    {
+      "path": "partial/gateway-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayExperimentResult"
+    },
+    {
+      "path": "partial/public-policy-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicPolicyRequest"
+    },
+    {
+      "path": "partial/public-gateway-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicGatewayRequest"
+    },
+    {
+      "path": "api/queued.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "api/running.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "api/failed.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "api/accepted.json",
+      "schema": "../schemas/api.schema.json#/$defs/AnalysisAccepted"
+    },
+    {
+      "path": "api/error.json",
+      "schema": "../schemas/common.schema.json#/$defs/ErrorResponse"
+    },
+    {
+      "path": "api/empty-snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "api/live-request.json",
+      "schema": "../schemas/collector.schema.json#/$defs/CollectionRequest"
+    },
+    {
+      "path": "constellation/proof-satisfied-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/SimulationRequest"
+    },
+    {
+      "path": "constellation/proof-satisfied-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/ConstellationSimulationResult"
+    },
+    {
+      "path": "constellation/proof-missing-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/SimulationRequest"
+    },
+    {
+      "path": "constellation/proof-missing-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/ConstellationSimulationResult"
+    },
+    {
+      "path": "constellation/all-reject-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/SimulationRequest"
+    },
+    {
+      "path": "constellation/all-reject-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/ConstellationSimulationResult"
+    },
+    {
+      "path": "warn/collection-request.json",
+      "schema": "../schemas/collector.schema.json#/$defs/CollectionRequest"
+    },
+    {
+      "path": "warn/snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "warn/evaluation-request.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/EvaluationRequest"
+    },
+    {
+      "path": "warn/evaluation.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/KYTEvaluation"
+    },
+    {
+      "path": "warn/policy-request.json",
+      "schema": "../schemas/policy.schema.json#/$defs/DecisionRequest"
+    },
+    {
+      "path": "warn/decision.json",
+      "schema": "../schemas/policy.schema.json#/$defs/ComplianceDecision"
+    },
+    {
+      "path": "warn/analysis.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "warn/gateway-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayRequest"
+    },
+    {
+      "path": "warn/gateway-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayExperimentResult"
+    },
+    {
+      "path": "warn/public-policy-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicPolicyRequest"
+    },
+    {
+      "path": "warn/public-gateway-request.json",
+      "schema": "../schemas/api.schema.json#/$defs/PublicGatewayRequest"
+    },
+    {
+      "path": "sender/snapshot.json",
+      "schema": "../schemas/collector.schema.json#/$defs/KYTDataSnapshot"
+    },
+    {
+      "path": "sender/evaluation.json",
+      "schema": "../schemas/kyt.schema.json#/$defs/KYTEvaluation"
+    },
+    {
+      "path": "sender/analysis.json",
+      "schema": "../schemas/api.schema.json#/$defs/KYTAnalysisResult"
+    },
+    {
+      "path": "warn/confirmed-gateway-request.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayRequest"
+    },
+    {
+      "path": "warn/confirmed-gateway-result.json",
+      "schema": "../schemas/experiment.schema.json#/$defs/GatewayExperimentResult"
+    }
+  ]
+}

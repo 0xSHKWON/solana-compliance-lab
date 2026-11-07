@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baypeline.github.io/solana-compliance-lab/contracts/schemas/policy.schema.json",
+  "title": "policy",
+  "$comment": "Draft v2.1 기반 계약 초안 0.1.0. 배포된 API 구현을 의미하지 않습니다.",
+  "$ref": "#/$defs/ComplianceDecision",
+  "$defs": {
+    "TransferRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "transferRequestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "sender": {
+          "$ref": "common.schema.json#/$defs/Address"
+        },
+        "recipient": {
+          "$ref": "common.schema.json#/$defs/Address"
+        },
+        "asset": {
+          "$ref": "common.schema.json#/$defs/Asset"
+        },
+        "amountRaw": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "requestedAt": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "executionMode": {
+          "const": "SIMULATION_ONLY"
+        }
+      },
+      "required": [
+        "transferRequestId",
+        "sender",
+        "recipient",
+        "asset",
+        "amountRaw",
+        "requestedAt",
+        "executionMode"
+      ]
+    },
+    "PolicyConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policyId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/Version"
+        },
+        "riskActions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "LOW": {
+              "$ref": "common.schema.json#/$defs/Decision"
+            },
+            "MEDIUM": {
+              "$ref": "common.schema.json#/$defs/Decision"
+            },
+            "HIGH": {
+              "$ref": "common.schema.json#/$defs/Decision"
+            },
+            "CRITICAL": {
+              "$ref": "common.schema.json#/$defs/Decision"
+            }
+          },
+          "required": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "onMissingEvaluation": {
+          "const": "REVIEW"
+        },
+        "onPartialData": {
+          "const": "REVIEW"
+        },
+        "onUnknownRisk": {
+          "const": "REVIEW"
+        },
+        "maxEvaluationAgeSeconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "policyId",
+        "version",
+        "riskActions",
+        "onMissingEvaluation",
+        "onPartialData",
+        "onUnknownRisk",
+        "maxEvaluationAgeSeconds"
+      ]
+    },
+    "DecisionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "transferRequest": {
+          "$ref": "policy.schema.json#/$defs/TransferRequest"
+        },
+        "evaluations": {
+          "type": "array",
+          "items": {
+            "$ref": "kyt.schema.json#/$defs/KYTEvaluation"
+          },
+          "maxItems": 2
+        },
+        "policy": {
+          "$ref": "policy.schema.json#/$defs/PolicyConfig"
+        },
+        "asOf": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "transferRequest",
+        "evaluations",
+        "policy",
+        "asOf"
+      ]
+    },
+    "Reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "RISK_POLICY_MATCH",
+            "MISSING_EVALUATION",
+            "PARTIAL_DATA",
+            "UNKNOWN_RISK",
+            "STALE_EVALUATION"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletAddress": {
+          "$ref": "common.schema.json#/$defs/Address"
+        },
+        "evaluationId": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/EvidenceRef"
+          }
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "walletAddress",
+        "evaluationId",
+        "evidence"
+      ]
+    },
+    "ComplianceDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "0.1.0"
+        },
+        "decisionId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "transferRequestId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "decision": {
+          "$ref": "common.schema.json#/$defs/Decision"
+        },
+        "decidedAt": {
+          "$ref": "common.schema.json#/$defs/UtcTimestamp"
+        },
+        "policyId": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "policyVersion": {
+          "$ref": "common.schema.json#/$defs/Version"
+        },
+        "evaluationIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          },
+          "uniqueItems": true
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "policy.schema.json#/$defs/Reason"
+          },
+          "minItems": 1
+        },
+        "executionMode": {
+          "const": "SIMULATION_ONLY"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "decisionId",
+        "transferRequestId",
+        "decision",
+        "decidedAt",
+        "policyId",
+        "policyVersion",
+        "evaluationIds",
+        "reasons",
+        "executionMode"
+      ]
+    }
+  }
+}

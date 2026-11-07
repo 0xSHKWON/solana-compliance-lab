@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "0.1.0",
+  "evaluationId": "partial-evaluation",
+  "snapshotId": "partial-snapshot",
+  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "evaluatedAt": "2026-11-02T00:00:00Z",
+  "ruleSetId": "demo-rules",
+  "ruleSetVersion": "0.1.0",
+  "coverageStatus": "PARTIAL",
+  "riskScore": null,
+  "riskLevel": "UNKNOWN",
+  "findings": [],
+  "unevaluatedRuleIds": [
+    "sanction-address",
+    "sanction-direct"
+  ]
+}

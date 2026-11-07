@@ -1,0 +1,36 @@
+{
+  "ruleSetId": "demo-rules",
+  "version": "0.1.0",
+  "scoreAggregation": "CAPPED_SUM_PER_RULE",
+  "thresholds": {
+    "medium": 30,
+    "high": 60,
+    "critical": 90
+  },
+  "rules": [
+    {
+      "ruleId": "sanction-address",
+      "enabled": true,
+      "kind": "SANCTION_ADDRESS_MATCH",
+      "scoreWeight": 100,
+      "parameters": {}
+    },
+    {
+      "ruleId": "sanction-direct",
+      "enabled": true,
+      "kind": "SANCTION_DIRECT_TRANSFER",
+      "scoreWeight": 80,
+      "parameters": {}
+    },
+    {
+      "ruleId": "rapid-fan-out",
+      "enabled": true,
+      "kind": "RAPID_FAN_OUT",
+      "scoreWeight": 40,
+      "parameters": {
+        "windowSeconds": 300,
+        "minDistinctRecipients": 3
+      }
+    }
+  ]
+}

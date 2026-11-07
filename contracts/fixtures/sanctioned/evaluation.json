@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1.0",
+  "evaluationId": "sanctioned-evaluation",
+  "snapshotId": "sanctioned-snapshot",
+  "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  "evaluatedAt": "2026-11-02T00:00:00Z",
+  "ruleSetId": "demo-rules",
+  "ruleSetVersion": "0.1.0",
+  "coverageStatus": "COMPLETE",
+  "riskScore": 100,
+  "riskLevel": "CRITICAL",
+  "findings": [
+    {
+      "findingId": "sanction-match",
+      "ruleId": "sanction-address",
+      "summary": "합성 제재 레이블과 분석 주소 일치",
+      "evidence": {
+        "snapshotId": "sanctioned-snapshot",
+        "transferIds": [],
+        "labelIds": [
+          "synthetic-sanction"
+        ]
+      }
+    },
+    {
+      "findingId": "sanction-transfer",
+      "ruleId": "sanction-direct",
+      "summary": "합성 제재 주소와 직접 자금 이동",
+      "evidence": {
+        "snapshotId": "sanctioned-snapshot",
+        "transferIds": [
+          "sanctioned-transfer"
+        ],
+        "labelIds": [
+          "synthetic-sanction"
+        ]
+      }
+    }
+  ],
+  "unevaluatedRuleIds": []
+}

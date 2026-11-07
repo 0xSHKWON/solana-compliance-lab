@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Invalid request",
+    "retryable": false
+  },
+  "requestId": "request-001"
+}

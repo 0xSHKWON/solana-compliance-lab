@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "0.1.0",
+  "analysisId": "sanctioned-analysis",
+  "requestId": "sanctioned-request",
+  "status": "COMPLETED",
+  "createdAt": "2026-11-02T00:00:00Z",
+  "updatedAt": "2026-11-02T00:00:00Z",
+  "snapshot": {
+    "schemaVersion": "0.1.0",
+    "snapshotId": "sanctioned-snapshot",
+    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "provenance": {
+      "mode": "FIXTURE",
+      "dataKind": "SYNTHETIC",
+      "network": "SOLANA_MAINNET",
+      "sourceName": "synthetic-demo",
+      "collectedAt": "2026-11-02T00:00:00Z",
+      "fixtureId": "sanctioned"
+    },
+    "coverage": {
+      "status": "COMPLETE",
+      "requestedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "observedRange": {
+        "from": "2026-11-01T00:00:00Z",
+        "to": "2026-11-01T00:00:00Z"
+      },
+      "maxTransactions": 100,
+      "fetchedTransactionCount": 1,
+      "normalizedTransactionCount": 1,
+      "issues": []
+    },
+    "transfers": [
+      {
+        "transferId": "sanctioned-transfer",
+        "signature": "99eUso3aSbE9tqGSTXzo3TLfKb9RkMTURrHKQ1K7Zh3BbeqPevr5E1iCbpTjqHuTFLtfxTTD5ekfVuZFzQyEQf8",
+        "slot": 1,
+        "blockTime": "2026-11-01T00:00:00Z",
+        "sender": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+        "recipient": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "asset": {
+          "kind": "SOL",
+          "mint": null,
+          "decimals": 9
+        },
+        "amountRaw": "1000000000"
+      }
+    ],
+    "labels": [
+      {
+        "labelId": "synthetic-sanction",
+        "address": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+        "category": "SANCTIONED",
+        "sourceName": "synthetic-demo",
+        "sourceUrl": "https://example.invalid/synthetic-sanctions",
+        "retrievedAt": "2026-11-02T00:00:00Z",
+        "dataKind": "SYNTHETIC"
+      }
+    ]
+  },
+  "evaluation": {
+    "schemaVersion": "0.1.0",
+    "evaluationId": "sanctioned-evaluation",
+    "snapshotId": "sanctioned-snapshot",
+    "walletAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+    "evaluatedAt": "2026-11-02T00:00:00Z",
+    "ruleSetId": "demo-rules",
+    "ruleSetVersion": "0.1.0",
+    "coverageStatus": "COMPLETE",
+    "riskScore": 100,
+    "riskLevel": "CRITICAL",
+    "findings": [
+      {
+        "findingId": "sanction-match",
+        "ruleId": "sanction-address",
+        "summary": "합성 제재 레이블과 분석 주소 일치",
+        "evidence": {
+          "snapshotId": "sanctioned-snapshot",
+          "transferIds": [],
+          "labelIds": [
+            "synthetic-sanction"
+          ]
+        }
+      },
+      {
+        "findingId": "sanction-transfer",
+        "ruleId": "sanction-direct",
+        "summary": "합성 제재 주소와 직접 자금 이동",
+        "evidence": {
+          "snapshotId": "sanctioned-snapshot",
+          "transferIds": [
+            "sanctioned-transfer"
+          ],
+          "labelIds": [
+            "synthetic-sanction"
+          ]
+        }
+      }
+    ],
+    "unevaluatedRuleIds": []
+  },
+  "error": null
+}
