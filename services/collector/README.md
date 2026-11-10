@@ -41,19 +41,22 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
   --data-binary @contracts/fixtures/normal/collection-request.json
 ```
 
-요청 본문 상한은 기본 8 MiB이며 `--max-body-bytes`로 조정합니다. 요청과 응답은 모두 공통 계약으로 검증합니다. 요청에 `mode`, `address`, `network`, `scope`(fromTime < toTime, maxTransactions)가 있어야 하며, `scope.maxTransactions`는 `COLLECTOR_MAX_TRANSACTIONS`(기본 1000)를 넘을 수 없습니다. `scope.fromTime`이 현재 시각보다 미래이면 LIVE 요청을 거부합니다.
+요청 본문 상한은 기본 8 MiB이며 `--max-body-bytes`로 조정합니다. 요청과 응답은 모두 공통 계약으로 검증합니다. 요청에 `mode`, `address`, `network`, `scope`(fromTime < toTime, maxTransactions)가 있어야 하며, `scope.maxTransactions`는 `COLLECTOR_MAX_TRANSACTIONS`(기본 1000)를 넘을 수 없습니다. `scope.fromTime`이 현재 시각보다 미래이면 LIVE 요청을 거부합니다. `scope.toTime`이 현재 시각보다 미래이면 아직 일어나지 않은 구간을 확인할 수 없으므로 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다.
 
 ## 환경 변수
 
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
-| `SOLANA_RPC_URL` | 없음 | LIVE 모드의 Solana JSON-RPC 주소. 없으면 LIVE 요청은 503 `UPSTREAM_UNAVAILABLE`로 실패합니다. |
+| `SOLANA_RPC_URL` | 없음 | LIVE 모드의 Solana JSON-RPC 주소(`https://` 또는 `http://`). 없거나 형식이 잘못되면 LIVE 요청은 503 `UPSTREAM_UNAVAILABLE`로 실패하며, 오류 메시지에 주소를 넣지 않습니다. |
 | `SOLANA_RPC_API_KEY` | 없음 | 선택. 설정하면 `SOLANA_RPC_API_KEY_HEADER` 헤더로만 전송합니다. |
 | `SOLANA_RPC_API_KEY_HEADER` | `X-API-KEY` | API 키를 담는 HTTP 헤더 이름. Nodit 형식은 기본값을 사용합니다. |
 | `SOLANA_RPC_PROVIDER` | `SOLANA_RPC` | 스냅샷 `dataProvenance.source`에 기록되는 제공자 이름. 예: `NODIT_SOLANA_RPC` |
-| `SOLANA_RPC_TIMEOUT` | `15` | RPC 요청 제한 시간(초) |
+| `SOLANA_RPC_TIMEOUT` | `15` | RPC 요청 한 번의 제한 시간(초). 남은 시간 예산이 더 짧으면 그 값을 사용합니다. 0 이하·무한대·NaN은 거부합니다. |
 | `SOLANA_RPC_MAX_TX_VERSION` | `1` | `getTransaction`의 `maxSupportedTransactionVersion`. 메인넷에는 v1 거래가 있으므로 기본값을 1로 둡니다. |
 | `COLLECTOR_MAX_TRANSACTIONS` | `1000` | 요청 `maxTransactions`의 상한 |
+| `COLLECTOR_FETCH_WORKERS` | `16` | 서명 페이지·거래 조회 동시 처리 수 |
+| `COLLECTOR_TIME_BUDGET_SECONDS` | `20` | LIVE 요청 하나의 RPC 작업 시간 예산(초). Backend의 상위 모듈 읽기 제한 시간(30초)보다 작게 유지합니다. |
+| `COLLECTOR_MAX_TOKEN_ACCOUNTS` | `100` | 함께 조회할 지갑 토큰 계정 수 상한. 넘으면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. |
 | `COLLECTOR_LABEL_DATASET` | `services/collector/data/labels/ofac-sdn.json` | 제재 라벨 데이터셋 경로 |
 | `COLLECTOR_FIXTURE_ROOTS` | `services/collector/fixtures`, `contracts/fixtures` | FIXTURE 조회 경로 목록. OS 경로 구분자(Linux `:`, Windows `;`)로 구분하며 앞의 경로가 우선합니다. |
 
@@ -62,7 +65,8 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 **FIXTURE** (`mode: "FIXTURE"`, `fixtureId` 필수)는 저장된 스냅샷을 읽습니다. 조회 순서는 `services/collector/fixtures/<id>/snapshot.json`(실제 메인넷 수집)이 먼저이고, 없으면 `contracts/fixtures/<id>/snapshot.json`(합성 데이터)입니다. 요청 주소가 스냅샷 주소와 다르면 409 `CONFLICT`입니다.
 
 - 요청 구간과 수집 구간이 같고 거래 수가 `maxTransactions` 이하이면 스냅샷을 그대로 반환하며 `requestId`와 `mode`만 요청에 맞춥니다.
-- 다르면 전송의 시각을 `[fromTime, toTime)`으로 다시 거르고, 거래 서명 수가 `maxTransactions`를 넘으면 최신 거래부터 남깁니다. 이때 `TRANSACTION_LIMIT_REACHED`가 추가됩니다.
+- 다르면 전송의 시각을 `[fromTime, toTime)`으로 다시 거르고, 거래 수가 `maxTransactions`를 넘으면 최신 거래부터 남기며 `TRANSACTION_LIMIT_REACHED`를 추가합니다.
+- 실제 메인넷 Fixture에는 수집한 모든 거래(전송이 없는 거래와 실패 거래 포함)의 서명·슬롯·시각을 담은 `transactions.json`이 있어, 좁은 구간에서도 거래 수와 한도를 정확히 계산합니다. 이 파일이 없는 합성 Fixture에서 전송 없는 거래는 수집 구간 전체를 덮는 요청에만 반영됩니다.
 - 요청 구간이 수집 구간을 벗어나면 `TIME_BOUNDARY_NOT_REACHED`가 추가됩니다.
 - 시각을 알 수 없는 전송은 요청 구간이 수집 구간 전체를 덮을 때만 포함하며, 그 밖에는 `TIMESTAMP_UNAVAILABLE`로 완전성을 증명하지 않습니다.
 - 입력 파일이나 저장된 스냅샷은 수정하지 않고 복사본을 만듭니다.
@@ -70,15 +74,17 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 **LIVE** (`mode: "LIVE"`)는 Solana JSON-RPC로 조회합니다. 순서는 다음과 같습니다.
 
 1. 라벨 데이터셋을 먼저 읽습니다. 실패하면 RPC를 호출하지 않고 503을 반환합니다.
-2. `getSlot`(finalized)으로 기준 슬롯을 고정합니다.
-3. `getSignaturesForAddress`를 finalized 기준으로 최신부터 1000개씩 페이지 조회합니다. 기준 슬롯보다 높은 서명과 `toTime` 이후 서명은 건너뜁니다.
-4. `fromTime`보다 이전 `blockTime`을 만나거나 이력의 끝에 도달하면 중단합니다. `maxTransactions`개를 채운 뒤에도 구간 안의 서명이 남아 있으면 중단하고 `TRANSACTION_LIMIT_REACHED`를 기록합니다.
-5. 서명마다 `getTransaction`(jsonParsed, finalized)을 호출합니다. 실패한 거래는 `transactionCount`에는 포함되지만 전송 계산에서는 제외합니다.
-6. 거래를 정규화하여 전송을 모으고, 주소와 관련된 주소에 대해서만 라벨을 붙입니다.
+2. 시간 예산(`COLLECTOR_TIME_BUDGET_SECONDS`)을 시작합니다. 이후 모든 RPC 호출과 재시도는 남은 예산 안에서만 실행됩니다.
+3. `getSlot`(finalized)으로 기준 슬롯을 고정합니다.
+4. `getTokenAccountsByOwner`로 지갑이 현재 보유한 Token·Token-2022 토큰 계정을 찾습니다. 다른 지갑이 토큰을 보내면 거래에 지갑 주소 없이 토큰 계정만 등장하는 경우가 많으므로, 지갑과 토큰 계정의 이력을 함께 조회합니다.
+5. 지갑과 각 토큰 계정에 대해 `getSignaturesForAddress`(finalized)를 최신부터 페이지 조회합니다. 기준 슬롯보다 높은 서명과 `toTime` 이후 서명은 건너뛰고, `fromTime`보다 이전 `blockTime`을 만나거나 빈 페이지가 나오면 그 계정의 조회를 끝냅니다. 요청한 개수보다 적은 페이지는 이력의 끝으로 보지 않습니다. 계정마다 `maxTransactions + 1`개를 확인하면 더 오래된 서명은 결과에 들 수 없으므로 조기 종료합니다.
+6. 모든 계정의 서명을 합쳐 중복을 없애고 최신순으로 `maxTransactions`개를 고릅니다. 더 남아 있으면 `TRANSACTION_LIMIT_REACHED`를 기록합니다.
+7. 고른 서명마다 `getTransaction`(jsonParsed, finalized)을 동시에 호출합니다. 실패한 거래(`err`)는 `transactionCount`에는 포함되지만 조회하지 않고 전송 계산에서도 제외합니다. 서명에 `blockTime`이 없던 거래는 실제 거래 시각이 구간 밖이면 제거합니다.
+8. 거래를 정규화하여 전송을 모으고, 조회 주소와 거래 상대 주소에 대해서만 라벨을 붙입니다.
 
-RPC 호출은 재시도 가능 오류(JSON-RPC `-32005`, `-32429`, `-32603`, 네트워크 오류)에 대해 최대 3회 지수 백오프로 재시도합니다. 개별 거래 조회가 최종 실패하면 해당 거래를 건너뛰고 `TRANSACTION_FETCH_FAILED`를 기록합니다. 페이지네이션이 진전하지 않으면 502로 실패합니다.
+RPC 호출은 재시도 가능 오류(HTTP 429·5xx, JSON-RPC `-32005`·`-32429`·`-32603`, 네트워크 오류·응답 절단)에 대해 남은 시간 예산 안에서 최대 3회 지수 백오프로 재시도합니다. 리다이렉트는 따라가지 않습니다(API 키 헤더가 다른 주소로 전달되는 것을 막기 위해). 개별 거래 조회가 실패하거나 시간 예산이 끝나 가져오지 못한 거래는 건너뛰고 `TRANSACTION_FETCH_FAILED`를 기록합니다. 서명 조회 중 예산이 끝나면 `TIME_BOUNDARY_NOT_REACHED`를 기록합니다. 기준 슬롯·토큰 계정 조회 자체가 실패하면 스냅샷을 만들지 않고 구조화된 오류(502/503, 재시도 가능)를 반환합니다.
 
-스냅샷의 `dataProvenance.reference`는 항상 `null`입니다. RPC 주소에 API 키가 포함될 수 있기 때문입니다.
+LIVE 스냅샷의 `dataProvenance.reference`는 `null`입니다. RPC 주소에 API 키가 포함될 수 있기 때문입니다. 실제 메인넷 Fixture(capture로 저장)는 공개 탐색기의 주소 페이지 URL을 기록합니다.
 
 ## 커버리지 사유
 
@@ -86,11 +92,11 @@ RPC 호출은 재시도 가능 오류(JSON-RPC `-32005`, `-32429`, `-32603`, 네
 
 | 사유 | 발생 조건 |
 | --- | --- |
-| `TRANSACTION_LIMIT_REACHED` | `maxTransactions`를 채운 뒤에도 요청 구간 안의 거래가 남아 있음 (LIVE). 최신 거래만 남긴 경우 (FIXTURE). |
-| `TIME_BOUNDARY_NOT_REACHED` | 요청 구간의 시작 시각까지 확인하지 못함. FIXTURE에서는 요청 구간이 수집 구간을 벗어날 때 발생합니다. |
-| `TRANSACTION_FETCH_FAILED` | `getTransaction`이 재시도 후에도 실패하여 해당 거래를 가져오지 못함 |
-| `UNSUPPORTED_INSTRUCTION` | 추적 대상 프로그램의 명령어이지만 파싱된 데이터가 없음 |
-| `PARSE_FAILED` | 전송으로 보이는 명령어 또는 내부 명령어 그룹을 안전하게 읽을 수 없음 |
+| `TRANSACTION_LIMIT_REACHED` | 지갑·토큰 계정의 이력을 합쳐 `maxTransactions`를 채운 뒤에도 요청 구간 안의 거래가 남아 있음 (LIVE). 최신 거래만 남긴 경우 (FIXTURE). |
+| `TIME_BOUNDARY_NOT_REACHED` | 요청 구간 전체를 확인하지 못함: 시간 예산·페이지 상한으로 서명 조회가 끝나지 않음, 토큰 계정 수 상한 초과, `toTime`이 현재보다 미래 (LIVE). 요청 구간이 수집 구간을 벗어남 (FIXTURE). |
+| `TRANSACTION_FETCH_FAILED` | `getTransaction`이 재시도 후에도 실패했거나 시간 예산 안에 끝나지 않아 해당 거래를 가져오지 못함 |
+| `UNSUPPORTED_INSTRUCTION` | 추적 대상 프로그램의 명령어가 조회 지갑(또는 그 토큰 계정)을 포함하지만 RPC가 파싱하지 못함 |
+| `PARSE_FAILED` | 지갑과 관련된 전송 명령어를 안전하게 읽을 수 없음(mint·decimals 미확인 등), 내부 명령어 그룹이 손상됨, 거래 결과 구조가 손상됨 |
 | `OWNER_UNRESOLVED` | 전송의 송신자 또는 수신자 소유자를 토큰 잔액에서 확인하지 못함. 해당 전송은 `ownerResolved: false`입니다. |
 | `TIMESTAMP_UNAVAILABLE` | 거래의 `blockTime`이 없어 전송 시각을 알 수 없음 |
 | `LABEL_DATASET_UNAVAILABLE` | 열거형에는 정의되어 있으나 현재 구현에서는 사유로 기록하지 않습니다. 라벨 데이터셋을 읽지 못하면 사유 대신 503 `UPSTREAM_UNAVAILABLE`로 응답합니다. |
@@ -98,16 +104,18 @@ RPC 호출은 재시도 가능 오류(JSON-RPC `-32005`, `-32429`, `-32603`, 네
 ## 정규화 규칙 요약
 
 - 실패한 거래(`meta.err`가 있음)는 전송을 만들지 않습니다. 개수는 `transactionCount`에만 반영합니다.
-- 전송으로 추적하는 명령어는 System Program의 `transfer`, `transferWithSeed`와 Token·Token-2022 프로그램의 `transfer`, `transferChecked`, `transferCheckedWithFee`입니다. 최상위 명령어와 내부 명령어를 모두 검사합니다.
-- 조회 주소가 송신자·수신자의 소유자 또는 계정 주소에 있는 전송만 남깁니다.
-- SOL은 9 decimals, 토큰은 잔액 정보의 mint와 decimals를 사용합니다. 금액은 원시 정수 문자열(`amountRaw`)로 보존합니다.
+- 전송으로 추적하는 명령어는 System Program의 `transfer`, `transferWithSeed`, Token·Token-2022 프로그램의 `transfer`, `transferChecked`, 그리고 Token-2022의 `transferCheckedWithFee`입니다. 최상위 명령어와 내부 명령어를 모두 검사합니다.
+- 조회 지갑 또는 지갑의 토큰 계정이 송신·수신 소유자나 계정 주소로 등장하는 전송만 남깁니다. 지갑과 연결할 수 없는 명령어(스왑의 풀 간 이동 등)는 읽지 못해도 사유를 남기지 않습니다.
+- 토큰 계정의 소유자·mint·decimals는 거래 안의 토큰 잔액(pre/postTokenBalances)에서 찾고, 같은 거래에서 생성·종료된 임시 토큰 계정은 `initializeAccount*` 명령어에서 소유자와 mint를 찾습니다. decimals는 같은 mint의 다른 잔액 정보로 보완합니다. 소유자를 확인하지 못하면 `null`로 두고 토큰 계정 주소로 채우지 않습니다.
+- jsonParsed의 `accountKeys`에는 주소 조회 테이블(lookup table)에서 불러온 주소도 포함되므로 v0·v1 거래의 잔액 인덱스를 그대로 사용합니다.
+- SOL은 9 decimals입니다. 금액은 원시 정수 문자열(`amountRaw`)로 보존하며 부동소수점으로 바꾸지 않습니다.
 - 시각은 `blockTime`을 UTC `Z` 형식으로 변환합니다.
-- 전송 ID는 서명, 명령어 위치, 내부 명령어 위치, 전송 순번을 해시한 값입니다. 결과 순서는 슬롯, 서명, 명령어 위치로 정렬하므로 같은 입력에 같은 결과를 냅니다.
-- 같은 명령어에서 나온 중복 전송은 한 번만 기록합니다.
+- 전송 ID는 서명, 명령어 위치, 내부 명령어 위치, 전송 순번을 해시한 값입니다. 결과는 슬롯, 서명, 명령어 위치, 내부 명령어 위치, 전송 순번으로 정렬하므로 같은 입력에 같은 결과를 냅니다.
+- 같은 명령어 위치에서 나온 중복 전송은 한 번만 기록합니다.
 
 ## 제재 라벨
 
-라벨은 OFAC SDN 공식 목록의 "Digital Currency Address - SOL" 항목만 사용합니다. 주소가 정확히 일치하는 경우에만 `SANCTIONED` 라벨을 붙이며, `referenceId`는 SDN 항목 UID(`OFAC-SDN-<uid>`)입니다. 부분 일치, 유사 주소 추정, 다른 출처의 라벨은 사용하지 않습니다. 라벨 일치는 위험 신호이며 법적 판단이 아닙니다.
+라벨은 OFAC SDN 공식 목록의 "Digital Currency Address - SOL" 항목만 사용합니다. 주소가 정확히 일치하는 경우에만 `SANCTIONED` 라벨을 붙이며, `referenceId`는 SDN 항목 UID(`OFAC-SDN-<uid>`)입니다. 같은 주소·참조에 여러 유형이 있으면 `SANCTIONED`를 우선합니다. 데이터셋 파일이 손상되면 503으로 응답합니다. 부분 일치, 유사 주소 추정, 다른 출처의 라벨은 사용하지 않습니다. 라벨 일치는 위험 신호이며 법적 판단이 아닙니다.
 
 현재 데이터셋(`services/collector/data/labels/ofac-sdn.json`)의 출처 버전은 `2026-11-09`이고 SOL 주소는 4개입니다.
 
@@ -118,6 +126,8 @@ python -m collector.ofac                          # OFAC에서 SDN.XML을 내려
 python -m collector.ofac --input SDN.XML          # 미리 받아 둔 파일로 오프라인 갱신
 python -m collector.ofac --output /path/to/file.json
 ```
+
+SOL 주소가 하나도 추출되지 않으면(OFAC 형식 변경 등) 기존 데이터셋을 덮어쓰지 않고 종료 코드 1로 끝납니다. 의도한 경우에만 `--allow-empty`를 사용합니다. 파일은 임시 파일에 쓴 뒤 교체하므로 읽는 쪽이 절반만 쓰인 파일을 보지 않습니다.
 
 ## Fixture 기록 (capture)
 
@@ -135,8 +145,11 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 
 - `snapshot.json`: 실제 LIVE 결과를 FIXTURE 모드로 표기한 스냅샷
 - `collection-request.json`: 이 스냅샷을 FIXTURE 모드로 불러오는 요청
-- `rpc-recording.json`: 호출한 RPC 메서드와 결과. 네트워크 없이 같은 정규화를 재현할 수 있습니다.
-- `source.json`: 탐색기 링크, 라벨 데이터셋 버전, 캡처 설명 등 외부 근거
+- `transactions.json`: 수집한 모든 거래의 서명·슬롯·시각·실패 여부. FIXTURE 재구성 시 거래 수 계산에 사용합니다.
+- `rpc-recording.json`: 호출한 RPC 메서드와 결과(실패한 호출은 오류 정보). 네트워크 없이 같은 수집을 재현할 수 있으며, 테스트가 이 기록으로 저장된 스냅샷을 다시 만들어 비교합니다.
+- `source.json`: 거래별 탐색기 링크, 조회한 토큰 계정, 라벨 데이터셋의 출처 URL·파일·SHA-256과 일치한 참조 ID, 캡처 설명 등 외부 근거
+
+`SOLANA_RPC_PROVIDER`가 스냅샷의 `dataProvenance.source`에 기록되며, `--labels`로 다른 라벨 데이터셋을 지정할 수 있습니다.
 
 ## Fixture 목록
 
@@ -146,7 +159,8 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 | --- | --- | --- | --- | --- | --- |
 | `mainnet-normal-wallet` | 실제 메인넷 (NODIT_SOLANA_RPC) | `6UuyGC…NTA` | 2026-10-01 ~ 2026-11-10 / 50 | COMPLETE, 거래 12건·전송 12건 (SOL, USDC, USDT) | LOW |
 | `mainnet-ofac-sdn-exact` | 실제 메인넷, OFAC SDN 일치 | `42RLPA…oHi` | 2026-01-01 ~ 2026-11-10 / 50 | COMPLETE, 거래 5건·전송 0건 (토큰 계정 생성·동결 명령어만) | SANCTION_EXACT, HIGH |
-| `mainnet-busy-wallet-partial` | 실제 메인넷 (활동량 많음) | `EnKfhn…VNL9` | 2026-11-01 ~ 2026-11-10 / 20 | PARTIAL (`TRANSACTION_LIMIT_REACHED`), 거래 20건 | 점수 null |
+| `mainnet-busy-wallet-partial` | 실제 메인넷 (활동량 많음) | `EnKfhn…VNL9` | 2026-11-01 ~ 2026-11-10 / 20 | PARTIAL (`TRANSACTION_LIMIT_REACHED`), 거래 20건·전송 20건 (대부분 토큰 계정으로 들어온 USDT) | 점수 null |
+| `mainnet-rapid-fan-out` | 실제 메인넷 (이상 패턴) | `5sXRSS…EC31` | 2026-11-09 00:00 ~ 03:00 / 100 | COMPLETE, 거래 15건·전송 20건 | RAPID_FAN_OUT, MEDIUM |
 | `sender`, `sanctioned`, `normal`, `warn`, `partial`, `partial-sanctioned`, `repeat`, `direct-flow`, `spl`, `token-2022`, `unresolved`, `missing-time`, `empty` | 합성 (`contracts/fixtures`) | 합성 주소 | 각 `collection-request.json` 참고 | 계약 검증용 시나리오 | 시나리오별 |
 
 합성 Fixture는 모두 합성 데이터이며 실제 주소나 실제 조회 결과가 아닙니다. 계약 검증용 목록은 `contracts/fixtures/manifest.json`에 있습니다. 실제 메인넷 Fixture의 주소는 공개된 블록체인 주소이며, 위험 신호는 법적 판단이 아닙니다.
@@ -160,13 +174,16 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 
 ## 한계
 
-- **지갑 주소 조회의 누락 가능성**: `getSignaturesForAddress(wallet)`은 지갑 주소가 계정 키에 없고 지갑의 토큰 계정만 건드린 거래를 반환하지 않습니다. 이런 전송은 수집되지 않으며, 커버리지 사유로도 표시하지 않습니다.
-- **추출 범위**: 전송으로 추적하는 명령어는 위에 나열한 것뿐입니다. 스왑, 임의 프로그램 호출, 메시지 내부의 간접 전송은 분석하지 않습니다.
+- **닫힌 토큰 계정**: 지갑이 현재 보유한 토큰 계정만 함께 조회합니다. 요청 구간 이후 닫혔거나 소유자가 바뀐 토큰 계정의 거래 중 지갑 주소가 등장하지 않는 것은 RPC로 찾을 수 없어 수집되지 않으며, 커버리지 사유로도 표시되지 않습니다.
+- **지갑과 연결할 수 없는 전송**: 토큰 잔액·`initializeAccount*`·현재 토큰 계정 어디에서도 지갑과 연결되지 않는 토큰 전송은 지갑의 전송으로 보지 않습니다.
+- **`transferWithSeed`**: 시드로 파생된 송신 계정을 `fromAddress`로 기록합니다(SOL은 계정과 소유자를 같은 주소로 표기하는 계약 규칙). 파생 계정의 기준 지갑(`sourceBase`)으로는 조회되지 않습니다.
+- **추출 범위**: 전송으로 추적하는 명령어는 위에 나열한 것뿐입니다. 스왑이나 다른 프로그램의 내부 호출로 일어나는 토큰·SOL 이동은 그 안의 위 명령어로만 잡히며, 계정 잔액 변화만으로 추정하지 않습니다. RPC가 파싱하지 못하는 Token-2022 확장(기밀 전송 등)은 금액을 읽을 수 없습니다.
 - **실패 거래**: 실패한 거래는 `transactionCount`에 포함되지만 전송 계산에서는 빠집니다.
 - **지속 감시 없음**: 요청 시점의 스냅샷만 만듭니다. 새 거래를 자동으로 수집하거나 알림을 보내지 않습니다.
 - **확정성**: `finalized` 커밋먼트만 사용합니다. 아직 확정되지 않은 최근 거래는 포함되지 않습니다.
 - **라벨 범위**: OFAC SDN의 SOL 주소만 사용합니다. 다른 제재 목록, 거래소 태그, 사용자 신고 정보는 없습니다. 데이터셋 갱신 주기는 운영자가 관리합니다.
 - **FIXTURE 재구성**: 저장된 스냅샷에서 전송을 걸러 다시 만드는 방식이므로, 저장 시점에 누락된 거래는 복원할 수 없습니다.
+- **시간 예산**: 거래가 많은 요청은 예산(기본 20초) 안에 끝나지 않으면 PARTIAL이 됩니다. 실측 기준 동시 16개 조회에서 거래 540건이 약 18초 걸렸습니다.
 
 ## 운영 참고
 

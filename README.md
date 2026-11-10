@@ -108,7 +108,7 @@ Windows PowerShell에서는 `./mvnw` 대신 `.\mvnw.cmd`를 사용합니다. Jav
 위 Python 엔진 설치를 마친 뒤 실행합니다. 별도 저장소를 클론할 필요 없이 현재 워크스페이스의 엔진과 공통 계약을 사용합니다.
 
 ```bash
-scripts/run-local.sh start    # 빌드 후 KYT·Policy·Gateway·Constellation·Backend 기동
+scripts/run-local.sh start    # 빌드 후 Collector·KYT·Policy·Gateway·Constellation·Backend 기동
 scripts/run-local.sh status   # /health 확인
 scripts/run-local.sh stop     # 전체 종료
 ```
@@ -229,6 +229,7 @@ curl -s -X POST localhost:8080/api/v1/experiments/gateway -H 'Content-Type: appl
 | `COLLECTOR_URL` `KYT_URL` `POLICY_URL` `GATEWAY_URL` `CONSTELLATION_URL` | `http://127.0.0.1:8000~8004` (Compose는 `http://collector:8000` 등) | 내부 모듈 주소 |
 | `SOLANA_RPC_URL` / `SOLANA_RPC_API_KEY` / `SOLANA_RPC_PROVIDER` | 없음 / 없음 / `SOLANA_RPC` | Collector LIVE 모드의 RPC 주소, API 키(헤더로만 전송), 제공자 이름. 키는 `.env`에만 두고 커밋하지 않음 |
 | `COLLECTOR_MAX_TRANSACTIONS` / `COLLECTOR_LABEL_DATASET` | `1000` / `services/collector/data/labels/ofac-sdn.json` | Collector의 거래 수 상한과 OFAC 라벨 데이터셋 경로 |
+| `COLLECTOR_TIME_BUDGET_SECONDS` / `COLLECTOR_FETCH_WORKERS` / `COLLECTOR_MAX_TOKEN_ACCOUNTS` | `20` / `16` / `100` | LIVE 수집 시간 예산(Backend 읽기 제한 30초보다 작게), 동시 조회 수, 함께 조회할 토큰 계정 상한. 전체 목록은 [Collector README](services/collector/README.md) |
 | `DEFAULT_RULESET_VERSION` | `1.0.0` | 요청에 rulesetVersion이 없을 때 사용 |
 | `LOCAL_COLLECTOR_ENABLED` / `LOCAL_COLLECTOR_FIXTURES_DIR` | `false` / `contracts/fixtures` | `true`면 Collector 대신 fixture 디렉터리를 직접 읽음 (화면 확인용) |
 | `CONSTELLATION_ATTESTATION_THRESHOLD` | `66.67` | 초안 모델의 포함 강제 증명 임계값(%, 이상) |
