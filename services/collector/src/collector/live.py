@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 from compliance_contracts.runtime import require
 
-from .errors import ProviderError
+from .errors import BudgetExhausted, ProviderError
 
 REASON_LIMIT = "TRANSACTION_LIMIT_REACHED"
 REASON_FETCH_FAILED = "TRANSACTION_FETCH_FAILED"
@@ -37,6 +37,8 @@ class LiveResult:
     reached_time_boundary: bool = False
     snapshot_slot: int = 0
     token_accounts: list[str] = field(default_factory=list)
+    # Selected signature entries (signature, slot, blockTime, err), newest first, failed ones included.
+    signatures: list[dict] = field(default_factory=list)
 
 
 @dataclass
@@ -51,6 +53,17 @@ def _utc(value: datetime, name: str) -> datetime:
         f"{name} must be a timezone-aware datetime",
     )
     return value.astimezone(timezone.utc)
+
+
+def _is_int(value) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _signature_of(tx: dict):
+    try:
+        return tx["transaction"]["signatures"][0]
+    except (KeyError, IndexError, TypeError):
+        return None
 
 
 def _newest_first(entry: dict):
@@ -83,6 +96,9 @@ class LiveSource:
         require(start < end, "Empty or inverted time range")
         require(max_transactions >= 1, "max_transactions must be positive")
         deadline = self._clock() + self._budget
+        bind = getattr(self._rpc, "bind_deadline", None)
+        if callable(bind):
+            bind(deadline)  # bounds every provider call, including retries, by the same budget
         reasons: set[str] = set()
 
         snapshot_slot = self._rpc.get_slot(commitment=FINALIZED)
@@ -114,15 +130,25 @@ class LiveSource:
         transactions, fetch_complete = self._fetch_all(to_fetch, deadline)
         if not fetch_complete:
             reasons.add(REASON_FETCH_FAILED)
+        # A signature listed without blockTime was kept as a candidate; drop it if the transaction itself
+        # turns out to lie outside the window, so every reported transfer is inside [from, to).
+        inside = [tx for tx in transactions if not _is_int(tx.get("blockTime"))
+                  or start.timestamp() <= tx["blockTime"] < end.timestamp()]
+        outside = {_signature_of(tx) for tx in transactions} - {_signature_of(tx) for tx in inside}
+        outside_count = len(transactions) - len(inside)
+        transactions = inside
+        signatures = [{key: entry.get(key) for key in ("signature", "slot", "blockTime", "err")}
+                      for entry in selected if entry["signature"] not in outside]
 
         return LiveResult(
             transactions=transactions,
             failed_count=len(failed),
-            transaction_count=len(selected),
+            transaction_count=len(selected) - outside_count,
             reasons=reasons,
             reached_time_boundary=not reasons & {REASON_LIMIT, REASON_BOUNDARY},
             snapshot_slot=snapshot_slot,
             token_accounts=token_accounts,
+            signatures=signatures,
         )
 
     def _token_accounts(self, owner: str) -> list[str]:
@@ -145,20 +171,26 @@ class LiveSource:
         for _ in range(self._max_pages):
             if self._clock() >= deadline:
                 return _Scan(entries, False)
-            page = self._rpc.get_signatures_for_address(
-                stream, before=before, limit=self._page_size, commitment=FINALIZED
-            )
+            try:
+                page = self._rpc.get_signatures_for_address(
+                    stream, before=before, limit=self._page_size, commitment=FINALIZED
+                )
+            except BudgetExhausted:
+                return _Scan(entries, False)
+            if not isinstance(page, list):
+                raise ProviderError("Solana RPC returned an invalid signature list", retryable=False, status=502)
             for entry in page:
                 signature = entry.get("signature") if isinstance(entry, dict) else None
                 if not isinstance(signature, str) or not signature:
                     raise ProviderError("Solana RPC returned a malformed signature entry", retryable=False, status=502)
+                slot, block_time = entry.get("slot"), entry.get("blockTime")
+                if not _is_int(slot) or not (block_time is None or _is_int(block_time)):
+                    raise ProviderError("Solana RPC returned a malformed signature entry", retryable=False, status=502)
                 if signature in seen:
                     continue
                 seen.add(signature)
-                slot = entry.get("slot")
-                if isinstance(slot, int) and slot > snapshot_slot:
+                if slot > snapshot_slot:
                     continue
-                block_time = entry.get("blockTime")
                 if block_time is not None:
                     if block_time >= to_ts:
                         continue
@@ -167,8 +199,9 @@ class LiveSource:
                 entries.append(entry)
                 if len(entries) > max_transactions:
                     return _Scan(entries, True)
-            if len(page) < self._page_size:
-                return _Scan(entries, True)  # end of history
+            if not page:
+                # Only an empty page proves the end of history: some providers return short pages early.
+                return _Scan(entries, True)
             next_before = page[-1]["signature"]
             if next_before == before:
                 raise ProviderError("Solana RPC pagination did not advance", retryable=False, status=502)

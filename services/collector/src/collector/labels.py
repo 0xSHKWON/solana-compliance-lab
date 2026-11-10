@@ -17,7 +17,8 @@ DATASET_ENV = "COLLECTOR_LABEL_DATASET"
 DEFAULT_NETWORK = "mainnet-beta"
 
 _ADDRESS_PATTERN = re.compile(r"[1-9A-HJ-NP-Za-km-z]{32,44}")
-_LABEL_TYPES = frozenset({"SANCTIONED", "INCIDENT", "OTHER"})
+_SEVERITY = {"SANCTIONED": 0, "INCIDENT": 1, "OTHER": 2}
+_LABEL_TYPES = frozenset(_SEVERITY)
 _SOURCES = frozenset({"OFAC_SDN", "TEST_FIXTURE"})
 
 
@@ -47,8 +48,9 @@ class LabelDataset:
         self._version = version
         self._fetched_at = fetched_at
         self._reference = reference
-        # One label per (address, referenceId); sorting makes the choice deterministic.
-        ordered = sorted(set(entries), key=lambda e: (e[0], e[2], e[1]))
+        # One label per (address, referenceId). If the same reference carries several types, the most
+        # severe one wins so a SANCTIONED entry is never hidden behind INCIDENT/OTHER.
+        ordered = sorted(set(entries), key=lambda e: (e[0], e[2], _SEVERITY[e[1]]))
         unique, seen = [], set()
         for address, label_type, reference_id in ordered:
             if (address, reference_id) not in seen:
@@ -81,6 +83,10 @@ class LabelDataset:
         return cls(source=metadata["source"], version=metadata["version"], fetched_at=metadata["fetchedAt"],
                    reference=reference, entries=entries)
 
+    def reference(self) -> str | None:
+        """Where the dataset was obtained (e.g. the official SDN export URL)."""
+        return self._reference
+
     def metadata(self) -> dict:
         return {"source": self._source, "version": self._version, "fetchedAt": self._fetched_at}
 
@@ -104,5 +110,5 @@ def _parse_entry(raw):
     if label_type not in _LABEL_TYPES or not isinstance(reference_id, str) or not reference_id:
         raise _unavailable()
     if not _is_address(raw.get("address")):
-        raise ValueError("Invalid label address in dataset")
+        raise _unavailable()  # a corrupt dataset is unusable, not a server crash
     return (raw["address"], label_type, reference_id)

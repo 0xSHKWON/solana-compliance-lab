@@ -241,11 +241,12 @@ def test_invalid_json_body_on_success_is_retried():
 def test_default_transport_maps_http_error_to_status(monkeypatch):
     import collector.rpc as rpc_module
 
-    def fake_urlopen(request, timeout):
-        assert request.get_header("Content-type") == "application/json"
-        raise urllib.error.HTTPError(URL, 429, "Too Many Requests", {}, None)
+    class FakeOpener:
+        def open(self, request, timeout):
+            assert request.get_header("Content-type") == "application/json"
+            raise urllib.error.HTTPError(URL, 429, "Too Many Requests", {}, None)
 
-    monkeypatch.setattr(rpc_module.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(rpc_module, "_OPENER", FakeOpener())
     client = SolanaRpcClient(URL, max_retries=0, sleep=lambda s: None)
 
     with pytest.raises(ProviderError) as info:
@@ -269,3 +270,103 @@ def test_get_token_accounts_by_owner_rejects_malformed_result():
     client = make_client(FakeTransport(ok({"value": [{"no": "pubkey"}]})))
     with pytest.raises(ProviderError):
         client.get_token_accounts_by_owner("wallet", "program")
+
+
+
+# --- security / robustness regressions ---------------------------------------------------------
+
+def test_redirect_is_not_followed_and_api_key_is_not_forwarded():
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    received = []
+
+    class Target(BaseHTTPRequestHandler):
+        def do_GET(self):
+            received.append(self.headers.get("X-API-KEY"))
+            self.send_response(200); self.end_headers(); self.wfile.write(b'{"jsonrpc":"2.0","id":1,"result":1}')
+        do_POST = do_GET
+
+        def log_message(self, *args):
+            pass
+
+    target = HTTPServer(("127.0.0.1", 0), Target)
+
+    class Redirect(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers["Content-Length"]))
+            self.send_response(302)
+            self.send_header("Location", f"http://127.0.0.1:{target.server_port}/")
+            self.end_headers()
+
+        def log_message(self, *args):
+            pass
+
+    redirect = HTTPServer(("127.0.0.1", 0), Redirect)
+    threads = [threading.Thread(target=server.serve_forever, daemon=True) for server in (target, redirect)]
+    for thread in threads:
+        thread.start()
+    try:
+        client = SolanaRpcClient(f"http://127.0.0.1:{redirect.server_port}/", api_key="SECRET-KEY",
+                                 max_retries=0, sleep=lambda s: None)
+        with pytest.raises(ProviderError) as info:
+            client.get_slot()
+    finally:
+        for server in (target, redirect):
+            server.shutdown(); server.server_close()
+
+    assert received == []  # the key never reached the redirect target
+    assert "SECRET-KEY" not in str(info.value)
+
+
+@pytest.mark.parametrize("url", ["solana-mainnet.example?api-key=SECRET", "ftp://host/SECRET", "https://", ""])
+def test_malformed_url_is_rejected_without_echoing_it(url):
+    with pytest.raises(CollectionError) as info:
+        SolanaRpcClient.from_env({"SOLANA_RPC_URL": url}) if url else SolanaRpcClient(url)
+    assert info.value.status == 503 and "SECRET" not in str(info.value)
+
+
+@pytest.mark.parametrize("timeout", ["nan", "-1", "inf", "0"])
+def test_invalid_timeout_is_rejected(timeout):
+    with pytest.raises(CollectionError):
+        SolanaRpcClient.from_env({"SOLANA_RPC_URL": URL, "SOLANA_RPC_TIMEOUT": timeout})
+
+
+def test_incomplete_read_is_retried_as_provider_failure():
+    import http.client
+
+    def transport(url, body, headers, timeout):
+        raise http.client.IncompleteRead(b"partial", 100)
+
+    client = SolanaRpcClient(URL, max_retries=1, transport=transport, sleep=lambda s: None)
+    with pytest.raises(ProviderError) as info:
+        client.get_slot()
+    assert info.value.retryable is True
+
+
+def test_non_integer_rpc_error_code_does_not_crash():
+    client = make_client(FakeTransport((200, json.dumps({"jsonrpc": "2.0", "id": 1, "error": {"code": []}}).encode())))
+    with pytest.raises(ProviderError) as info:
+        client.get_slot()
+    assert info.value.retryable is False
+
+
+def test_deadline_bounds_attempt_timeout_and_stops_retries():
+    from collector.errors import BudgetExhausted
+
+    now = [0.0]
+    timeouts = []
+
+    def transport(url, body, headers, timeout):
+        timeouts.append(timeout)
+        now[0] += timeout  # the attempt uses its whole timeout
+        raise TimeoutError()
+
+    client = SolanaRpcClient(URL, timeout=15.0, max_retries=3, transport=transport,
+                             sleep=lambda s: now.__setitem__(0, now[0] + s), clock=lambda: now[0])
+    client.bind_deadline(4.0)
+
+    with pytest.raises(BudgetExhausted):
+        client.get_slot()
+    assert timeouts == [4.0]  # bounded by the remaining budget, then no retry past the deadline
+    assert now[0] <= 4.0

@@ -18,7 +18,9 @@ REAL_FIXTURES = ["mainnet-normal-wallet", "mainnet-ofac-sdn-exact", "mainnet-bus
 NORMAL_ADDRESS = "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
 NOW = datetime(2026, 11, 10, 12, 0, tzinfo=timezone.utc)
 COLLECTOR_ENV = ("COLLECTOR_MAX_TRANSACTIONS", "COLLECTOR_LABEL_DATASET", "COLLECTOR_FIXTURE_ROOTS",
-                 "SOLANA_RPC_URL", "SOLANA_RPC_PROVIDER", "SOLANA_RPC_API_KEY")
+                 "COLLECTOR_FETCH_WORKERS", "COLLECTOR_TIME_BUDGET_SECONDS", "COLLECTOR_MAX_TOKEN_ACCOUNTS",
+                 "SOLANA_RPC_URL", "SOLANA_RPC_PROVIDER", "SOLANA_RPC_API_KEY", "SOLANA_RPC_API_KEY_HEADER",
+                 "SOLANA_RPC_TIMEOUT", "SOLANA_RPC_MAX_TX_VERSION")
 
 
 def load(fixture_id, name):
@@ -148,6 +150,8 @@ def test_live_and_fixture_outputs_share_key_structure(fixture_id):
     assert set(live["coverage"]) == set(fixture["coverage"])
     assert set(live["labelDataset"]) == set(fixture["labelDataset"])
     assert set(live["dataProvenance"]) == set(fixture["dataProvenance"])
+    assert len(live["transfers"]) == len(fixture["transfers"])
+    assert len(live["labels"]) == len(fixture["labels"])
     for live_row, fixture_row in zip(live["transfers"], fixture["transfers"]):
         assert set(live_row) == set(fixture_row)
     for live_label, fixture_label in zip(live["labels"], fixture["labels"]):
@@ -311,7 +315,11 @@ def test_real_fan_out_pattern_is_detected_on_complete_data():
 
 
 def test_busy_wallet_includes_incoming_token_account_transfers():
-    """Regression: incoming SPL transfers that only list the wallet's token account must be collected."""
+    """Regression: incoming SPL transfers that only list the wallet's token account must be collected.
+
+    The replay test above proves this snapshot is what the current pipeline produces from the raw
+    recording, so a pipeline without token-account scanning fails there and here.
+    """
     snapshot = load("mainnet-busy-wallet-partial", "snapshot.json")
     address = snapshot["address"]
 
@@ -327,3 +335,21 @@ def test_partial_snapshot_has_no_risk_score():
 
     assert snapshot["coverage"]["status"] == "PARTIAL"
     assert evaluation["riskScore"] is None
+
+
+def test_window_reaching_into_the_future_is_not_complete():
+    """Regression: an empty history up to 'now' does not cover a toTime that has not happened yet."""
+    request = live_request(NORMAL_ADDRESS, "2026-11-10T00:00:00Z", "2026-11-20T00:00:00Z")
+
+    result = Collector(rpc_factory=lambda: FakeRpc(), label_loader=label_dataset, clock=lambda: NOW,
+                       env={}).collect(request)
+
+    assert result["coverage"]["status"] == "PARTIAL"
+    assert result["coverage"]["reasons"] == ["TIME_BOUNDARY_NOT_REACHED"]
+    assert result["coverage"]["reachedTimeBoundary"] is False
+    validate("collector", "KYTDataSnapshot", result)
+
+
+def test_explicit_max_transactions_is_not_replaced_by_env():
+    with pytest.raises(ValueError):
+        Collector(max_transactions=0, env={"COLLECTOR_MAX_TRANSACTIONS": "5"})

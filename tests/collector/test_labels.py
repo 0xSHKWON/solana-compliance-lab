@@ -94,7 +94,7 @@ def test_same_reference_id_on_one_address_keeps_one_label(tmp_path):
     loaded = labels.LabelDataset.load(write(tmp_path, dataset(entries)))
     result = loaded.labels_for([ADDR_A])
     assert len(result) == 1
-    assert result[0]["type"] == "OTHER"  # deterministic: sorted by referenceId then type
+    assert result[0]["type"] == "SANCTIONED"  # the most severe type wins
 
 
 def test_ofac_source_is_carried_into_labels(tmp_path):
@@ -109,17 +109,23 @@ def test_non_mainnet_network_is_rejected_by_contract(tmp_path):
         loaded.labels_for([ADDR_A], "devnet")
 
 
-def test_invalid_entry_address_raises_value_error(tmp_path):
+def test_invalid_entry_address_makes_dataset_unavailable(tmp_path):
     path = write(tmp_path, dataset([{"address": "0OIl-not-base58", "type": "OTHER", "referenceId": "r"}]))
-    with pytest.raises(ValueError) as info:
+    with pytest.raises(CollectionError) as info:
         labels.LabelDataset.load(path)
-    assert not isinstance(info.value, CollectionError)
+    assert info.value.status == 503 and info.value.code == "UPSTREAM_UNAVAILABLE"
 
 
-def test_short_decoded_address_raises_value_error(tmp_path):
+def test_short_decoded_address_makes_dataset_unavailable(tmp_path):
     path = write(tmp_path, dataset([{"address": "2" * 32 + "3", "type": "OTHER", "referenceId": "r"}]))
-    with pytest.raises(ValueError):
+    with pytest.raises(CollectionError):
         labels.LabelDataset.load(path)
+
+
+def test_sanctioned_type_wins_over_other_types_for_same_reference(tmp_path):
+    entries = [{"address": ADDR_A, "type": t, "referenceId": "r1"} for t in ("INCIDENT", "OTHER", "SANCTIONED")]
+    loaded = labels.LabelDataset.load(write(tmp_path, dataset(entries)))
+    assert [label["type"] for label in loaded.labels_for([ADDR_A])] == ["SANCTIONED"]
 
 
 @pytest.mark.parametrize("data", [

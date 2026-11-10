@@ -2,40 +2,89 @@
   "fixtureId": "mainnet-ofac-sdn-exact",
   "dataType": "ON_CHAIN",
   "description": "Real Solana address listed on the OFAC SDN list (Digital Currency Address - SOL). History contains only token-account creation and issuer freeze instructions, so there are no value transfers; the risk signal is the exact label match.",
-  "capturedAt": "2026-11-10T13:17:20Z",
+  "capturedAt": "2026-11-10T13:31:48Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-4a58e0e58f4631164bcc3c0b15cb1d1903112a262b2060b9a38d3de3fc888f09",
+  "liveSnapshotId": "snapshot-b8827779d7f3bd8d3f2f605c61a895ee16c99596db20e849e9fdfd7ea867f6be",
   "address": {
     "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
     "explorer": "https://explorer.solana.com/address/42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi"
   },
+  "tokenAccountsScanned": [
+    "2BsCdHipE8BpShDneBm24mgBdFAVDGZqY9s3yCB3sQ89",
+    "2P6CxX6wt4fuWMxHUohv8ZbA5XniTfvocr9pmk3HeSMr",
+    "2e57zkU9gFN356ZjHz5oK1oBbEy5JXYeKqaEwYSzEWpn",
+    "2iirrYuJgTjfLFgFCAg42WFuu9BR8RTs1uZPjniEK34o",
+    "39JXepUp1XbitUEMbjQCfyjehLv4mkPxo1GYCYbn2qvs",
+    "3AppEot6bqURcoMogEvECr6W6XGd4Yc221uMt1TBzhfQ",
+    "3CfjyJJrC3W7mGRPMBcMCu7bLAtNzaFBc9RQCuFjJX4P",
+    "3bb8VLDCQArCUDLrEp2ze7UvhfuYEn3XqTJLqBf6C1jQ",
+    "3tQh6HKKcKtXv5TyX8TRKhDqRUwdExbeWkTUVxHy5YGu",
+    "3uk1MSbjo7AAZcXMeUP8ufHC6gjzWCrvdQjJ5rahSDaJ",
+    "49Z2bnuQy8td89WMBC6yCuk7c9xUdQ2vvr4xThqryBz7",
+    "731QJ8KBgsagh5fajzVthvLHXBK861Y4J2hFomPGbz2v",
+    "7QwsdV6jP8Tsi1qxW3bSdepgM6JnGnJJYvHMWWSCmrXW",
+    "7SHLmES44L4HpC7jSq2iSr5Ebd3UUNyDvTA6Q13SyD6C",
+    "7zS9tNWzZurjD5THhdAsPEM6QVmxB8FwEhDvURAKjAit",
+    "8PyyhLd1MiMYbJYT7VBhZ8x86JTXtoejPG4uMTw45Xgx",
+    "8nshYZ58TBNZNz7z3mbjxhR5G1dSfL51DTGDgFaHEi9L",
+    "8uwxUa5soZtPR2EiKisvmn1JMpbTiou5tC21ZCYw3sfi",
+    "AUvozXBttxmq7zkSqWF7AhcupvKU2D924LaxsnvdQCe7",
+    "AnYnA5bHwAwJF4CzW3TckzVhqQpKBG9unqp2H5mFWFGi",
+    "B1jUqZENAXMJxBu3pX9v1yq2QDtMeXz1CUiFMr9hsi4f",
+    "BFVav9Hh5TsGyizUoUdGnKLyZZUbGp2vLYbXCyHqnMSX",
+    "BeqxdMBnV5PsXmxFNQC2VUEfPqRiDBAuxbvLAmpSeB4T",
+    "Bg7vVD3f7tt1obmvag9KF8E2j7DKdJdqyKLZMCxHmrne",
+    "C4pjDU6ufMcXdizpGCDnQs6ZKERKNwxSxtuuQRTd3nNb",
+    "CVu8uDbXQXpECoUKn4nC17RUqJWWH1JiLh9XtzXxw8KX",
+    "DBbBgTWUw4ZBHSoJqxqMxbBVwjzjFeG5ABWKJW2Ah5ZL",
+    "Dqzhp1nLBYSW3XPzQzufdZEPWYKAWhXNwdaKanaYXnLy",
+    "EHAka4AkqdMpYnaoqhrt7BYFFW1e8HPtgjGTC4qswfaJ",
+    "EknZQcBhooQSQx8cpGYbKbxahmVedsDt7sKbYG58JZ56",
+    "FQQXtPeqTDrmVhH89WWgT1YxVGNN8s3LjdjVKqANKDD7",
+    "FW9VmPxb1jVzYhD5edNwrzG1H8MtnGK7RnxPKikVBNCU",
+    "FYayFSG9TB2HMN8Eqqe6MM92D8rxBs4qhtgQFjb3CQxZ",
+    "FmHMFXT1xu7EgYAQAFJ1twGnVNaMActAe2qwbwJ7jT7A",
+    "GFGzRejeWf3myjdBjbAgBwGkVAhw8cqRr8ZrwrtaXDYz",
+    "GZ5wpkxLQi3hJtL4oSpe94m5VnYcxbHWQUaHTBRzgqJ5",
+    "HNp5NAvCWQiXTC3oLiLvho8KUpbv9Nnm6uTJLsyeHMdq",
+    "HWf9WcGRPAa6FJve9Fkap3oQPRXRNDvtTbDFHMFm14fY",
+    "JDztyyqRHqz7s6U5Q5LTRCWKTcbf4KowbQahaJjvRQR3",
+    "ZEDeSav3zMMgQ4trZPMHVjWpkNTCE7RnEMD8JPz2RXF"
+  ],
   "transactions": [
     {
-      "signature": "3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP",
-      "explorer": "https://explorer.solana.com/tx/3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP"
-    },
-    {
       "signature": "3MXuS77WAG7suDPGSaQjNgx3HwcM1Jo1yZh9wbYtxh1WdGpMV19D9L59EXi6dbuzk658HXciVqWPSqehqrZXcPBQ",
+      "failed": false,
       "explorer": "https://explorer.solana.com/tx/3MXuS77WAG7suDPGSaQjNgx3HwcM1Jo1yZh9wbYtxh1WdGpMV19D9L59EXi6dbuzk658HXciVqWPSqehqrZXcPBQ"
     },
     {
-      "signature": "4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7",
-      "explorer": "https://explorer.solana.com/tx/4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7"
-    },
-    {
       "signature": "4u8qKip57RqwxM47eZStWhDtRChu5f7gkAntEeTcbAXprMuuwpWxsdfXW2dW9Fw6M5h8D34k4ixU9epFxYzHfUZs",
+      "failed": false,
       "explorer": "https://explorer.solana.com/tx/4u8qKip57RqwxM47eZStWhDtRChu5f7gkAntEeTcbAXprMuuwpWxsdfXW2dW9Fw6M5h8D34k4ixU9epFxYzHfUZs"
     },
     {
+      "signature": "3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP",
+      "failed": false,
+      "explorer": "https://explorer.solana.com/tx/3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP"
+    },
+    {
       "signature": "4xofFVnUNd9y4eCk1rfCKBxMtLXTmsaXZk3mbczx1fbZx3i8dJZZnYYcst5rHPHUypA7QRYnA2fxMxARrw5NYxMQ",
+      "failed": false,
       "explorer": "https://explorer.solana.com/tx/4xofFVnUNd9y4eCk1rfCKBxMtLXTmsaXZk3mbczx1fbZx3i8dJZZnYYcst5rHPHUypA7QRYnA2fxMxARrw5NYxMQ"
+    },
+    {
+      "signature": "4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7",
+      "failed": false,
+      "explorer": "https://explorer.solana.com/tx/4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7"
     }
   ],
   "labelDataset": {
     "source": "OFAC_SDN",
     "version": "2026-11-09",
     "fetchedAt": "2026-11-10T12:02:11Z",
-    "reference": "https://sanctionssearch.ofac.treas.gov/",
+    "reference": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML",
+    "file": "services/collector/data/labels/ofac-sdn.json",
+    "sha256": "5cf9eedebe0cd0a77365201e628b1d4c73dc5fc8fcbadc3bae67b37c666e65c4",
     "matchedReferenceIds": [
       "OFAC-SDN-56360"
     ]

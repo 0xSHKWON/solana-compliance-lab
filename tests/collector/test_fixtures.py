@@ -247,3 +247,45 @@ def test_unreadable_snapshot_is_internal_error(tmp_path):
         FixtureStore([tmp_path]).load("broken")
     assert info.value.code == "INTERNAL_ERROR"
     assert info.value.status == 500
+
+
+def test_transactions_without_transfers_count_toward_the_limit():
+    """Regression: the OFAC fixture has 5 transactions and no transfers; a cap below 5 must be reported."""
+    store = FixtureStore()
+    snapshot = store.load("mainnet-ofac-sdn-exact")
+    scope = {"fromTime": snapshot["coverage"]["fromTime"], "toTime": snapshot["coverage"]["toTime"], "maxTransactions": 3}
+    request = {"requestId": "cap-3", "address": snapshot["address"], "network": "mainnet-beta",
+               "mode": "FIXTURE", "fixtureId": "mainnet-ofac-sdn-exact", "scope": scope}
+
+    result = apply_request(snapshot, request)
+
+    assert result["coverage"]["status"] == "PARTIAL"
+    assert "TRANSACTION_LIMIT_REACHED" in result["coverage"]["reasons"]
+    assert result["coverage"]["transactionCount"] == 3
+    assert result["coverage"]["reachedTimeBoundary"] is False
+    assert [label["referenceId"] for label in result["labels"]] == ["OFAC-SDN-56360"]  # exact match survives
+    validate("collector", "KYTDataSnapshot", result)
+
+
+def test_transaction_sidecar_gives_exact_counts_for_a_narrower_window():
+    """The OFAC fixture's 5 transactions have no transfers; the sidecar still places them in time."""
+    store = FixtureStore()
+    snapshot = store.load("mainnet-ofac-sdn-exact")
+    request = {"requestId": "narrow", "address": snapshot["address"], "network": "mainnet-beta", "mode": "FIXTURE",
+               "fixtureId": "mainnet-ofac-sdn-exact",
+               "scope": {"fromTime": "2026-11-06T00:00:00Z", "toTime": "2026-11-07T00:00:00Z", "maxTransactions": 50}}
+
+    result = apply_request(snapshot, request, store.load_transactions("mainnet-ofac-sdn-exact"))
+
+    assert result["coverage"]["transactionCount"] == 3  # three transactions on 2026-11-06
+    assert result["coverage"]["status"] == "COMPLETE"
+    validate("collector", "KYTDataSnapshot", result)
+
+    request["scope"]["maxTransactions"] = 2
+    limited = apply_request(snapshot, request, store.load_transactions("mainnet-ofac-sdn-exact"))
+    assert limited["coverage"]["transactionCount"] == 2
+    assert "TRANSACTION_LIMIT_REACHED" in limited["coverage"]["reasons"]
+
+
+def test_synthetic_fixtures_have_no_transaction_sidecar():
+    assert FixtureStore().load_transactions("normal") is None

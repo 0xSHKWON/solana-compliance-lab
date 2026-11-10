@@ -20,3 +20,10 @@ class ProviderError(CollectionError):
 class FixtureNotFound(CollectionError):
     def __init__(self, message="Fixture not found"):
         super().__init__(message, "NOT_FOUND", 404, False)
+
+
+class BudgetExhausted(ProviderError):
+    """The request's time budget ran out before the provider answered."""
+
+    def __init__(self, message="Solana RPC time budget exhausted"):
+        super().__init__(message, retryable=True, status=503)

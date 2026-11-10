@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1.0",
-  "snapshotId": "snapshot-4a58e0e58f4631164bcc3c0b15cb1d1903112a262b2060b9a38d3de3fc888f09",
+  "snapshotId": "snapshot-b8827779d7f3bd8d3f2f605c61a895ee16c99596db20e849e9fdfd7ea867f6be",
   "requestId": "mainnet-ofac-sdn-exact-request",
   "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
   "network": "mainnet-beta",
@@ -25,12 +25,12 @@
     "reasons": [],
     "fromTime": "2026-01-01T00:00:00Z",
     "toTime": "2026-11-10T00:00:00Z",
-    "snapshotSlot": 467734252,
+    "snapshotSlot": 467738277,
     "transactionCount": 5,
     "transferCount": 0,
     "reachedTimeBoundary": true
   },
-  "collectedAt": "2026-11-10T13:17:20Z",
+  "collectedAt": "2026-11-10T13:31:48Z",
   "dataProvenance": {
     "dataType": "ON_CHAIN",
     "source": "NODIT_SOLANA_RPC",

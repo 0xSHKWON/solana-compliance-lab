@@ -38,7 +38,9 @@ class Collector:
         self._fixtures = fixtures if fixtures is not None else FixtureStore()
         self._rpc_factory = rpc_factory or (lambda: SolanaRpcClient.from_env(env))
         self._label_loader = label_loader or (lambda: LabelDataset.load(env.get("COLLECTOR_LABEL_DATASET") or None))
-        self._max_transactions = int(max_transactions or env.get("COLLECTOR_MAX_TRANSACTIONS") or DEFAULT_MAX_TRANSACTIONS)
+        if max_transactions is None:
+            max_transactions = env.get("COLLECTOR_MAX_TRANSACTIONS") or DEFAULT_MAX_TRANSACTIONS
+        self._max_transactions = int(max_transactions)
         self._provider = provider_name or env.get("SOLANA_RPC_PROVIDER") or "SOLANA_RPC"
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         self._live_options = {
@@ -53,26 +55,38 @@ class Collector:
         LiveSource(None, **self._live_options)  # reject invalid settings at startup, not as a client error later
 
     def collect(self, request):
+        return self.collect_detailed(request)[0]
+
+    def collect_detailed(self, request):
+        """Snapshot plus the LIVE source result (None in FIXTURE mode); used by the capture tool."""
         validate("collector", "KYTCollectionRequest", request)
         scope = request["scope"]
         if scope["maxTransactions"] > self._max_transactions:
             raise ContractViolation(f"maxTransactions exceeds collector limit {self._max_transactions}", "INVALID_REQUEST")
+        live = None
         if request["mode"] == "FIXTURE":
-            snapshot = apply_request(self._fixtures.load(request["fixtureId"]), request)
+            fixture_id = request["fixtureId"]
+            load_transactions = getattr(self._fixtures, "load_transactions", None)
+            transactions = load_transactions(fixture_id) if callable(load_transactions) else None
+            snapshot = apply_request(self._fixtures.load(fixture_id), request, transactions)
         else:
-            snapshot = self._collect_live(request)
+            snapshot, live = self._collect_live(request)
         self._check_output(request, snapshot)
-        return snapshot
+        return snapshot, live
 
     def _collect_live(self, request):
         address, scope = request["address"], request["scope"]
         from_time, to_time = instant(scope["fromTime"]), instant(scope["toTime"])
-        if from_time > self._clock():
+        started = self._clock()
+        if from_time > started:
             raise ContractViolation("Scope starts in the future", "INVALID_REQUEST")
         labels = self._label_loader()  # fail before touching the provider if label metadata is missing
         result = LiveSource(self._rpc_factory(), **self._live_options).fetch(
             address, from_time, to_time, scope["maxTransactions"])
         reasons = set(result.reasons)
+        if to_time > started:
+            # The part of the window that has not happened yet cannot be covered.
+            reasons.add("TIME_BOUNDARY_NOT_REACHED")
         transfers = {}
         for transaction in result.transactions:
             try:
@@ -95,7 +109,8 @@ class Collector:
             "snapshotSlot": result.snapshot_slot,
             "transactionCount": result.transaction_count,
             "transferCount": len(rows),
-            "reachedTimeBoundary": status == "COMPLETE" or bool(result.reached_time_boundary),
+            "reachedTimeBoundary": status == "COMPLETE" or (
+                bool(result.reached_time_boundary) and "TIME_BOUNDARY_NOT_REACHED" not in reasons),
         }
         snapshot_id = stable_id("snapshot", {
             "requestId": request["requestId"], "address": address, "scope": scope,
@@ -115,7 +130,7 @@ class Collector:
             "collectedAt": _utc(self._clock()),
             # The provider URL may embed an API key, so it is never recorded as a reference.
             "dataProvenance": {"dataType": "ON_CHAIN", "source": self._provider, "reference": None},
-        }
+        }, result
 
     @staticmethod
     def _check_output(request, snapshot):

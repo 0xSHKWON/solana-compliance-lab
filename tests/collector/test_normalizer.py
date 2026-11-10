@@ -248,15 +248,76 @@ def test_token_transfer_without_token_amount_is_parse_failed():
     assert result.reasons == frozenset({PARSE_FAILED})
 
 
-def test_plain_token_transfer_without_balances_has_unknown_mint_and_is_parse_failed():
+def _plain_transfer_without_balances():
     tx = load("spl_transfer_plain")
     tx["meta"]["preTokenBalances"] = []
     tx["meta"]["postTokenBalances"] = []
+    info = next(ix["parsed"]["info"] for ix in tx["transaction"]["message"]["instructions"]
+                if isinstance(ix.get("parsed"), dict) and ix["parsed"].get("type") == "transfer")
+    return tx, info["source"]
 
-    result = normalize_checked(tx, A)
+
+def test_plain_token_transfer_on_known_token_account_with_unknown_mint_is_parse_failed():
+    tx, source_account = _plain_transfer_without_balances()
+
+    result = normalize_transaction(tx, A, [source_account])
 
     assert result.transfers == []
     assert result.reasons == frozenset({PARSE_FAILED})
+
+
+def test_unattributable_token_transfer_does_not_mark_wallet_partial():
+    """A token transfer whose accounts cannot be tied to the wallet (no balances, not a known token account,
+    no initializeAccount) is not attributed and does not add PARSE_FAILED; otherwise every DEX leg between
+    pools in a swap would make the wallet's snapshot PARTIAL."""
+    tx, _ = _plain_transfer_without_balances()
+
+    result = normalize_checked(tx, A)
+
+    assert result.transfers == [] and result.reasons == frozenset()
+
+
+def test_temporary_token_account_owner_and_mint_come_from_initialize_instruction():
+    """A token account created and closed in the same tx is absent from balances but described by initializeAccount3."""
+    tx, source_account = _plain_transfer_without_balances()
+    mint = load("spl_transfer_plain")["meta"]["postTokenBalances"][0]["mint"]
+    tx["transaction"]["message"]["instructions"].insert(0, {
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "program": "spl-token", "stackHeight": None,
+        "parsed": {"type": "initializeAccount3", "info": {"account": source_account, "mint": mint, "owner": A}},
+    })
+    tx["meta"]["postTokenBalances"] = [{"accountIndex": 0, "mint": mint, "owner": B,
+                                        "uiTokenAmount": {"amount": "0", "decimals": 6}}]
+
+    result = normalize_transaction(tx, A)
+
+    assert len(result.transfers) == 1
+    transfer = result.transfers[0]
+    assert transfer["fromAddress"] == A and transfer["sourceAccount"] == source_account
+    assert transfer["asset"]["mint"] == mint and transfer["asset"]["decimals"] == 6  # decimals from the mint
+
+
+def test_unparsed_instruction_not_touching_the_wallet_is_ignored():
+    tx = load("unsupported_instruction")
+    for ix in tx["transaction"]["message"]["instructions"]:
+        if "parsed" not in ix:
+            ix["accounts"] = [B]
+
+    result = normalize_checked(tx, A)
+
+    assert UNSUPPORTED_INSTRUCTION not in result.reasons
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda tx: tx.__setitem__("blockTime", 2 ** 40),
+    lambda tx: tx["meta"]["postTokenBalances"][0]["uiTokenAmount"].__setitem__("decimals", 256),
+])
+def test_out_of_range_values_never_escape_as_raw_exceptions(mutate):
+    tx = load("spl_transfer_checked")
+    mutate(tx)
+    try:
+        normalize_transaction(tx, A)
+    except ProviderError:
+        pass  # a structured provider error is acceptable; ValueError/OverflowError are not
 
 
 def test_malformed_transaction_result_raises_provider_error():
@@ -306,8 +367,11 @@ def test_ids_are_stable_and_deterministic():
     second = normalize_checked(copy.deepcopy(tx), A)
     assert first == second
 
-    reordered = json.loads(json.dumps(tx, sort_keys=True))
-    assert normalize_checked(reordered, A).transfers == first.transfers
+    # Reordering the token balance lists (the only unordered input) must not change the result.
+    shuffled = copy.deepcopy(tx)
+    for section in ("preTokenBalances", "postTokenBalances"):
+        shuffled["meta"][section] = list(reversed(shuffled["meta"].get(section) or []))
+    assert normalize_checked(shuffled, A).transfers == first.transfers
 
     for transfer in first.transfers:
         expected = stable_id("transfer", {
@@ -376,3 +440,55 @@ def test_transfer_into_known_token_account_is_kept_without_inventing_owner():
     assert transfer["destinationAccount"] == destination
     assert transfer["toAddress"] is None and transfer["ownerResolved"] is False
     assert "OWNER_UNRESOLVED" in result.reasons
+
+
+
+# --- real mainnet samples ---------------------------------------------------------------------
+
+def test_real_v0_transaction_resolves_owner_of_lookup_table_account():
+    """Real v0 tx: the destination token account is loaded from an address lookup table."""
+    tx = load("real_v0_lookup_table_destination")
+    destination = "2zpcctvd7sCdtWe4bAYcNmfVFzaiFVtH81tfMAWCtMh9"
+    owner = "5ATZbUaByMDTePxRdjAaisopAULwsjMFTrM4f5vXVJQu"
+    sources = {key["pubkey"]: key.get("source") for key in tx["transaction"]["message"]["accountKeys"]}
+    assert sources[destination] == "lookupTable"
+
+    result = normalize_checked(tx, owner)
+
+    received = [t for t in result.transfers if t["destinationAccount"] == destination]
+    assert received and all(t["toAddress"] == owner and t["ownerResolved"] for t in received)
+
+
+def test_real_token_2022_transfer_checked():
+    tx = load("real_token2022_transfer_checked")
+    owner = "45szMXUVBm2dAGTjrV7HT4sgH4Gy3xhphRk6bNccdn9Q"
+
+    result = normalize_checked(tx, owner)
+
+    sent = [t for t in result.transfers if t["sourceAccount"] == "Fj5WiaFWmtcEvU8yPRfDob7aAF5Zp1iJRyjJoojykykp"]
+    assert sent and sent[0]["asset"]["type"] == "TOKEN_2022"
+    assert sent[0]["asset"]["mint"] == "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"  # PYUSD
+    assert sent[0]["fromAddress"] == owner and sent[0]["ownerResolved"] is True
+
+
+def test_unresolved_source_owner_leaves_from_address_null():
+    tx = load("spl_transfer_checked")
+    info = next(ix["parsed"]["info"] for ix in tx["transaction"]["message"]["instructions"]
+                if isinstance(ix.get("parsed"), dict) and ix["parsed"].get("type") == "transferChecked")
+    keys = [k["pubkey"] if isinstance(k, dict) else k for k in tx["transaction"]["message"]["accountKeys"]]
+    for section in ("preTokenBalances", "postTokenBalances"):
+        tx["meta"][section] = [b for b in tx["meta"][section] if keys[b["accountIndex"]] != info["source"]]
+
+    result = normalize_transaction(tx, A, [info["source"]])
+
+    transfer = next(t for t in result.transfers if t["sourceAccount"] == info["source"])
+    assert transfer["fromAddress"] is None and transfer["ownerResolved"] is False
+    assert transfer["fromAddress"] != transfer["sourceAccount"]  # never filled with the token account
+    assert OWNER_UNRESOLVED in result.reasons
+
+
+def test_duplicated_inner_instruction_group_does_not_duplicate_transfers():
+    tx = load("inner_instructions")
+    tx["meta"]["innerInstructions"] = tx["meta"]["innerInstructions"] * 2
+
+    assert normalize_checked(tx, A).transfers == normalize_checked(load("inner_instructions"), A).transfers

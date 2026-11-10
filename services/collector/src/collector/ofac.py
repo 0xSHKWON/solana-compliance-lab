@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import urllib.request
 import xml.etree.ElementTree as ElementTree
@@ -77,6 +78,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Refresh the OFAC SDN Solana label dataset")
     parser.add_argument("--input", help="Local SDN.XML file instead of downloading")
     parser.add_argument("--output", default=str(DEFAULT_DATASET_PATH))
+    parser.add_argument("--allow-empty", action="store_true", help="Write the dataset even with zero SOL entries")
     args = parser.parse_args(argv)
     fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     if args.input:
@@ -85,9 +87,16 @@ def main(argv=None):
         with urllib.request.urlopen(SDN_URL, timeout=120) as response:  # noqa: S310 - fixed official URL
             raw = response.read()
     dataset = parse_sdn_xml(raw, fetched_at)
+    if not dataset["entries"] and not args.allow_empty:
+        # A format change (e.g. a renamed idType) must not silently replace the dataset with an empty one.
+        print("refusing to write: no SOL addresses found in the SDN export (use --allow-empty to override)",
+              file=sys.stderr)
+        return 1
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(dataset, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary = output.with_name(output.name + ".tmp")
+    temporary.write_text(json.dumps(dataset, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    os.replace(temporary, output)  # readers never see a half-written dataset
     print(f"OFAC SDN {dataset['version']}: {len(dataset['entries'])} SOL addresses -> {output}")
     return 0
 

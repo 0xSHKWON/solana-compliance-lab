@@ -82,7 +82,8 @@ def test_pagination_follows_before_cursor_newest_first():
 
     result = fetch(rpc, page_size=2)
 
-    assert [c["before"] for c in rpc.signature_calls] == [None, "s1", "s3"]
+    # The short third page is not trusted as the end of history; only the empty fourth page is.
+    assert [c["before"] for c in rpc.signature_calls] == [None, "s1", "s3", "s4"]
     assert [t["signature"] for t in result.transactions] == ["s0", "s1", "s2", "s3", "s4"]
     assert result.transaction_count == 5
     assert result.failed_count == 0
@@ -343,12 +344,13 @@ def test_time_budget_exhausted_during_fetch_is_partial():
     class SlowRpc(FakeRpc):
         def get_transaction(self, signature, commitment="finalized"):
             if signature == "slow":
-                release.wait(5)
+                release.wait(10)
             return super().get_transaction(signature, commitment)
 
     rpc = SlowRpc(history=[entry("fast", 390), entry("slow", 380)])
     try:
-        result = LiveSource(rpc, page_size=10, time_budget=0.3).fetch(ADDRESS, START, END, 10)
+        # Generous budget: the fast fetch must finish well within it even on a loaded machine.
+        result = LiveSource(rpc, page_size=10, time_budget=2.0).fetch(ADDRESS, START, END, 10)
     finally:
         release.set()
 
@@ -356,3 +358,60 @@ def test_time_budget_exhausted_during_fetch_is_partial():
     assert result.transaction_count == 2
     assert "TRANSACTION_FETCH_FAILED" in result.reasons
     assert result.reached_time_boundary is True
+
+
+def test_short_page_from_a_capping_provider_is_not_end_of_history():
+    """Regression: a provider returning fewer rows than requested must not end the scan early."""
+    history = [entry(f"s{i}", 390 - i * 10) for i in range(5)]
+
+    class CappingRpc(FakeRpc):
+        def get_signatures_for_address(self, address, before=None, limit=1000, commitment="finalized"):
+            return super().get_signatures_for_address(address, before=before, limit=1, commitment=commitment)
+
+    result = fetch(CappingRpc(history), page_size=10)
+
+    assert result.transaction_count == 5
+    assert result.reasons == set()
+
+
+def test_null_block_time_signature_is_dropped_when_transaction_is_outside_window():
+    rpc = FakeRpc([entry("inside", 390), entry("unknown", None)],
+                  transactions={"unknown": {"slot": 900, "blockTime": 50, "signature": "unknown"}})
+
+    result = fetch(rpc, page_size=10)
+
+    assert [t["signature"] for t in result.transactions] == ["inside"]
+    assert result.transaction_count == 1
+
+
+def test_malformed_block_time_is_a_provider_error_not_a_crash():
+    rpc = FakeRpc([{"signature": "a", "slot": 900, "err": None, "blockTime": "390"}])
+    with pytest.raises(ProviderError):
+        fetch(rpc, page_size=10)
+
+
+def test_deadline_is_bound_to_the_rpc_client():
+    class BindingRpc(FakeRpc):
+        bound = None
+
+        def bind_deadline(self, deadline):
+            BindingRpc.bound = deadline
+
+    LiveSource(BindingRpc([]), time_budget=7.0, clock=lambda: 100.0).fetch(ADDRESS, START, END, 10)
+
+    assert BindingRpc.bound == 107.0
+
+
+def test_budget_exhausted_while_paging_marks_scan_incomplete():
+    from collector.errors import BudgetExhausted
+
+    class ExhaustedRpc(FakeRpc):
+        def get_signatures_for_address(self, address, before=None, limit=1000, commitment="finalized"):
+            if before is not None:
+                raise BudgetExhausted()
+            return super().get_signatures_for_address(address, before=before, limit=limit, commitment=commitment)
+
+    result = fetch(ExhaustedRpc([entry("a", 390), entry("b", 380)]), page_size=2)
+
+    assert [t["signature"] for t in result.transactions] == ["a", "b"]
+    assert "TIME_BOUNDARY_NOT_REACHED" in result.reasons

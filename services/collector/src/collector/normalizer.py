@@ -26,6 +26,7 @@ UNSUPPORTED_INSTRUCTION = "UNSUPPORTED_INSTRUCTION"
 OWNER_UNRESOLVED = "OWNER_UNRESOLVED"
 TIMESTAMP_UNAVAILABLE = "TIMESTAMP_UNAVAILABLE"
 
+_INITIALIZE_ACCOUNT = frozenset({"initializeAccount", "initializeAccount2", "initializeAccount3"})
 _BASE58_RE = re.compile(r"[1-9A-HJ-NP-Za-km-z]+")
 _DIGITS_RE = re.compile(r"[0-9]+")
 
@@ -96,15 +97,15 @@ def normalize_transaction(tx: dict, address: str, related_accounts=()) -> Normal
     message = transaction.get("message")
     if not isinstance(message, dict):
         raise _malformed_result()
+    # jsonParsed lists every account key here, including addresses loaded from lookup tables
+    # (entries with source "lookupTable"), so token balance accountIndex values index this list directly.
     keys = _account_keys(message)
     instructions = message.get("instructions")
     inner_groups = meta.get("innerInstructions") or []
     if not isinstance(instructions, list) or not isinstance(inner_groups, list):
         raise _malformed_result()
 
-    token_index = _token_index(meta, keys)
     reasons: set[str] = set()
-
     entries: list[tuple[int, int | None, Any]] = [(i, None, ix) for i, ix in enumerate(instructions)]
     for group in inner_groups:
         if (not isinstance(group, dict) or not _is_non_negative_int(group.get("index"))
@@ -114,10 +115,12 @@ def normalize_transaction(tx: dict, address: str, related_accounts=()) -> Normal
         for position, ix in enumerate(group["instructions"]):
             entries.append((group["index"], position, ix))
 
+    token_index, mint_decimals = _token_index(meta, keys, [ix for _, _, ix in entries])
+
     found: list[tuple[int, int | None, _Movement]] = []
     for index, inner, ix in entries:
         try:
-            movement = _movement(ix, token_index)
+            movement = _movement(ix, token_index, tracked, mint_decimals)
         except _Unsupported:
             reasons.add(UNSUPPORTED_INSTRUCTION)
             continue
@@ -170,8 +173,13 @@ def normalize_transaction(tx: dict, address: str, related_accounts=()) -> Normal
     return NormalizeResult(transfers=transfers, reasons=frozenset(reasons), failed=False)
 
 
-def _movement(ix: Any, token_index: dict[str, _TokenAccount]) -> _Movement | None:
-    """Return the transfer described by an instruction, None when it is not a tracked transfer."""
+def _movement(ix: Any, token_index: dict[str, _TokenAccount], tracked: set[str],
+              mint_decimals: dict[str, int]) -> _Movement | None:
+    """Return the transfer described by an instruction, None when it is not a transfer.
+
+    Problems are only reported for instructions that can involve a tracked account, so an
+    unreadable instruction between third parties does not mark the wallet's snapshot PARTIAL.
+    """
     if not isinstance(ix, dict) or not isinstance(ix.get("programId"), str):
         raise _Malformed()
     program_id = ix["programId"]
@@ -179,6 +187,9 @@ def _movement(ix: Any, token_index: dict[str, _TokenAccount]) -> _Movement | Non
         return None
     parsed = ix.get("parsed")
     if not isinstance(parsed, dict):
+        accounts = ix.get("accounts")
+        if isinstance(accounts, list) and tracked.isdisjoint(a for a in accounts if isinstance(a, str)):
+            return None
         raise _Unsupported()
     kind = parsed.get("type")
     info = parsed.get("info")
@@ -194,7 +205,7 @@ def _movement(ix: Any, token_index: dict[str, _TokenAccount]) -> _Movement | Non
     if kind not in tracked_kinds:
         return None
     asset_type = "TOKEN_2022" if program_id == TOKEN_2022_PROGRAM else "SPL"
-    return _token_movement(kind, info, asset_type, token_index)
+    return _token_movement(kind, info, asset_type, token_index, tracked, mint_decimals)
 
 
 def _sol_movement(info: Any) -> _Movement:
@@ -206,7 +217,8 @@ def _sol_movement(info: Any) -> _Movement:
     return _Movement("SOL", source, destination, source, destination, lamports, None, SOL_DECIMALS)
 
 
-def _token_movement(kind: str, info: Any, asset_type: str, token_index: dict[str, _TokenAccount]) -> _Movement:
+def _token_movement(kind: str, info: Any, asset_type: str, token_index: dict[str, _TokenAccount],
+                    tracked: set[str], mint_decimals: dict[str, int]) -> _Movement | None:
     if not isinstance(info, dict):
         raise _Malformed()
     source = _address_field(info, "source")
@@ -225,10 +237,16 @@ def _token_movement(kind: str, info: Any, asset_type: str, token_index: dict[str
 
     source_account = token_index.get(source)
     destination_account = token_index.get(destination)
+    from_owner = source_account.owner if source_account else None
+    to_owner = destination_account.owner if destination_account else None
+    if tracked.isdisjoint((source, destination, from_owner, to_owner)):
+        return None
     if mint is None:
         mint = _first(source_account and source_account.mint, destination_account and destination_account.mint)
     if decimals is None:
-        decimals = _first(source_account and source_account.decimals, destination_account and destination_account.decimals)
+        decimals = _first(source_account and source_account.decimals,
+                          destination_account and destination_account.decimals,
+                          mint_decimals.get(mint) if mint else None)
     if mint is None or decimals is None:
         raise _Malformed()  # mint and decimals must be known to report a raw amount
 
@@ -236,17 +254,31 @@ def _token_movement(kind: str, info: Any, asset_type: str, token_index: dict[str
         asset_type=asset_type,
         source=source,
         destination=destination,
-        from_owner=source_account.owner if source_account else None,
-        to_owner=destination_account.owner if destination_account else None,
+        from_owner=from_owner,
+        to_owner=to_owner,
         amount_raw=amount,
         mint=mint,
         decimals=decimals,
     )
 
 
-def _token_index(meta: dict, keys: list[str]) -> dict[str, _TokenAccount]:
-    """Map token account address -> owner/mint/decimals seen in pre/post token balances."""
+def _token_index(meta: dict, keys: list[str], instructions: list[Any]) -> tuple[dict[str, _TokenAccount], dict[str, int]]:
+    """Token account -> owner/mint/decimals, and mint -> decimals, from data inside the transaction.
+
+    Sources: pre/post token balances, then initializeAccount* instructions, which also describe
+    temporary accounts that are created and closed in the same transaction (absent from balances).
+    """
     index: dict[str, _TokenAccount] = {}
+    mint_decimals: dict[str, int] = {}
+
+    def merge(account, owner, mint, decimals):
+        previous = index.get(account, _TokenAccount(None, None, None))
+        index[account] = _TokenAccount(
+            owner=_first(previous.owner, owner),
+            mint=_first(previous.mint, mint),
+            decimals=_first(previous.decimals, decimals),
+        )
+
     for section in ("preTokenBalances", "postTokenBalances"):
         entries = meta.get(section) or []
         if not isinstance(entries, list):
@@ -257,18 +289,29 @@ def _token_index(meta: dict, keys: list[str]) -> dict[str, _TokenAccount]:
             position = entry.get("accountIndex")
             if not _is_non_negative_int(position) or position >= len(keys):
                 continue
-            account = keys[position]
             ui_amount = entry.get("uiTokenAmount")
-            decimals = _decimals_value(ui_amount.get("decimals")) if isinstance(ui_amount, dict) else None
+            try:
+                decimals = _decimals_value(ui_amount.get("decimals")) if isinstance(ui_amount, dict) else None
+            except _Malformed:
+                decimals = None
             owner = entry.get("owner") if _is_address(entry.get("owner")) else None
             mint = entry.get("mint") if _is_address(entry.get("mint")) else None
-            previous = index.get(account, _TokenAccount(None, None, None))
-            index[account] = _TokenAccount(
-                owner=_first(previous.owner, owner),
-                mint=_first(previous.mint, mint),
-                decimals=_first(previous.decimals, decimals),
-            )
-    return index
+            merge(keys[position], owner, mint, decimals)
+            if mint is not None and decimals is not None:
+                mint_decimals.setdefault(mint, decimals)
+
+    for ix in instructions:
+        if not isinstance(ix, dict) or ix.get("programId") not in (TOKEN_PROGRAM, TOKEN_2022_PROGRAM):
+            continue
+        parsed = ix.get("parsed")
+        if not isinstance(parsed, dict) or parsed.get("type") not in _INITIALIZE_ACCOUNT:
+            continue
+        info = parsed.get("info")
+        if isinstance(info, dict) and _is_address(info.get("account")):
+            owner = info.get("owner") if _is_address(info.get("owner")) else None
+            mint = info.get("mint") if _is_address(info.get("mint")) else None
+            merge(info["account"], owner, mint, None)
+    return index, mint_decimals
 
 
 def _account_keys(message: dict) -> list[str]:
@@ -299,7 +342,7 @@ def _amount_field(info: dict, name: str) -> str:
         if value < 0:
             raise _Malformed()
         return str(value)
-    if isinstance(value, str) and _DIGITS_RE.fullmatch(value):
+    if isinstance(value, str) and len(value) <= 39 and _DIGITS_RE.fullmatch(value):  # u128 has at most 39 digits
         return str(int(value))
     raise _Malformed()
 
@@ -315,7 +358,11 @@ def _decimals_value(value: Any) -> int | None:
 def _timestamp(block_time: int | None) -> str | None:
     if block_time is None:
         return None
-    return datetime.fromtimestamp(block_time, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        moment = datetime.fromtimestamp(block_time, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        raise _malformed_result() from None
+    return moment.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _is_address(value: Any) -> bool:

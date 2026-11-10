@@ -4,15 +4,18 @@ Secrets (RPC URL, API key) never appear in exception messages or ``repr``.
 """
 from __future__ import annotations
 
+import http.client
 import itertools
 import json
+import math
 import os
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Callable, Mapping
 
-from .errors import CollectionError, ProviderError
+from .errors import BudgetExhausted, CollectionError, ProviderError
 
 DEFAULT_API_KEY_HEADER = "X-API-KEY"
 DEFAULT_TIMEOUT = 15.0
@@ -24,22 +27,40 @@ RATE_LIMIT_RPC_CODE = -32429
 Transport = Callable[[str, bytes, dict, float], "tuple[int, bytes]"]
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Never follow redirects: urllib would replay custom headers (the API key) to the new location."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
 def _urllib_transport(url: str, body: bytes, headers: dict, timeout: float) -> tuple[int, bytes]:
-    """POST ``body`` and return ``(status, body)``. HTTP errors are returned, not raised.
+    """POST ``body`` and return ``(status, body)``. HTTP errors (including 3xx) are returned, not raised.
 
     urllib honors HTTPS_PROXY / HTTP_PROXY from the environment by default.
-    Network failures (URLError, TimeoutError, OSError) propagate to the retry loop.
+    Network failures (URLError, TimeoutError, OSError, HTTPException) propagate to the retry loop.
     """
     request = urllib.request.Request(url, data=body, headers=headers, method="POST")
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with _OPENER.open(request, timeout=timeout) as response:
             return response.status, response.read()
     except urllib.error.HTTPError as exc:
         try:
             payload = exc.read()
-        except OSError:
+        except (OSError, http.client.HTTPException):
             payload = b""
         return exc.code, payload
+
+
+def _valid_url(url: str) -> bool:
+    try:
+        parsed = urllib.parse.urlsplit(url)
+    except ValueError:
+        return False
+    return parsed.scheme in ("https", "http") and bool(parsed.netloc)
 
 
 def _decode(raw: bytes | str) -> object | None:
@@ -66,7 +87,14 @@ class SolanaRpcClient:
         transport: Transport | None = None,
         sleep: Callable[[float], None] = time.sleep,
         max_transaction_version: int = DEFAULT_MAX_TRANSACTION_VERSION,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
+        if not isinstance(url, str) or not _valid_url(url):
+            raise CollectionError("LIVE mode is not configured", "UPSTREAM_UNAVAILABLE", 503, False)
+        if not (isinstance(timeout, (int, float)) and math.isfinite(timeout) and timeout > 0):
+            raise CollectionError("LIVE mode is not configured", "UPSTREAM_UNAVAILABLE", 503, False)
+        if int(max_transaction_version) < 0:
+            raise CollectionError("LIVE mode is not configured", "UPSTREAM_UNAVAILABLE", 503, False)
         self._url = url
         self._api_key = api_key or None
         self._api_key_header = api_key_header or DEFAULT_API_KEY_HEADER
@@ -76,6 +104,17 @@ class SolanaRpcClient:
         self._sleep = sleep
         self._ids = itertools.count(1)
         self.max_transaction_version = int(max_transaction_version)
+        self._clock = clock
+        self._deadline: float | None = None
+
+    def bind_deadline(self, deadline: float | None) -> None:
+        """Bound every later call (attempts, backoff, timeouts) by ``deadline`` on this client's clock."""
+        self._deadline = deadline
+
+    def _remaining(self) -> float:
+        if self._deadline is None:
+            return math.inf
+        return self._deadline - self._clock()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(url=<redacted>, api_key={'set' if self._api_key else 'unset'})"
@@ -116,10 +155,17 @@ class SolanaRpcClient:
 
         for attempt in range(self.max_retries + 1):
             if attempt:
-                self._sleep(BACKOFF_BASE_SECONDS * (2 ** (attempt - 1)))
+                backoff = BACKOFF_BASE_SECONDS * (2 ** (attempt - 1))
+                if self._remaining() <= backoff:
+                    raise BudgetExhausted()
+                self._sleep(backoff)
+            remaining = self._remaining()
+            if remaining <= 0:
+                raise BudgetExhausted()
             try:
-                status, raw = self._transport(self._url, body, headers, self.timeout)
-            except OSError:  # includes TimeoutError and URLError
+                status, raw = self._transport(self._url, body, headers, min(self.timeout, remaining))
+            except (OSError, http.client.HTTPException, ValueError):  # TimeoutError, URLError, IncompleteRead, ...
+                # Never chain the original exception: urllib messages can contain the URL.
                 last_error = ProviderError("Solana RPC unavailable", retryable=True, status=502)
                 continue
 
@@ -142,6 +188,8 @@ class SolanaRpcClient:
             error = payload.get("error")
             if error is not None:
                 code = error.get("code") if isinstance(error, dict) else None
+                if not isinstance(code, int) or isinstance(code, bool):
+                    code = None
                 if code in RETRYABLE_RPC_CODES:
                     if code == RATE_LIMIT_RPC_CODE:
                         last_error = ProviderError("Solana RPC rate limited", retryable=True, status=429, code="RATE_LIMITED")
@@ -154,7 +202,9 @@ class SolanaRpcClient:
                 raise ProviderError("Solana RPC returned an invalid response", retryable=False, status=502)
             return payload["result"]
 
-        raise last_error  # type: ignore[misc]
+        if last_error is None:
+            raise BudgetExhausted()
+        raise last_error
 
     def get_slot(self, commitment: str = "finalized") -> int:
         result = self.call("getSlot", [{"commitment": commitment}])

@@ -95,3 +95,16 @@ def test_committed_ofac_dataset_loads_and_every_entry_is_a_valid_label():
         validate("collector", "AddressLabel", label)
         assert label["source"] == "OFAC_SDN"
         assert label["referenceId"].startswith("OFAC-SDN-")
+
+
+def test_refresh_refuses_to_overwrite_with_an_empty_dataset(tmp_path):
+    from collector.ofac import main
+
+    export = tmp_path / "SDN.XML"
+    export.write_text("<sdnList><publshInformation><Publish_Date>11/09/2026</Publish_Date></publshInformation>"
+                      "</sdnList>", encoding="utf-8")
+    output = tmp_path / "ofac-sdn.json"
+    output.write_text("previous", encoding="utf-8")
+
+    assert main(["--input", str(export), "--output", str(output)]) == 1
+    assert output.read_text(encoding="utf-8") == "previous"

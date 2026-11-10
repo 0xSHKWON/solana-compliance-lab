@@ -19,6 +19,9 @@ DEFAULT_FIXTURE_ROOTS = (
 )
 ROOTS_ENV = "COLLECTOR_FIXTURE_ROOTS"
 SNAPSHOT_FILE = "snapshot.json"
+# Optional sidecar written by the capture tool: every collected transaction (signature, slot, blockTime, err),
+# including failed ones and ones without transfers, so re-windowing can count transactions exactly.
+TRANSACTIONS_FILE = "transactions.json"
 
 _FIXTURE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
 _ADDRESS_KEYS = ("fromAddress", "toAddress", "sourceAccount", "destinationAccount")
@@ -91,9 +94,35 @@ class FixtureStore:
             raise FixtureNotFound()
         return copy.deepcopy(self._read(path))
 
+    def load_transactions(self, fixture_id: str) -> list[dict] | None:
+        """Transaction list stored next to the fixture snapshot, or None when the fixture has none."""
+        if not _is_fixture_id(fixture_id):
+            raise FixtureNotFound()
+        path = self._locate(fixture_id)
+        if path is None:
+            raise FixtureNotFound()
+        sidecar = path.parent / TRANSACTIONS_FILE
+        if not sidecar.is_file() or not sidecar.resolve().is_relative_to(path.parent.resolve()):
+            return None
+        try:
+            data = json.loads(sidecar.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError):
+            raise CollectionError("Fixture transaction list is unreadable", "INTERNAL_ERROR", 500, False) from None
+        rows = data.get("transactions") if isinstance(data, dict) else None
+        if not isinstance(rows, list) or not all(
+                isinstance(row, dict) and isinstance(row.get("signature"), str) and isinstance(row.get("slot"), int)
+                and (row.get("blockTime") is None or isinstance(row.get("blockTime"), int)) for row in rows):
+            raise CollectionError("Fixture transaction list is unreadable", "INTERNAL_ERROR", 500, False)
+        return rows
 
-def apply_request(snapshot: dict, request: dict) -> dict:
-    """Return the stored snapshot adapted to the request scope; the inputs are never modified."""
+
+def apply_request(snapshot: dict, request: dict, transactions: list[dict] | None = None) -> dict:
+    """Return the stored snapshot adapted to the request scope; the inputs are never modified.
+
+    ``transactions`` (from the capture sidecar) lets the transaction count and the limit include
+    transactions that produced no transfers; without it they can only be attributed to a window
+    that covers the whole fixture.
+    """
     if request["address"] != snapshot["address"]:
         raise CollectionError("Fixture address mismatch", "CONFLICT", 409, False)
     scope, coverage = request["scope"], snapshot["coverage"]
@@ -120,14 +149,28 @@ def apply_request(snapshot: dict, request: dict) -> dict:
         elif from_time <= instant(transfer["timestamp"]) < to_time:
             kept.append(transfer)
 
-    slots = {}
-    for transfer in kept:
-        slots.setdefault(transfer["signature"], transfer["slot"])
-    limit_hit = len(slots) > max_transactions
-    if limit_hit:
-        newest = sorted(slots, key=lambda sig: (-slots[sig], sig))[:max_transactions]
-        keep = set(newest)
+    if transactions is not None:
+        in_window = [row for row in transactions if (row.get("blockTime") is None and window_covers) or (
+            row.get("blockTime") is not None
+            and from_time.timestamp() <= row["blockTime"] < to_time.timestamp())]
+        in_window.sort(key=lambda row: (-row["slot"], row["signature"]))
+        total = len(in_window)
+        limit_hit = total > max_transactions
+        keep = {row["signature"] for row in in_window[:max_transactions]}
         kept = [transfer for transfer in kept if transfer["signature"] in keep]
+    else:
+        slots = {}
+        for transfer in kept:
+            slots.setdefault(transfer["signature"], transfer["slot"])
+        # Transactions without transfers are counted by the fixture but have no time or slot here. They can only
+        # be attributed to a window that covers the whole fixture; elsewhere they are left out (no transfer is lost).
+        hidden = max(0, coverage["transactionCount"] - len({t["signature"] for t in snapshot["transfers"]}))
+        total = len(slots) + (hidden if window_covers else 0)
+        limit_hit = total > max_transactions
+        if limit_hit:
+            newest = sorted(slots, key=lambda sig: (-slots[sig], sig))[:max_transactions]
+            keep = set(newest)
+            kept = [transfer for transfer in kept if transfer["signature"] in keep]
 
     reasons = {r for r in coverage["reasons"] if r not in (_OWNER, _TIMESTAMP)}
     if any(not transfer["ownerResolved"] for transfer in kept):
@@ -156,7 +199,7 @@ def apply_request(snapshot: dict, request: dict) -> dict:
             "fromTime": scope["fromTime"],
             "toTime": scope["toTime"],
             "snapshotSlot": coverage["snapshotSlot"],
-            "transactionCount": len({t["signature"] for t in kept}),
+            "transactionCount": min(total, max_transactions),
             "transferCount": len(kept),
             "reachedTimeBoundary": reached,
         },
