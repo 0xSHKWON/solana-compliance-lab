@@ -48,6 +48,9 @@ class Collector:
             "max_token_accounts": int(env.get("COLLECTOR_MAX_TOKEN_ACCOUNTS") or 100),
             **(live_options or {}),
         }
+        if self._max_transactions < 1:
+            raise ValueError("COLLECTOR_MAX_TRANSACTIONS must be positive")
+        LiveSource(None, **self._live_options)  # reject invalid settings at startup, not as a client error later
 
     def collect(self, request):
         validate("collector", "KYTCollectionRequest", request)
