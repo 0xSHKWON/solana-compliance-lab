@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 로컬 통합 실행: KYT·Policy 엔진(모노레포) + Mock Gateway + Constellation Simulator + Backend
+# 로컬 통합 실행: Collector·KYT·Policy 엔진(모노레포) + Mock Gateway + Constellation Simulator + Backend
 #
 #   scripts/run-local.sh start    # 빌드 후 전체 기동 (Collector 포함)
 #   scripts/run-local.sh status   # /health 확인

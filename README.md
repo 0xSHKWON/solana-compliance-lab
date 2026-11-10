@@ -2,14 +2,14 @@
 
 실제 Solana 데이터의 위험 신호 탐지와 서비스 제출 경로의 컴플라이언스 통제 범위를 검증하는 오프체인 PoC입니다. 실제 거래 전송이나 스마트 컨트랙트 배포는 수행하지 않습니다.
 
-현재 **KYT Detection Engine, Compliance Policy Engine, Backend API, Mock Gateway, Constellation Simulator**가 구현되어 있습니다. Collector·Frontend는 다른 담당자의 구현 영역이며, 공통 계약과 합성 Fixture로 독립 개발할 수 있습니다.
+현재 **Collector, KYT Detection Engine, Compliance Policy Engine, Backend API, Mock Gateway, Constellation Simulator**가 구현되어 있습니다. Frontend는 다른 담당자의 구현 영역이며, 공통 계약과 합성 Fixture로 독립 개발할 수 있습니다.
 
 ## 모듈 구성
 
 | 모듈 | 경로 | 포트 | 역할 |
 | --- | --- | --- | --- |
 | Backend API & Orchestrator | `apps/backend/` | 8080 | 분석 작업 상태 관리, 정책 심사 및 실험 API, 내부 모듈 호출 |
-| Collector | `services/collector/` | 8000 | 수집 모듈 구현 영역. 로컬 통합 실행에서는 합성 fixture로 대체 |
+| Collector | `services/collector/` | 8000 | 온디맨드 거래 수집·정규화. LIVE(Solana RPC)와 FIXTURE(실제 메인넷·합성) 모드 |
 | KYT Detection Engine | `services/kyt-engine/` | 8001 | 위험 신호 탐지 및 평가 |
 | Compliance Policy Engine | `services/policy-engine/` | 8002 | 정책 결정 |
 | Mock Gateway | `simulations/gateway/` | 8003 | 제출 경로의 정책 집행 재현 |
@@ -40,7 +40,7 @@ docker compose -f compose.dev.yaml logs -f backend
 docker compose -f compose.dev.yaml down
 ```
 
-Backend(`http://localhost:8080`)와 내부 모듈(8001~8004)은 호스트의 루프백 주소로 노출됩니다. 합성 fixture Collector와 화면 확인용 Constellation mock 버전이 활성화됩니다. Collector 서비스는 별도로 필요하지 않습니다.
+Backend(`http://localhost:8080`)와 내부 모듈(8000~8004)은 호스트의 루프백 주소로 노출됩니다. Collector는 compose 서비스로 실행되며 Backend는 `COLLECTOR_URL=http://collector:8000`으로 호출합니다. FIXTURE 모드는 API 키 없이 동작합니다. LIVE 모드를 쓰려면 저장소 루트의 `.env`에 `SOLANA_RPC_URL`과 `SOLANA_RPC_API_KEY`를 설정합니다(`.env.example` 참고). 화면 확인용 Constellation mock 버전도 활성화됩니다.
 
 Java는 컨테이너의 JDK·Maven으로 실행하며 Maven 다운로드는 볼륨에 캐시합니다. Python은 editable 설치를 사용합니다. 소스와 fixture는 읽기 전용으로 마운트되며, 코드 변경 후 해당 서비스를 `docker compose -f compose.dev.yaml restart backend`와 같이 재시작합니다. 자동 재시작은 제공하지 않습니다. 의존성·POM·Dockerfile 변경 시에는 `up --build -d`로 이미지를 다시 빌드합니다.
 
@@ -59,7 +59,7 @@ docker compose -f compose.dev.yaml exec -T -e BACKEND_URL=http://backend:8080 ky
 
 ```bash
 cp .env.prod.example .env.prod
-# .env.prod의 COLLECTOR_URL과 CORS_ALLOWED_ORIGINS를 실제 환경에 맞게 수정
+# .env.prod의 CORS_ALLOWED_ORIGINS와 SOLANA_RPC_* 값을 실제 환경에 맞게 수정
 docker compose --env-file .env.prod -f compose.prod.yaml up --build -d --wait
 docker compose --env-file .env.prod -f compose.prod.yaml logs -f backend
 # 종료
@@ -68,7 +68,7 @@ docker compose --env-file .env.prod -f compose.prod.yaml down
 
 운영 이미지는 Java 테스트와 패키징을 Docker 안에서 수행한 뒤 JRE만 포함하는 실행 이미지를 생성합니다. Python도 일반 설치를 사용하며, 소스 마운트 없이 일반 사용자와 읽기 전용 파일시스템으로 실행합니다. 서비스는 비정상 종료 시 자동으로 재시작합니다.
 
-운영에서는 fixture Collector와 Constellation mock 버전을 비활성화합니다. `COLLECTOR_URL`은 컨테이너에서 접근 가능한 외부 Collector 주소로 필수 지정해야 합니다. 호스트의 Collector에 연결하려면 Docker Desktop에서는 `http://host.docker.internal:8000`을 사용할 수 있으며, Collector도 컨테이너에서 접근 가능한 주소에 바인딩해야 합니다.
+운영에서는 Constellation mock 버전을 비활성화합니다. Collector는 compose 서비스로 실행되며 `COLLECTOR_URL`의 기본값(`http://collector:8000`)을 그대로 사용합니다. 외부 Collector를 쓸 때만 `.env.prod`에서 `COLLECTOR_URL`을 바꿉니다. LIVE 수집에는 `.env.prod`의 `SOLANA_RPC_URL`과 `SOLANA_RPC_API_KEY`가 필요합니다. 운영 Collector는 호스트 포트를 노출하지 않습니다.
 
 외부로 노출하는 포트는 Backend 하나이며 기본값은 `127.0.0.1:8080`입니다. 직접 외부에 노출해야 한다면 `.env.prod`에서 `BACKEND_BIND_ADDRESS=0.0.0.0`을 지정합니다. 내부 모듈은 Compose 네트워크의 서비스 이름으로 연결하며, Backend는 내부 모듈의 `/health`가 정상인 뒤 시작합니다. 개발 환경과 운영 환경은 같은 호스트 포트를 사용하므로 하나씩 실행합니다.
 
@@ -83,6 +83,7 @@ python -m venv .venv
 & .venv/Scripts/python.exe -m pip install -e '.[test]'
 
 # 각각 별도 터미널에서 실행
+& .venv/Scripts/python.exe -m collector --port 8000
 & .venv/Scripts/python.exe -m kyt_engine --port 8001
 & .venv/Scripts/python.exe -m policy_engine --port 8002
 ```
@@ -114,18 +115,19 @@ scripts/run-local.sh stop     # 전체 종료
 
 로그는 `.run/logs/`에 남습니다. Python 엔진은 현재 워크스페이스의 `.venv/bin/python`으로 실행하며, `LAB_DIR`로 다른 엔진·계약 경로를 지정할 수 있습니다.
 
-로컬 통합 실행은 기본적으로 **fixture Collector**(`LOCAL_COLLECTOR_ENABLED=true`)를 사용합니다. `contracts/fixtures/{fixtureId}/snapshot.json`의 합성 데이터를 반환하며 FIXTURE 모드만 지원합니다. 실제 Collector를 연결할 때는 `LOCAL_COLLECTOR_ENABLED=false COLLECTOR_URL=http://... scripts/run-local.sh start`로 실행합니다. Backend를 개별 실행할 때 fixture Collector의 기본값은 `false`입니다.
+로컬 통합 실행은 Collector(8000)를 함께 시작하고 Backend가 이를 호출합니다(`LOCAL_COLLECTOR_ENABLED=false`가 기본값). FIXTURE 모드는 `services/collector/fixtures`의 실제 메인넷 기록과 `contracts/fixtures`의 합성 데이터를 사용합니다. LIVE 모드를 쓰려면 `SOLANA_RPC_URL`(필요하면 `SOLANA_RPC_API_KEY`, `SOLANA_RPC_PROVIDER`)을 환경 변수로 지정한 뒤 `scripts/run-local.sh start`를 실행합니다. `LOCAL_COLLECTOR_ENABLED=true`로 실행하면 Collector 대신 `contracts/fixtures`의 합성 스냅샷을 Backend가 직접 읽습니다(화면 확인용).
 
 ## 파일 입력으로 실행
 
 ```powershell
+& .venv/Scripts/python.exe -m collector --input contracts/fixtures/normal/collection-request.json
 & .venv/Scripts/python.exe -m kyt_engine --input contracts/fixtures/sanctioned/evaluation-request.json
 & .venv/Scripts/python.exe -m policy_engine --input contracts/fixtures/sanctioned/policy-request.json
 & .venv/Scripts/python.exe scripts/demo_engines.py --scenario sanctioned
 & .venv/Scripts/python.exe scripts/demo_engines.py --scenario direct-flow --policy-version 1.1.0
 ```
 
-데모는 실제 엔진을 순서대로 실행하여 평가·정책 결정과 계약 검증을 통과한 Gateway 요청을 출력합니다. Gateway 자체를 실행하거나 전송을 수행하지 않습니다. 모든 제공 Fixture는 합성 데이터입니다.
+데모는 실제 엔진을 순서대로 실행하여 평가·정책 결정과 계약 검증을 통과한 Gateway 요청을 출력합니다. Gateway 자체를 실행하거나 전송을 수행하지 않습니다. `contracts/fixtures`의 Fixture는 합성 데이터입니다. `services/collector/fixtures`의 `mainnet-*` Fixture는 실제 메인넷 수집 기록이며, 위험 신호는 법적 판단이 아닙니다.
 
 ## 검증
 
@@ -135,6 +137,7 @@ scripts/run-local.sh stop     # 전체 종료
 # 모듈별 독립 테스트
 & .venv/Scripts/python.exe -m pytest tests/kyt -q
 & .venv/Scripts/python.exe -m pytest tests/policy -q
+& .venv/Scripts/python.exe -m pytest tests/collector -q
 ```
 
 Java 모듈의 단위·API 테스트와 전체 흐름 검증은 다음 명령을 사용합니다.
@@ -147,7 +150,7 @@ Java 모듈의 단위·API 테스트와 전체 흐름 검증은 다음 명령을
 
 `e2e_smoke.py`는 분석 → 거래 목록 → 정책 심사 → Gateway 결정 표 → Constellation → 오류 응답을 호출하고, 응답을 `contracts/runtime.py`의 JSON Schema로 검증합니다.
 
-공통 스키마·HTTP API는 [contracts/README.md](contracts/README.md), 개별 실행법은 [KYT](services/kyt-engine/README.md), [Policy](services/policy-engine/README.md), [Backend](apps/backend/README.md), [Gateway](simulations/gateway/README.md), [Constellation](simulations/constellation/README.md)을 참고합니다. 위험 신호와 LOW 등급은 실제 불법성·적법성·안전성을 보증하지 않습니다. Constellation의 초안 모델은 구현되어 있지만 규칙과 임계값은 리서치팀 공식 확정 전입니다.
+공통 스키마·HTTP API는 [contracts/README.md](contracts/README.md), 개별 실행법은 [Collector](services/collector/README.md), [KYT](services/kyt-engine/README.md), [Policy](services/policy-engine/README.md), [Backend](apps/backend/README.md), [Gateway](simulations/gateway/README.md), [Constellation](simulations/constellation/README.md)을 참고합니다. 위험 신호와 LOW 등급은 실제 불법성·적법성·안전성을 보증하지 않습니다. Constellation의 초안 모델은 구현되어 있지만 규칙과 임계값은 리서치팀 공식 확정 전입니다.
 
 ## Backend 호출 예시
 
@@ -223,9 +226,11 @@ curl -s -X POST localhost:8080/api/v1/experiments/gateway -H 'Content-Type: appl
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
 | `BACKEND_PORT` / `GATEWAY_PORT` / `CONSTELLATION_PORT` | 8080 / 8003 / 8004 | 서버 포트 (기본 바인딩 127.0.0.1) |
-| `COLLECTOR_URL` `KYT_URL` `POLICY_URL` `GATEWAY_URL` `CONSTELLATION_URL` | `http://127.0.0.1:8000~8004` | 내부 모듈 주소 |
+| `COLLECTOR_URL` `KYT_URL` `POLICY_URL` `GATEWAY_URL` `CONSTELLATION_URL` | `http://127.0.0.1:8000~8004` (Compose는 `http://collector:8000` 등) | 내부 모듈 주소 |
+| `SOLANA_RPC_URL` / `SOLANA_RPC_API_KEY` / `SOLANA_RPC_PROVIDER` | 없음 / 없음 / `SOLANA_RPC` | Collector LIVE 모드의 RPC 주소, API 키(헤더로만 전송), 제공자 이름. 키는 `.env`에만 두고 커밋하지 않음 |
+| `COLLECTOR_MAX_TRANSACTIONS` / `COLLECTOR_LABEL_DATASET` | `1000` / `services/collector/data/labels/ofac-sdn.json` | Collector의 거래 수 상한과 OFAC 라벨 데이터셋 경로 |
 | `DEFAULT_RULESET_VERSION` | `1.0.0` | 요청에 rulesetVersion이 없을 때 사용 |
-| `LOCAL_COLLECTOR_ENABLED` / `LOCAL_COLLECTOR_FIXTURES_DIR` | `false` / `contracts/fixtures` | fixture Collector (run-local.sh는 true) |
+| `LOCAL_COLLECTOR_ENABLED` / `LOCAL_COLLECTOR_FIXTURES_DIR` | `false` / `contracts/fixtures` | `true`면 Collector 대신 fixture 디렉터리를 직접 읽음 (화면 확인용) |
 | `CONSTELLATION_ATTESTATION_THRESHOLD` | `66.67` | 초안 모델의 포함 강제 증명 임계값(%, 이상) |
 | `CONSTELLATION_MOCK_ENABLED` | `false` | mock 버전 응답 허용 (run-local.sh는 true) |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173` | Frontend 출처 |

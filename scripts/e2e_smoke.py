@@ -1,6 +1,6 @@
 """Backend Public API E2E 스모크 테스트.
 
-실제 KYT/Policy 엔진 + Gateway/Constellation + Backend(로컬 fixture Collector)를 띄운 상태에서
+실제 KYT/Policy 엔진 + Gateway/Constellation + Collector + Backend를 띄운 상태에서
 Public API 전체 흐름을 호출하고, 모든 응답을 solana-compliance-lab/contracts 의 JSON Schema로 검증한다.
 
     scripts/run-local.sh start
