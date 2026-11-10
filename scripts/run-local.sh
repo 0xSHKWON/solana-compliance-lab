@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # 로컬 통합 실행: KYT·Policy 엔진(모노레포) + Mock Gateway + Constellation Simulator + Backend
 #
-#   scripts/run-local.sh start    # 빌드 후 전체 기동 (Collector는 fixture 대체 구현 사용)
+#   scripts/run-local.sh start    # 빌드 후 전체 기동 (Collector 포함)
 #   scripts/run-local.sh status   # /health 확인
 #   scripts/run-local.sh stop     # 전체 종료
 #
 # 환경 변수
 #   LAB_DIR                      solana-compliance-lab 경로 (기본 현재 워크스페이스)
-#   LOCAL_COLLECTOR_ENABLED      true(기본)면 Collector 대신 $LAB_DIR/contracts/fixtures 사용.
-#                                실제 Collector를 쓸 때는 false + COLLECTOR_URL 지정
+#   LOCAL_COLLECTOR_ENABLED      false(기본)면 Backend가 Collector(8000)를 호출합니다.
+#                                true면 Collector 대신 $LAB_DIR/contracts/fixtures 사용 (화면 확인용 fixture 모드)
+#   SOLANA_RPC_URL               Collector LIVE 모드용 Solana JSON-RPC 주소 (미설정 시 LIVE는 503)
+#   SOLANA_RPC_API_KEY           선택. 설정 시 SOLANA_RPC_API_KEY_HEADER 헤더로 전송. 로그에 출력하지 않음
 #   CONSTELLATION_MOCK_ENABLED   true(기본)면 mock 버전(0.0.0-research-pending)에 화면 확인용 결과 반환
 set -euo pipefail
 
@@ -17,11 +19,11 @@ LAB_DIR="$(cd "${LAB_DIR:-$ROOT}" 2>/dev/null && pwd || echo "")"
 RUN="$ROOT/.run"
 mkdir -p "$RUN/logs"
 
-export LOCAL_COLLECTOR_ENABLED="${LOCAL_COLLECTOR_ENABLED:-true}"
+export LOCAL_COLLECTOR_ENABLED="${LOCAL_COLLECTOR_ENABLED:-false}"
 export CONSTELLATION_MOCK_ENABLED="${CONSTELLATION_MOCK_ENABLED:-true}"
 export LOCAL_COLLECTOR_FIXTURES_DIR="${LOCAL_COLLECTOR_FIXTURES_DIR:-$LAB_DIR/contracts/fixtures}"
 
-SERVICES="kyt:8001 policy:8002 gateway:8003 constellation:8004 backend:8080"
+SERVICES="collector:8000 kyt:8001 policy:8002 gateway:8003 constellation:8004 backend:8080"
 
 launch() { # name, workdir, command...
   local name=$1 dir=$2; shift 2
@@ -53,10 +55,11 @@ start() {
 
   echo "Starting services..."
   if [ -n "$LAB_DIR" ] && [ -x "$LAB_DIR/.venv/bin/python" ]; then
+    launch collector "$LAB_DIR" "$LAB_DIR/.venv/bin/python" -m collector --port 8000
     launch kyt "$LAB_DIR" "$LAB_DIR/.venv/bin/python" -m kyt_engine --port 8001
     launch policy "$LAB_DIR" "$LAB_DIR/.venv/bin/python" -m policy_engine --port 8002
   else
-    echo "  ! KYT/Policy 엔진을 건너뜀: \$LAB_DIR/.venv 가 없습니다. (README '사전 준비' 참고)"
+    echo "  ! Collector/KYT/Policy 엔진을 건너뜀: \$LAB_DIR/.venv 가 없습니다. (README '사전 준비' 참고)"
   fi
   launch gateway "$ROOT" java -jar simulations/gateway/target/gateway-0.1.0.jar
   launch constellation "$ROOT" java -jar simulations/constellation/target/constellation-0.1.0.jar
