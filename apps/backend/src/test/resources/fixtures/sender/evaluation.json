@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "0.1.0",
+  "subjectAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+  "snapshotId": "sender-snapshot",
+  "rulesetVersion": "1.0.0",
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "detectedRules": [],
+  "evidences": []
+}

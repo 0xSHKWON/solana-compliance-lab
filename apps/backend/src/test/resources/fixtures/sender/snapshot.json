@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "0.1.0",
+  "snapshotId": "sender-snapshot",
+  "requestId": "sender-request",
+  "address": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "transfers": [
+    {
+      "id": "transfer-1",
+      "signature": "DojKwxnUhDMfqJr7ryzgD9FKnnNXbz1Axd1nUsCtk5v9NK2UKB3YVjYboRsJbTZiFFgmeRzkqjkkviAGGefeeBC",
+      "slot": 101,
+      "timestamp": "2026-11-01T00:00:00Z",
+      "instructionIndex": 0,
+      "innerInstructionIndex": null,
+      "transferOrdinal": 0,
+      "fromAddress": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "toAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "sourceAccount": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+      "destinationAccount": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "asset": {
+        "type": "SOL",
+        "mint": null,
+        "decimals": 9
+      },
+      "amountRaw": "1000000000",
+      "ownerResolved": true
+    }
+  ],
+  "labels": [],
+  "labelDataset": {
+    "source": "TEST_FIXTURE",
+    "version": "1.0.0",
+    "fetchedAt": "2026-11-02T00:00:00Z"
+  },
+  "coverage": {
+    "status": "COMPLETE",
+    "reasons": [],
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-02T00:00:00Z",
+    "snapshotSlot": 1000,
+    "transactionCount": 1,
+    "transferCount": 1,
+    "reachedTimeBoundary": true
+  },
+  "collectedAt": "2026-11-02T00:00:00Z",
+  "dataProvenance": {
+    "dataType": "SYNTHETIC",
+    "source": "TEST_FIXTURE",
+    "reference": "https://example.invalid/synthetic-fixtures"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "0.1.0",
+  "simulationId": "mock-simulation",
+  "intentId": "sanctioned-intent",
+  "protocolModelVersion": "0.0.0-research-pending",
+  "proposerPathAvailable": true,
+  "psliceInclusionEnforced": true,
+  "leaderExclusionValid": false,
+  "outcome": "INCLUSION_ENFORCED",
+  "explanationCodes": [
+    "MOCK_RESULT_NOT_PROTOCOL_VALIDATED"
+  ],
+  "simulationOnly": true
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "warning-unacknowledged-experiment",
+  "intentId": "warn-intent",
+  "routeId": "warning-unacknowledged",
+  "outcome": "REVIEW_REQUIRED",
+  "policyApplied": true,
+  "reasonCodes": [
+    "WARNING_NOT_ACKNOWLEDGED"
+  ],
+  "actualBroadcast": false
+}

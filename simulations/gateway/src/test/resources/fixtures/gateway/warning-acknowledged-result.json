@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "warning-acknowledged-experiment",
+  "intentId": "warn-intent",
+  "routeId": "warning-acknowledged",
+  "outcome": "SUBMISSION_ALLOWED",
+  "policyApplied": true,
+  "reasonCodes": [
+    "WARNING_ACKNOWLEDGED"
+  ],
+  "actualBroadcast": false
+}

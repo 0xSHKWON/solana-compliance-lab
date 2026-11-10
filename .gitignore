@@ -5,3 +5,10 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Java backend and local service outputs
+target/
+*.iml
+*.log
+.env
+.run/

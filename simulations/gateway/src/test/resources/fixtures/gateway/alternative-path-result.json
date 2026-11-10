@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "experimentId": "alternative-path-experiment",
+  "intentId": "sanctioned-intent",
+  "routeId": "alternative-path",
+  "outcome": "SUBMISSION_ALLOWED",
+  "policyApplied": false,
+  "reasonCodes": [
+    "POLICY_NOT_ENFORCED"
+  ],
+  "actualBroadcast": false
+}

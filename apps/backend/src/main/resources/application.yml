@@ -1,0 +1,33 @@
+server:
+  address: ${BACKEND_HOST:127.0.0.1}
+  port: ${BACKEND_PORT:8080}
+spring:
+  application:
+    name: backend
+  jackson:
+    parser:
+      strict-duplicate-detection: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+compliance:
+  max-body-bytes: 1048576
+  default-ruleset-version: ${DEFAULT_RULESET_VERSION:1.0.0}
+  async: true
+  analysis-workers: 4
+  analysis-queue-capacity: 100
+  cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+  upstream:
+    collector-url: ${COLLECTOR_URL:http://127.0.0.1:8000}
+    kyt-url: ${KYT_URL:http://127.0.0.1:8001}
+    policy-url: ${POLICY_URL:http://127.0.0.1:8002}
+    gateway-url: ${GATEWAY_URL:http://127.0.0.1:8003}
+    constellation-url: ${CONSTELLATION_URL:http://127.0.0.1:8004}
+    connect-timeout: 2s
+    read-timeout: 30s
+  local-collector:
+    # 로컬 개발 전용: Collector 서비스 대신 fixtures-dir/{fixtureId}/snapshot.json 을 반환한다.
+    enabled: ${LOCAL_COLLECTOR_ENABLED:false}
+    fixtures-dir: ${LOCAL_COLLECTOR_FIXTURES_DIR:contracts/fixtures}

@@ -1,0 +1,16 @@
+server:
+  address: ${GATEWAY_HOST:127.0.0.1}
+  port: ${GATEWAY_PORT:8003}
+spring:
+  application:
+    name: mock-gateway
+  jackson:
+    parser:
+      strict-duplicate-detection: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+compliance:
+  max-body-bytes: 1048576
