@@ -1,0 +1,12 @@
+{
+  "requestId": "mainnet-ofac-sdn-exact-request",
+  "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "fixtureId": "mainnet-ofac-sdn-exact",
+  "scope": {
+    "fromTime": "2026-01-01T00:00:00Z",
+    "toTime": "2026-11-10T00:00:00Z",
+    "maxTransactions": 50
+  }
+}

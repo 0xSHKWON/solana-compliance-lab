@@ -1,0 +1,28 @@
+{
+  "source": "OFAC_SDN",
+  "version": "2026-11-09",
+  "fetchedAt": "2026-11-10T12:02:11Z",
+  "reference": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML",
+  "entries": [
+    {
+      "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
+      "type": "SANCTIONED",
+      "referenceId": "OFAC-SDN-56360"
+    },
+    {
+      "address": "6wjqWWra8ombzaw6VHrG5xpQ972jCYF6bbHiFCbWmr4U",
+      "type": "SANCTIONED",
+      "referenceId": "OFAC-SDN-58287"
+    },
+    {
+      "address": "Fc1EwQUZyTEagaDvA1utHXCcZNyG1x2PLt2DfNu1cJdH",
+      "type": "SANCTIONED",
+      "referenceId": "OFAC-SDN-57978"
+    },
+    {
+      "address": "FuCC7GoYwt5TsNTjWL23Xx9UKCvC18chjMEFPL3vJDCC",
+      "type": "SANCTIONED",
+      "referenceId": "OFAC-SDN-57978"
+    }
+  ]
+}

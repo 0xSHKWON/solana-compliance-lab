@@ -15,14 +15,16 @@ test = ["pytest>=8,<10", "PyYAML>=6,<7", "openapi-spec-validator>=0.7.2,<0.9"]
 [project.scripts]
 kyt-engine = "kyt_engine.__main__:main"
 policy-engine = "policy_engine.__main__:main"
+collector = "collector.__main__:main"
 
 [tool.setuptools]
-packages = ["engine_common", "kyt_engine", "policy_engine", "compliance_contracts"]
+packages = ["engine_common", "kyt_engine", "policy_engine", "collector", "compliance_contracts"]
 
 [tool.setuptools.package-dir]
 engine_common = "services/engine-common/src/engine_common"
 kyt_engine = "services/kyt-engine/src/kyt_engine"
 policy_engine = "services/policy-engine/src/policy_engine"
+collector = "services/collector/src/collector"
 compliance_contracts = "contracts"
 
 [tool.setuptools.package-data]

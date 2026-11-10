@@ -1,0 +1,12 @@
+{
+  "requestId": "mainnet-busy-wallet-partial-request",
+  "address": "EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "fixtureId": "mainnet-busy-wallet-partial",
+  "scope": {
+    "fromTime": "2026-11-01T00:00:00Z",
+    "toTime": "2026-11-10T00:00:00Z",
+    "maxTransactions": 20
+  }
+}

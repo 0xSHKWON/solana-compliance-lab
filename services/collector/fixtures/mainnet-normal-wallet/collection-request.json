@@ -1,0 +1,12 @@
+{
+  "requestId": "mainnet-normal-wallet-request",
+  "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "fixtureId": "mainnet-normal-wallet",
+  "scope": {
+    "fromTime": "2026-10-01T00:00:00Z",
+    "toTime": "2026-11-10T00:00:00Z",
+    "maxTransactions": 50
+  }
+}

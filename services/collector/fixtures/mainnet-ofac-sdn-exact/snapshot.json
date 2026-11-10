@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "0.1.0",
+  "snapshotId": "snapshot-5ff93c7fb318fa6f81bd51a8b38508a3270c5b0a6a168ae87afda98467cc6299",
+  "requestId": "mainnet-ofac-sdn-exact-request",
+  "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "transfers": [],
+  "labels": [
+    {
+      "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
+      "network": "mainnet-beta",
+      "type": "SANCTIONED",
+      "source": "OFAC_SDN",
+      "referenceId": "OFAC-SDN-56360"
+    }
+  ],
+  "labelDataset": {
+    "source": "OFAC_SDN",
+    "version": "2026-11-09",
+    "fetchedAt": "2026-11-10T12:02:11Z"
+  },
+  "coverage": {
+    "status": "COMPLETE",
+    "reasons": [],
+    "fromTime": "2026-01-01T00:00:00Z",
+    "toTime": "2026-11-10T00:00:00Z",
+    "snapshotSlot": 467714197,
+    "transactionCount": 5,
+    "transferCount": 0,
+    "reachedTimeBoundary": true
+  },
+  "collectedAt": "2026-11-10T12:05:46Z",
+  "dataProvenance": {
+    "dataType": "ON_CHAIN",
+    "source": "NODIT_SOLANA_RPC",
+    "reference": "https://explorer.solana.com/address/42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi"
+  }
+}

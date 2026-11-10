@@ -122,7 +122,7 @@ def make_server(service, version, path, operation, host="127.0.0.1", port=0, max
                     self.request_id = request["requestId"]
                 self._reply(200, operation(request))
             except ContractViolation as error:
-                self._error(error.status, error.code, str(error))
+                self._error(error.status, error.code, str(error), getattr(error, "retryable", False))
             except (TimeoutError, socket.timeout):
                 self._error(400, "INVALID_REQUEST", "Request body timed out")
             except (BrokenPipeError, ConnectionResetError):

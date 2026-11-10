@@ -1,0 +1,70 @@
+{
+  "fixtureId": "mainnet-normal-wallet",
+  "dataType": "ON_CHAIN",
+  "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample).",
+  "capturedAt": "2026-11-10T12:05:44Z",
+  "provider": "NODIT_SOLANA_RPC",
+  "liveSnapshotId": "snapshot-130c949c1280fbb53aa55217ea86da5cb3276376a43ddb419454cc2583ec65e2",
+  "address": {
+    "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
+    "explorer": "https://explorer.solana.com/address/6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
+  },
+  "transactions": [
+    {
+      "signature": "2P1AfTRxUCwE3ZF6MZWYsYyMm8kjevKUYeKMqhwx2mSZbwC6imGC9HDYMbcyRsSoa3wVePUHbPPpJ6pdKN2jJPpV",
+      "explorer": "https://explorer.solana.com/tx/2P1AfTRxUCwE3ZF6MZWYsYyMm8kjevKUYeKMqhwx2mSZbwC6imGC9HDYMbcyRsSoa3wVePUHbPPpJ6pdKN2jJPpV"
+    },
+    {
+      "signature": "2ncGX4eUeAaCi1ZfaS4G6DGSH7LNVgEttQ5D7VkkL8K6WUbqqPWye6qsMJdbebzdU9j3AnjvVzaBnj8R6FsuZ68y",
+      "explorer": "https://explorer.solana.com/tx/2ncGX4eUeAaCi1ZfaS4G6DGSH7LNVgEttQ5D7VkkL8K6WUbqqPWye6qsMJdbebzdU9j3AnjvVzaBnj8R6FsuZ68y"
+    },
+    {
+      "signature": "3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1",
+      "explorer": "https://explorer.solana.com/tx/3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1"
+    },
+    {
+      "signature": "3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1",
+      "explorer": "https://explorer.solana.com/tx/3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1"
+    },
+    {
+      "signature": "3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM",
+      "explorer": "https://explorer.solana.com/tx/3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM"
+    },
+    {
+      "signature": "4DevLG6APsVoS4pFCo4XQ8F7SgZ5fZMy7GcKAqx44RtBX8qF5HP5GswFnZ4G9YAT4UeqzFRNoJ9D7PSFjaGdTftx",
+      "explorer": "https://explorer.solana.com/tx/4DevLG6APsVoS4pFCo4XQ8F7SgZ5fZMy7GcKAqx44RtBX8qF5HP5GswFnZ4G9YAT4UeqzFRNoJ9D7PSFjaGdTftx"
+    },
+    {
+      "signature": "4pPNf344bwU8FJZMkAUW71Fosc5e8ciqTjUdmsraJNAPhNp4WmuTedees6RRSemjKC4Kud8Rj6giQCrgNCVTHZxj",
+      "explorer": "https://explorer.solana.com/tx/4pPNf344bwU8FJZMkAUW71Fosc5e8ciqTjUdmsraJNAPhNp4WmuTedees6RRSemjKC4Kud8Rj6giQCrgNCVTHZxj"
+    },
+    {
+      "signature": "4ry3MW3LuiC2gxdCmzDvHqAf5Ms1h8AeKE2bhreTavN4Nm2KeWrjQZzhryHHJC4KLzB2JZXk873URk1Yrc3e8aoM",
+      "explorer": "https://explorer.solana.com/tx/4ry3MW3LuiC2gxdCmzDvHqAf5Ms1h8AeKE2bhreTavN4Nm2KeWrjQZzhryHHJC4KLzB2JZXk873URk1Yrc3e8aoM"
+    },
+    {
+      "signature": "5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd",
+      "explorer": "https://explorer.solana.com/tx/5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd"
+    },
+    {
+      "signature": "5PJSj4KWB4sG7s5dKrvHTSkgY6WoF5fB2qMEZjAYANzXYtMMTn468Zis1WKq7qrtLRWjERMCpd4cDZYLr1nC8d7r",
+      "explorer": "https://explorer.solana.com/tx/5PJSj4KWB4sG7s5dKrvHTSkgY6WoF5fB2qMEZjAYANzXYtMMTn468Zis1WKq7qrtLRWjERMCpd4cDZYLr1nC8d7r"
+    },
+    {
+      "signature": "65pfjmKGHzh8bqadPoLL4QvnugcKTKSCgSeg5bGvEQ9bmwF1KdpPg1B46aEoKcFgPfrdbCjBf2h3nZN59PtDaVWx",
+      "explorer": "https://explorer.solana.com/tx/65pfjmKGHzh8bqadPoLL4QvnugcKTKSCgSeg5bGvEQ9bmwF1KdpPg1B46aEoKcFgPfrdbCjBf2h3nZN59PtDaVWx"
+    },
+    {
+      "signature": "kPuM9gF8UVjmsWCXXXwFTDim7oC8rhbZyU4kVcXxHfXQuSRm4pF1Zoonnzf9DC92ji3sdsuthDpAqoRhtEftX85",
+      "explorer": "https://explorer.solana.com/tx/kPuM9gF8UVjmsWCXXXwFTDim7oC8rhbZyU4kVcXxHfXQuSRm4pF1Zoonnzf9DC92ji3sdsuthDpAqoRhtEftX85"
+    }
+  ],
+  "labelDataset": {
+    "source": "OFAC_SDN",
+    "version": "2026-11-09",
+    "fetchedAt": "2026-11-10T12:02:11Z",
+    "reference": "https://sanctionssearch.ofac.treas.gov/",
+    "matchedReferenceIds": []
+  },
+  "notes": "Transaction data is real mainnet data. Labels come only from the dataset named above; a risk signal is not a legal finding."
+}

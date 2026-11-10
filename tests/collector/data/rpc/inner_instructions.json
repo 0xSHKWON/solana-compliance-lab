@@ -1,0 +1,210 @@
+{
+  "blockTime": 1767225840,
+  "slot": 300000005,
+  "version": 0,
+  "meta": {
+    "err": null,
+    "fee": 5000,
+    "preBalances": [
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000
+    ],
+    "postBalances": [
+      999995000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000,
+      1000000000
+    ],
+    "innerInstructions": [
+      {
+        "index": 1,
+        "instructions": [
+          {
+            "parsed": {
+              "info": {
+                "authority": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
+                "destination": "A6iXBBF8QGNjMNA9QdaASTi3EPq9NrUSsCEzz7YcAXyd",
+                "mint": "3MTdEc3rvNavzm5Fe1LLyRdugey6VFRBtsptNKahymAF",
+                "source": "4zGgRQxHLyxC4cCkxqeFjbKrvQM3RAy1bb22ZHvHGvh3",
+                "tokenAmount": {
+                  "amount": "42",
+                  "decimals": 6,
+                  "uiAmount": 4.2e-05,
+                  "uiAmountString": "0.000042"
+                }
+              },
+              "type": "transferChecked"
+            },
+            "program": "spl-token",
+            "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "stackHeight": null
+          },
+          {
+            "parsed": {
+              "info": {
+                "destination": "AhUi24v6XRQJYkANnF6N77NgBc1QgBjSPoYUej59SDbt",
+                "lamports": 77,
+                "source": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh"
+              },
+              "type": "transfer"
+            },
+            "program": "system",
+            "programId": "11111111111111111111111111111111",
+            "stackHeight": null
+          }
+        ]
+      }
+    ],
+    "logMessages": [],
+    "preTokenBalances": [
+      {
+        "accountIndex": 3,
+        "mint": "3MTdEc3rvNavzm5Fe1LLyRdugey6VFRBtsptNKahymAF",
+        "owner": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "1000",
+          "decimals": 6,
+          "uiAmount": 0.001,
+          "uiAmountString": "0.001"
+        }
+      },
+      {
+        "accountIndex": 4,
+        "mint": "3MTdEc3rvNavzm5Fe1LLyRdugey6VFRBtsptNKahymAF",
+        "owner": "FRDZZQnRzK6raiGPktbpZFMxkXDe4ziEKkGaZak1HMuU",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "0",
+          "decimals": 6,
+          "uiAmount": 0.0,
+          "uiAmountString": "0"
+        }
+      }
+    ],
+    "postTokenBalances": [
+      {
+        "accountIndex": 3,
+        "mint": "3MTdEc3rvNavzm5Fe1LLyRdugey6VFRBtsptNKahymAF",
+        "owner": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "958",
+          "decimals": 6,
+          "uiAmount": 0.000958,
+          "uiAmountString": "0.000958"
+        }
+      },
+      {
+        "accountIndex": 4,
+        "mint": "3MTdEc3rvNavzm5Fe1LLyRdugey6VFRBtsptNKahymAF",
+        "owner": "FRDZZQnRzK6raiGPktbpZFMxkXDe4ziEKkGaZak1HMuU",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "42",
+          "decimals": 6,
+          "uiAmount": 4.2e-05,
+          "uiAmountString": "0.000042"
+        }
+      }
+    ],
+    "rewards": [],
+    "status": {
+      "Ok": null
+    }
+  },
+  "transaction": {
+    "signatures": [
+      "26Hcw7oBdSPHevS95f3aQo1jKSM7A5At4iK5A5m6wopUuV6sHBjiSfUasToUXsK9YMAx7H27pyhB1VJX6A4riwhz"
+    ],
+    "message": {
+      "accountKeys": [
+        {
+          "pubkey": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
+          "signer": true,
+          "writable": true,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "FRDZZQnRzK6raiGPktbpZFMxkXDe4ziEKkGaZak1HMuU",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "AhUi24v6XRQJYkANnF6N77NgBc1QgBjSPoYUej59SDbt",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "4zGgRQxHLyxC4cCkxqeFjbKrvQM3RAy1bb22ZHvHGvh3",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "A6iXBBF8QGNjMNA9QdaASTi3EPq9NrUSsCEzz7YcAXyd",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "F184voXi7TEzD6MTpfPhbmhvBGV8JKTjWG2Y1qEQ7AUV",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "11111111111111111111111111111111",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        },
+        {
+          "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "signer": false,
+          "writable": false,
+          "source": "transaction"
+        }
+      ],
+      "instructions": [
+        {
+          "parsed": {
+            "info": {
+              "destination": "FRDZZQnRzK6raiGPktbpZFMxkXDe4ziEKkGaZak1HMuU",
+              "lamports": 1000000,
+              "source": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh"
+            },
+            "type": "transfer"
+          },
+          "program": "system",
+          "programId": "11111111111111111111111111111111",
+          "stackHeight": null
+        },
+        {
+          "accounts": [
+            "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
+            "4zGgRQxHLyxC4cCkxqeFjbKrvQM3RAy1bb22ZHvHGvh3",
+            "A6iXBBF8QGNjMNA9QdaASTi3EPq9NrUSsCEzz7YcAXyd",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          ],
+          "data": "5T",
+          "programId": "F184voXi7TEzD6MTpfPhbmhvBGV8JKTjWG2Y1qEQ7AUV",
+          "stackHeight": null
+        }
+      ],
+      "recentBlockhash": "BDSh8r1KpRn5uNRnQeACbGC2nP2PAjndXd3ZJcGd7SKu"
+    }
+  }
+}

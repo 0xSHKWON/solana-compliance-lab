@@ -1,0 +1,44 @@
+{
+  "fixtureId": "mainnet-ofac-sdn-exact",
+  "dataType": "ON_CHAIN",
+  "description": "Real Solana address listed on the OFAC SDN list (Digital Currency Address - SOL). History contains only token-account creation and issuer freeze instructions, so there are no value transfers; the risk signal is the exact label match.",
+  "capturedAt": "2026-11-10T12:05:46Z",
+  "provider": "NODIT_SOLANA_RPC",
+  "liveSnapshotId": "snapshot-5ff93c7fb318fa6f81bd51a8b38508a3270c5b0a6a168ae87afda98467cc6299",
+  "address": {
+    "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
+    "explorer": "https://explorer.solana.com/address/42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi"
+  },
+  "transactions": [
+    {
+      "signature": "3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP",
+      "explorer": "https://explorer.solana.com/tx/3LBCQSK5ApDLtK8RkUgdHNdZ9UyCq4ceyq4KRxRhXguQZyzsd3vqMGZVH1tRCML4D5EDchJ2gYB4iuGUPvj9ZjvP"
+    },
+    {
+      "signature": "3MXuS77WAG7suDPGSaQjNgx3HwcM1Jo1yZh9wbYtxh1WdGpMV19D9L59EXi6dbuzk658HXciVqWPSqehqrZXcPBQ",
+      "explorer": "https://explorer.solana.com/tx/3MXuS77WAG7suDPGSaQjNgx3HwcM1Jo1yZh9wbYtxh1WdGpMV19D9L59EXi6dbuzk658HXciVqWPSqehqrZXcPBQ"
+    },
+    {
+      "signature": "4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7",
+      "explorer": "https://explorer.solana.com/tx/4FQXAexQsckSy87sb34ttcKLi3zKrdctxi9N7ECNYYhCHxPpzWhHscggkVJBkqC8N6HjaPcZtpJ2Dn6aFkDyUAu7"
+    },
+    {
+      "signature": "4u8qKip57RqwxM47eZStWhDtRChu5f7gkAntEeTcbAXprMuuwpWxsdfXW2dW9Fw6M5h8D34k4ixU9epFxYzHfUZs",
+      "explorer": "https://explorer.solana.com/tx/4u8qKip57RqwxM47eZStWhDtRChu5f7gkAntEeTcbAXprMuuwpWxsdfXW2dW9Fw6M5h8D34k4ixU9epFxYzHfUZs"
+    },
+    {
+      "signature": "4xofFVnUNd9y4eCk1rfCKBxMtLXTmsaXZk3mbczx1fbZx3i8dJZZnYYcst5rHPHUypA7QRYnA2fxMxARrw5NYxMQ",
+      "explorer": "https://explorer.solana.com/tx/4xofFVnUNd9y4eCk1rfCKBxMtLXTmsaXZk3mbczx1fbZx3i8dJZZnYYcst5rHPHUypA7QRYnA2fxMxARrw5NYxMQ"
+    }
+  ],
+  "labelDataset": {
+    "source": "OFAC_SDN",
+    "version": "2026-11-09",
+    "fetchedAt": "2026-11-10T12:02:11Z",
+    "reference": "https://sanctionssearch.ofac.treas.gov/",
+    "matchedReferenceIds": [
+      "OFAC-SDN-56360"
+    ]
+  },
+  "notes": "Transaction data is real mainnet data. Labels come only from the dataset named above; a risk signal is not a legal finding."
+}

@@ -1,0 +1,102 @@
+{
+  "fixtureId": "mainnet-busy-wallet-partial",
+  "dataType": "ON_CHAIN",
+  "description": "Real high-activity wallet collected with maxTransactions=20; the limit is reached before the time boundary, so coverage is PARTIAL (TRANSACTION_LIMIT_REACHED).",
+  "capturedAt": "2026-11-10T12:05:56Z",
+  "provider": "NODIT_SOLANA_RPC",
+  "liveSnapshotId": "snapshot-9418bf0acf210a80edd0f6c1115ce058f51941de81d406c4bcf5de6981020403",
+  "address": {
+    "address": "EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9",
+    "explorer": "https://explorer.solana.com/address/EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9"
+  },
+  "transactions": [
+    {
+      "signature": "2JceHHrL9PeidLpv8gJHxD9tYsDhk8wuzpZknjgD39qWEexZ73yy99P455tQ7Kt843qbPb74VMB4ruVn25KeXKtm",
+      "explorer": "https://explorer.solana.com/tx/2JceHHrL9PeidLpv8gJHxD9tYsDhk8wuzpZknjgD39qWEexZ73yy99P455tQ7Kt843qbPb74VMB4ruVn25KeXKtm"
+    },
+    {
+      "signature": "3AMpySpETuFHktkUZvVp2cUGTrGfk3KLBrmaHot9shbQVDCMsx3gXB5YspVyFDYmqwXWuwGxtFNtPd7D34rk3kxa",
+      "explorer": "https://explorer.solana.com/tx/3AMpySpETuFHktkUZvVp2cUGTrGfk3KLBrmaHot9shbQVDCMsx3gXB5YspVyFDYmqwXWuwGxtFNtPd7D34rk3kxa"
+    },
+    {
+      "signature": "3UzovCSNvWyxYQCEkYqwLtyjqc3vq4qPfcvMXGBBvAuuFuA8AAL4thCtxyVahbki1zSiPKBgQ4Ufkh1eJLfAEyaT",
+      "explorer": "https://explorer.solana.com/tx/3UzovCSNvWyxYQCEkYqwLtyjqc3vq4qPfcvMXGBBvAuuFuA8AAL4thCtxyVahbki1zSiPKBgQ4Ufkh1eJLfAEyaT"
+    },
+    {
+      "signature": "3b6MB8Rjno6ND1QUBkDkdY1sAkBhpbAphQyMgJB1FmWk5YFud9kZeR6UyN56bBVV8fywNrt6E8Ny3zdkvs2nKJ2f",
+      "explorer": "https://explorer.solana.com/tx/3b6MB8Rjno6ND1QUBkDkdY1sAkBhpbAphQyMgJB1FmWk5YFud9kZeR6UyN56bBVV8fywNrt6E8Ny3zdkvs2nKJ2f"
+    },
+    {
+      "signature": "3gGcooSG5iCAJ96koXuPXqguH24tsraGZe9zVnWGocmR9bjGhvz7PSz1ATHWMEWVPJ5HDhHqK7XxGK63A1DgGNFT",
+      "explorer": "https://explorer.solana.com/tx/3gGcooSG5iCAJ96koXuPXqguH24tsraGZe9zVnWGocmR9bjGhvz7PSz1ATHWMEWVPJ5HDhHqK7XxGK63A1DgGNFT"
+    },
+    {
+      "signature": "3pFZB31xnRuaTyES696NUn2kKqfSgD6pTc2P6gw5STt1i5bn9caJxovjNpJobPFg3GWhjfX64XHSpzp7vQG6QXw5",
+      "explorer": "https://explorer.solana.com/tx/3pFZB31xnRuaTyES696NUn2kKqfSgD6pTc2P6gw5STt1i5bn9caJxovjNpJobPFg3GWhjfX64XHSpzp7vQG6QXw5"
+    },
+    {
+      "signature": "3uGYZR3XQaJxvuwY5KtU599j1rZHPU4Z2r6ya7hFq7iBV7nhEvVRRLsipxhdCVoDWaZpiNVk8gKEPBLw2mdRtSPP",
+      "explorer": "https://explorer.solana.com/tx/3uGYZR3XQaJxvuwY5KtU599j1rZHPU4Z2r6ya7hFq7iBV7nhEvVRRLsipxhdCVoDWaZpiNVk8gKEPBLw2mdRtSPP"
+    },
+    {
+      "signature": "419Ay8CbwzmcXSmmyYct9YAectyCuyQyvqb8TDz3XgnotjW3noCncTysH9yqJhwQvwP4UN93axjusirvZTCLbaa6",
+      "explorer": "https://explorer.solana.com/tx/419Ay8CbwzmcXSmmyYct9YAectyCuyQyvqb8TDz3XgnotjW3noCncTysH9yqJhwQvwP4UN93axjusirvZTCLbaa6"
+    },
+    {
+      "signature": "49tFKnvft6eEmTFh6SqqBTX7Mdd1bcoQ1feEBJwDmhNNdVmKJJ8qzvdk2M79wvLtfSiQu7SWwiRUG3Mf1QbMwKu3",
+      "explorer": "https://explorer.solana.com/tx/49tFKnvft6eEmTFh6SqqBTX7Mdd1bcoQ1feEBJwDmhNNdVmKJJ8qzvdk2M79wvLtfSiQu7SWwiRUG3Mf1QbMwKu3"
+    },
+    {
+      "signature": "4YkMsUhnprMbZ4aWUGPdZHTKHiw92LXUqa7c61PmxRUQ9zTB7NfdKGLP2ZBqrARcBzGgLFvBd5TW2KYHgbmSVGBv",
+      "explorer": "https://explorer.solana.com/tx/4YkMsUhnprMbZ4aWUGPdZHTKHiw92LXUqa7c61PmxRUQ9zTB7NfdKGLP2ZBqrARcBzGgLFvBd5TW2KYHgbmSVGBv"
+    },
+    {
+      "signature": "4nH8ZBrJ8sS66DkPs53NSsKNPKvdscVhnXcrb8xgAxR7gQAFGwEnj7QtNGaioWa5TBtWi6fodavsU6Wg3z2L942Q",
+      "explorer": "https://explorer.solana.com/tx/4nH8ZBrJ8sS66DkPs53NSsKNPKvdscVhnXcrb8xgAxR7gQAFGwEnj7QtNGaioWa5TBtWi6fodavsU6Wg3z2L942Q"
+    },
+    {
+      "signature": "4oY2w1ZiT42Bak1gnMhpJM8exW3KgBKA2BMCozAUxNdaUyzZjPNZan5beh7UhwUu9peU9Uk9eGC8Lpp6udPVPNKA",
+      "explorer": "https://explorer.solana.com/tx/4oY2w1ZiT42Bak1gnMhpJM8exW3KgBKA2BMCozAUxNdaUyzZjPNZan5beh7UhwUu9peU9Uk9eGC8Lpp6udPVPNKA"
+    },
+    {
+      "signature": "4xshPR8x6rJokbRncSwgcG5SFz8kpCd1CjdHNW385z4Cqna2UtPumd5t49Ytwvoev6T4LSpsLVMTBTgj2ZENkgq7",
+      "explorer": "https://explorer.solana.com/tx/4xshPR8x6rJokbRncSwgcG5SFz8kpCd1CjdHNW385z4Cqna2UtPumd5t49Ytwvoev6T4LSpsLVMTBTgj2ZENkgq7"
+    },
+    {
+      "signature": "5FiTmFXtfBhoUPo2SPXYe5yxGY5H4PcHeYG8jp7e1xPaVzyYQZxxUUfhVU4C2dTa7B3MHTLDUr6n5LdqAQe282VA",
+      "explorer": "https://explorer.solana.com/tx/5FiTmFXtfBhoUPo2SPXYe5yxGY5H4PcHeYG8jp7e1xPaVzyYQZxxUUfhVU4C2dTa7B3MHTLDUr6n5LdqAQe282VA"
+    },
+    {
+      "signature": "5R1FmPSBV5Zu5jWcdSnDmG9JMEMG4qHa7M36biTKWKPBP5qPbPmESgPT9WQbGuo1Pg4po7itZ5MwbfbxEGkHZzSx",
+      "explorer": "https://explorer.solana.com/tx/5R1FmPSBV5Zu5jWcdSnDmG9JMEMG4qHa7M36biTKWKPBP5qPbPmESgPT9WQbGuo1Pg4po7itZ5MwbfbxEGkHZzSx"
+    },
+    {
+      "signature": "5gdxWt6uqf8RzPXS3jTFSXYRbgYYuQHtwoXw9Y1vJ7NgQUHH8U3a7xPxZStztCAvCcNeM3dAxyeb6dUTsMbqU9sX",
+      "explorer": "https://explorer.solana.com/tx/5gdxWt6uqf8RzPXS3jTFSXYRbgYYuQHtwoXw9Y1vJ7NgQUHH8U3a7xPxZStztCAvCcNeM3dAxyeb6dUTsMbqU9sX"
+    },
+    {
+      "signature": "NHebQegQsgq3rXdwjjnGm2EZJv8ecexVSPYR3mhSfn23DmMZX546FSHskJpR8rwwXG4cV2txF6xcZTQ3c1RgFHX",
+      "explorer": "https://explorer.solana.com/tx/NHebQegQsgq3rXdwjjnGm2EZJv8ecexVSPYR3mhSfn23DmMZX546FSHskJpR8rwwXG4cV2txF6xcZTQ3c1RgFHX"
+    },
+    {
+      "signature": "VwkAoe7tjuYVAF42SVmzczWnQzXtGBPoUqRDuETMGiPVExXSnWD9JDbn2McBU1gRv6J27T7wyi9TSSH52Tt4iAF",
+      "explorer": "https://explorer.solana.com/tx/VwkAoe7tjuYVAF42SVmzczWnQzXtGBPoUqRDuETMGiPVExXSnWD9JDbn2McBU1gRv6J27T7wyi9TSSH52Tt4iAF"
+    },
+    {
+      "signature": "hU3EA4Mo8MBRH5PyLuuJehyQvm1pm6vVKMi4EovU143emWLGZg77t1HK6KzD6aUDCPBm8oiSVDqam3jkcUpt94y",
+      "explorer": "https://explorer.solana.com/tx/hU3EA4Mo8MBRH5PyLuuJehyQvm1pm6vVKMi4EovU143emWLGZg77t1HK6KzD6aUDCPBm8oiSVDqam3jkcUpt94y"
+    },
+    {
+      "signature": "rbJcSZoRPmg2RJKzQgyRCp8xjdVKv3pVVt67eePF5Pnne4NNvDUJozMSfosy8X6Nij91jHFQxh4rc88EQEuPuMe",
+      "explorer": "https://explorer.solana.com/tx/rbJcSZoRPmg2RJKzQgyRCp8xjdVKv3pVVt67eePF5Pnne4NNvDUJozMSfosy8X6Nij91jHFQxh4rc88EQEuPuMe"
+    }
+  ],
+  "labelDataset": {
+    "source": "OFAC_SDN",
+    "version": "2026-11-09",
+    "fetchedAt": "2026-11-10T12:02:11Z",
+    "reference": "https://sanctionssearch.ofac.treas.gov/",
+    "matchedReferenceIds": []
+  },
+  "notes": "Transaction data is real mainnet data. Labels come only from the dataset named above; a risk signal is not a legal finding."
+}
