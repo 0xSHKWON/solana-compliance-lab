@@ -1,0 +1,12 @@
+{
+  "requestId": "mainnet-rapid-fan-out-request",
+  "address": "5sXRSSKdDNPAYuujdoVdTigXU6Zrudha656mHTkREC31",
+  "network": "mainnet-beta",
+  "mode": "FIXTURE",
+  "fixtureId": "mainnet-rapid-fan-out",
+  "scope": {
+    "fromTime": "2026-11-09T00:00:00Z",
+    "toTime": "2026-11-09T03:00:00Z",
+    "maxTransactions": 100
+  }
+}

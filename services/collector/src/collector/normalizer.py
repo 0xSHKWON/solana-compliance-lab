@@ -64,9 +64,16 @@ class _Malformed(Exception):
     """Instruction that claims to be a transfer but cannot be read safely."""
 
 
-def normalize_transaction(tx: dict, address: str) -> NormalizeResult:
+def normalize_transaction(tx: dict, address: str, related_accounts=()) -> NormalizeResult:
+    """Normalize one transaction for ``address``.
+
+    ``related_accounts`` are token accounts known to belong to ``address``. A transfer touching one
+    of them is kept even when the token balances do not reveal the owner; the owner is still left
+    unresolved rather than inferred.
+    """
     if not _is_address(address):
         raise ContractViolation("Invalid wallet address", "INVALID_REQUEST", 400)
+    tracked = {address, *related_accounts}
     if not isinstance(tx, dict):
         raise _malformed_result()
     meta = tx.get("meta")
@@ -124,7 +131,7 @@ def normalize_transaction(tx: dict, address: str) -> NormalizeResult:
     transfers: list[dict] = []
     seen: set[tuple[int, int | None]] = set()
     for index, inner, movement in sorted(found, key=lambda item: (item[0], -1 if item[1] is None else item[1])):
-        if address not in (movement.from_owner, movement.to_owner, movement.source, movement.destination):
+        if tracked.isdisjoint((movement.from_owner, movement.to_owner, movement.source, movement.destination)):
             continue
         if (index, inner) in seen:
             continue

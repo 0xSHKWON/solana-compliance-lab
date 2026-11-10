@@ -2,9 +2,9 @@
   "fixtureId": "mainnet-normal-wallet",
   "dataType": "ON_CHAIN",
   "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample).",
-  "capturedAt": "2026-11-10T12:05:44Z",
+  "capturedAt": "2026-11-10T13:17:16Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-130c949c1280fbb53aa55217ea86da5cb3276376a43ddb419454cc2583ec65e2",
+  "liveSnapshotId": "snapshot-e5f3591a3248e05042b1b4c410e31e800942657c811d7486cc0a7f691ec3a92c",
   "address": {
     "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
     "explorer": "https://explorer.solana.com/address/6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"

@@ -1,0 +1,82 @@
+{
+  "fixtureId": "mainnet-rapid-fan-out",
+  "dataType": "ON_CHAIN",
+  "description": "Real wallet that sends to many distinct recipients within minutes. KYT ruleset 1.0.0 detects RAPID_FAN_OUT (>=3 recipients within 300s). A pattern signal only: it does not establish wrongdoing (payout/distribution wallets show the same shape).",
+  "capturedAt": "2026-11-10T13:19:10Z",
+  "provider": "NODIT_SOLANA_RPC",
+  "liveSnapshotId": "snapshot-3cd1ff3bdcc35740bce765cb11dbeb3f4090795511b4772837f5db1de50ac288",
+  "address": {
+    "address": "5sXRSSKdDNPAYuujdoVdTigXU6Zrudha656mHTkREC31",
+    "explorer": "https://explorer.solana.com/address/5sXRSSKdDNPAYuujdoVdTigXU6Zrudha656mHTkREC31"
+  },
+  "transactions": [
+    {
+      "signature": "3fy6rmwem5FisKe5YQPg2P4ZNAAZNuZFhmX8ermKY9QETpn31DXYWCb2nnDyNfRWVZJVpVSCjCEhbSgoa7Pt8L6n",
+      "explorer": "https://explorer.solana.com/tx/3fy6rmwem5FisKe5YQPg2P4ZNAAZNuZFhmX8ermKY9QETpn31DXYWCb2nnDyNfRWVZJVpVSCjCEhbSgoa7Pt8L6n"
+    },
+    {
+      "signature": "434Cyok8Kw7JkVA2TqHQtCyfFeDnSbaX27c1hBHWsHQTFdfgomHTuKJDEVk6TfQoNfCbk2yo7DbWA1Gqio8ws6DJ",
+      "explorer": "https://explorer.solana.com/tx/434Cyok8Kw7JkVA2TqHQtCyfFeDnSbaX27c1hBHWsHQTFdfgomHTuKJDEVk6TfQoNfCbk2yo7DbWA1Gqio8ws6DJ"
+    },
+    {
+      "signature": "48Dsg7EZa7TLzt7JH9SRzUsjurqHk6tKh3Viq9LfF4HkKtUK5sKPekGV3yV3MoxFgxmSDdJYzQqbsmBWE1XMoouQ",
+      "explorer": "https://explorer.solana.com/tx/48Dsg7EZa7TLzt7JH9SRzUsjurqHk6tKh3Viq9LfF4HkKtUK5sKPekGV3yV3MoxFgxmSDdJYzQqbsmBWE1XMoouQ"
+    },
+    {
+      "signature": "4DhsYwMUg33pyhgpJEw2Fot6Gzo9wB2vkc1nRxxUPJS2sWZ29yTLFdp2EkXxgkbvMyndji1QhnX7JAZ6G5BcdUMi",
+      "explorer": "https://explorer.solana.com/tx/4DhsYwMUg33pyhgpJEw2Fot6Gzo9wB2vkc1nRxxUPJS2sWZ29yTLFdp2EkXxgkbvMyndji1QhnX7JAZ6G5BcdUMi"
+    },
+    {
+      "signature": "4m1TccJRgEkV8Yp4zs34Z9FDDZVZbdR2uixJ5bgmkr4FRfwNd7qc1Ph25ohyJjSxQTM7PHFrJU176GHvZoEjnD5h",
+      "explorer": "https://explorer.solana.com/tx/4m1TccJRgEkV8Yp4zs34Z9FDDZVZbdR2uixJ5bgmkr4FRfwNd7qc1Ph25ohyJjSxQTM7PHFrJU176GHvZoEjnD5h"
+    },
+    {
+      "signature": "5NMdLRxMfBqwFXTcm1FzoXCMbvyfkBQHmwRaPeeYztzxtb3wDXZbCHS26Suxo7Pvd6LopAhWgXU3JEjmmiFL4Phw",
+      "explorer": "https://explorer.solana.com/tx/5NMdLRxMfBqwFXTcm1FzoXCMbvyfkBQHmwRaPeeYztzxtb3wDXZbCHS26Suxo7Pvd6LopAhWgXU3JEjmmiFL4Phw"
+    },
+    {
+      "signature": "5RvPRU8GjYzTA4fQ1cfWy4kJ11nFeiwnoYni1X44NMVNKuJmfMtJspf7Yb58nejAuJSvsEvmCyTZNyRpJYZyPyzG",
+      "explorer": "https://explorer.solana.com/tx/5RvPRU8GjYzTA4fQ1cfWy4kJ11nFeiwnoYni1X44NMVNKuJmfMtJspf7Yb58nejAuJSvsEvmCyTZNyRpJYZyPyzG"
+    },
+    {
+      "signature": "5Z5i7HCXrLZqbtfBf9nQeSL3DLbf89M7KrXmzmek4P8biedwi3rabMfnb3b5c1FUM5EtGt4aY2vWT5wC8aXf9g2p",
+      "explorer": "https://explorer.solana.com/tx/5Z5i7HCXrLZqbtfBf9nQeSL3DLbf89M7KrXmzmek4P8biedwi3rabMfnb3b5c1FUM5EtGt4aY2vWT5wC8aXf9g2p"
+    },
+    {
+      "signature": "5ppsFVuiqaRPpDiHbkWi3tZzLt4WKJWAnWpd9AREcrjqJfwAkQAiF2ARfE7qVvN6vfXtcKDy1gkzsf8hZ7646zZt",
+      "explorer": "https://explorer.solana.com/tx/5ppsFVuiqaRPpDiHbkWi3tZzLt4WKJWAnWpd9AREcrjqJfwAkQAiF2ARfE7qVvN6vfXtcKDy1gkzsf8hZ7646zZt"
+    },
+    {
+      "signature": "5raRBddzcxKewJDW1XoWnZ79iK6GhGW5UKmL7ah4Jmbcb3SZC87qMRakEuurK2Un9dS5uiDQu1cAp8aqx64wHCgj",
+      "explorer": "https://explorer.solana.com/tx/5raRBddzcxKewJDW1XoWnZ79iK6GhGW5UKmL7ah4Jmbcb3SZC87qMRakEuurK2Un9dS5uiDQu1cAp8aqx64wHCgj"
+    },
+    {
+      "signature": "bH8H3k5ENgYB2ZMXEu3v3RrvgPbfvLKBsMutP2nVe1ZCAiUbcuxsNCF8zShrtwbPKyqvVxQb2ZLV7LGWQF4tLn8",
+      "explorer": "https://explorer.solana.com/tx/bH8H3k5ENgYB2ZMXEu3v3RrvgPbfvLKBsMutP2nVe1ZCAiUbcuxsNCF8zShrtwbPKyqvVxQb2ZLV7LGWQF4tLn8"
+    },
+    {
+      "signature": "e7BvWq3QYWGy6vxE7uHNPiEQQ8SkWha3VzyEzHk6nQPXT9XsccPVHo5JDYHUC6i5ojjK7Vg3Usbh5Kp6tGV3SHz",
+      "explorer": "https://explorer.solana.com/tx/e7BvWq3QYWGy6vxE7uHNPiEQQ8SkWha3VzyEzHk6nQPXT9XsccPVHo5JDYHUC6i5ojjK7Vg3Usbh5Kp6tGV3SHz"
+    },
+    {
+      "signature": "v2YimELDkYKPzG87f3fAJtYF2QuX7H4EXHhAvmzpzCZkKryg3qdcpxxcfhk3nNE12bqMTKuHqWjGX2MGXEVvzfy",
+      "explorer": "https://explorer.solana.com/tx/v2YimELDkYKPzG87f3fAJtYF2QuX7H4EXHhAvmzpzCZkKryg3qdcpxxcfhk3nNE12bqMTKuHqWjGX2MGXEVvzfy"
+    },
+    {
+      "signature": "yAV5YU73vkGGqsC644Fbd3d4zYQYgRfH4phrziD2qLqFdLiyUsdpDvV7dWz6C7Qv1X8gzLe4VzqiYeSFw2qsx6s",
+      "explorer": "https://explorer.solana.com/tx/yAV5YU73vkGGqsC644Fbd3d4zYQYgRfH4phrziD2qLqFdLiyUsdpDvV7dWz6C7Qv1X8gzLe4VzqiYeSFw2qsx6s"
+    },
+    {
+      "signature": "zELECc4VK1Gbm8AaLGuVdNaXeaHfCCkuRDQACJgcwUxQyTw916zn4y91Qoe8qgyk5X2Q2ZQNb9yhKaYacvfCJYc",
+      "explorer": "https://explorer.solana.com/tx/zELECc4VK1Gbm8AaLGuVdNaXeaHfCCkuRDQACJgcwUxQyTw916zn4y91Qoe8qgyk5X2Q2ZQNb9yhKaYacvfCJYc"
+    }
+  ],
+  "labelDataset": {
+    "source": "OFAC_SDN",
+    "version": "2026-11-09",
+    "fetchedAt": "2026-11-10T12:02:11Z",
+    "reference": "https://sanctionssearch.ofac.treas.gov/",
+    "matchedReferenceIds": []
+  },
+  "notes": "Transaction data is real mainnet data. Labels come only from the dataset named above; a risk signal is not a legal finding."
+}

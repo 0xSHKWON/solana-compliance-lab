@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1.0",
-  "snapshotId": "snapshot-130c949c1280fbb53aa55217ea86da5cb3276376a43ddb419454cc2583ec65e2",
+  "snapshotId": "snapshot-e5f3591a3248e05042b1b4c410e31e800942657c811d7486cc0a7f691ec3a92c",
   "requestId": "mainnet-normal-wallet-request",
   "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
   "network": "mainnet-beta",
@@ -258,12 +258,12 @@
     "reasons": [],
     "fromTime": "2026-10-01T00:00:00Z",
     "toTime": "2026-11-10T00:00:00Z",
-    "snapshotSlot": 467714173,
+    "snapshotSlot": 467734231,
     "transactionCount": 12,
     "transferCount": 12,
     "reachedTimeBoundary": true
   },
-  "collectedAt": "2026-11-10T12:05:44Z",
+  "collectedAt": "2026-11-10T13:17:16Z",
   "dataProvenance": {
     "dataType": "ON_CHAIN",
     "source": "NODIT_SOLANA_RPC",

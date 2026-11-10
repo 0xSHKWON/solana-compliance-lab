@@ -16,7 +16,7 @@ def load(directory, name):
 
 def test_real_fixture_directories_are_discovered():
     assert {path.name for path in DIRECTORIES} >= {"mainnet-normal-wallet", "mainnet-ofac-sdn-exact",
-                                                    "mainnet-busy-wallet-partial"}
+                                                    "mainnet-busy-wallet-partial", "mainnet-rapid-fan-out"}
 
 
 @pytest.mark.parametrize("directory", DIRECTORIES, ids=lambda p: p.name)

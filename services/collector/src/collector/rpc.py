@@ -177,6 +177,19 @@ class SolanaRpcClient:
             raise ProviderError("Solana RPC returned an invalid signature list", retryable=False, status=502)
         return result
 
+    def get_token_accounts_by_owner(self, owner: str, program_id: str, commitment: str = "finalized") -> list[str]:
+        """Addresses of the token accounts ``owner`` currently holds under one token program."""
+        result = self.call(
+            "getTokenAccountsByOwner",
+            [owner, {"programId": program_id},
+             {"encoding": "base64", "dataSlice": {"offset": 0, "length": 0}, "commitment": commitment}],
+        )
+        value = result.get("value") if isinstance(result, dict) else None
+        if not isinstance(value, list) or not all(isinstance(item, dict) and isinstance(item.get("pubkey"), str)
+                                                  for item in value):
+            raise ProviderError("Solana RPC returned an invalid token account list", retryable=False, status=502)
+        return [item["pubkey"] for item in value]
+
     def get_transaction(self, signature: str, commitment: str = "finalized") -> dict | None:
         result = self.call(
             "getTransaction",

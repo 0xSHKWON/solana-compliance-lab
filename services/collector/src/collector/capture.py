@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -36,13 +37,15 @@ class RecordingRpc:
 
     def __init__(self, inner):
         self._inner, self.calls = inner, []
+        self._lock = threading.Lock()
 
     def __getattr__(self, method):
         target = getattr(self._inner, method)
 
         def call(*args, **kwargs):
             result = target(*args, **kwargs)
-            self.calls.append({"method": method, "args": list(args), "kwargs": kwargs, "result": result})
+            with self._lock:
+                self.calls.append({"method": method, "args": list(args), "kwargs": kwargs, "result": result})
             return result
         return call
 
@@ -101,7 +104,9 @@ def capture(fixture_id, address, from_time, to_time, max_transactions, descripti
     directory.mkdir(parents=True, exist_ok=True)
     _write(directory / "snapshot.json", snapshot)
     _write(directory / "collection-request.json", request)
-    _write(directory / "rpc-recording.json", {"collectedAt": live["collectedAt"], "calls": recorder.calls})
+    # Calls run concurrently; sort them so the recording is byte-for-byte reproducible.
+    calls = sorted(recorder.calls, key=lambda c: _key(c["method"], c["args"], c["kwargs"]))
+    _write(directory / "rpc-recording.json", {"collectedAt": live["collectedAt"], "calls": calls})
     _write(directory / "source.json", source)
     return directory, snapshot
 

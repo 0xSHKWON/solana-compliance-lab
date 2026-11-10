@@ -355,3 +355,24 @@ def test_program_ids_decode_to_32_bytes():
 
     assert TOKEN_2022_PROGRAM == "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
     assert all(base58_size(program) == 32 for program in (SYSTEM_PROGRAM, TOKEN_PROGRAM, TOKEN_2022_PROGRAM))
+
+
+def test_transfer_into_known_token_account_is_kept_without_inventing_owner():
+    """A transfer to the wallet's token account is kept even if balances omit the owner."""
+    import copy
+    tx = copy.deepcopy(load("owner_unresolved"))
+    destination = next(
+        ix["parsed"]["info"]["destination"]
+        for ix in tx["transaction"]["message"]["instructions"]
+        if isinstance(ix.get("parsed"), dict) and "destination" in ix["parsed"].get("info", {})
+    )
+    wallet = "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi"  # unrelated wallet that owns `destination`
+
+    assert normalize_transaction(tx, wallet).transfers == []
+    result = normalize_transaction(tx, wallet, [destination])
+
+    assert len(result.transfers) == 1
+    transfer = result.transfers[0]
+    assert transfer["destinationAccount"] == destination
+    assert transfer["toAddress"] is None and transfer["ownerResolved"] is False
+    assert "OWNER_UNRESOLVED" in result.reasons

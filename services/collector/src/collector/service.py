@@ -32,7 +32,7 @@ class Collector:
     """POST /internal/v1/collect operation. Stateless per request; no background monitoring."""
 
     def __init__(self, fixtures=None, rpc_factory=None, label_loader=None, max_transactions=None,
-                 provider_name=None, clock=None, env=None):
+                 provider_name=None, clock=None, env=None, live_options=None):
         env = os.environ if env is None else env
         self._env = env
         self._fixtures = fixtures if fixtures is not None else FixtureStore()
@@ -41,6 +41,13 @@ class Collector:
         self._max_transactions = int(max_transactions or env.get("COLLECTOR_MAX_TRANSACTIONS") or DEFAULT_MAX_TRANSACTIONS)
         self._provider = provider_name or env.get("SOLANA_RPC_PROVIDER") or "SOLANA_RPC"
         self._clock = clock or (lambda: datetime.now(timezone.utc))
+        self._live_options = {
+            "fetch_workers": int(env.get("COLLECTOR_FETCH_WORKERS") or 16),
+            # Must stay below the Backend's upstream read timeout (30s by default).
+            "time_budget": float(env.get("COLLECTOR_TIME_BUDGET_SECONDS") or 20),
+            "max_token_accounts": int(env.get("COLLECTOR_MAX_TOKEN_ACCOUNTS") or 100),
+            **(live_options or {}),
+        }
 
     def collect(self, request):
         validate("collector", "KYTCollectionRequest", request)
@@ -60,12 +67,13 @@ class Collector:
         if from_time > self._clock():
             raise ContractViolation("Scope starts in the future", "INVALID_REQUEST")
         labels = self._label_loader()  # fail before touching the provider if label metadata is missing
-        result = LiveSource(self._rpc_factory()).fetch(address, from_time, to_time, scope["maxTransactions"])
+        result = LiveSource(self._rpc_factory(), **self._live_options).fetch(
+            address, from_time, to_time, scope["maxTransactions"])
         reasons = set(result.reasons)
         transfers = {}
         for transaction in result.transactions:
             try:
-                normalized = normalize_transaction(transaction, address)
+                normalized = normalize_transaction(transaction, address, result.token_accounts)
             except ProviderError:
                 # One structurally broken transaction must not discard the rest of the snapshot.
                 reasons.add("PARSE_FAILED")

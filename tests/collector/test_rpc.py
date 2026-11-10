@@ -252,3 +252,20 @@ def test_default_transport_maps_http_error_to_status(monkeypatch):
         client.get_slot()
 
     assert info.value.code == "RATE_LIMITED"
+
+
+def test_get_token_accounts_by_owner_returns_pubkeys_only():
+    transport = FakeTransport(ok({"context": {"slot": 1}, "value": [{"pubkey": "ata-1", "account": {}}, {"pubkey": "ata-2"}]}))
+    client = make_client(transport)
+
+    assert client.get_token_accounts_by_owner("wallet", "program") == ["ata-1", "ata-2"]
+    body = transport.calls[0]["body"]
+    assert body["method"] == "getTokenAccountsByOwner"
+    assert body["params"][0] == "wallet" and body["params"][1] == {"programId": "program"}
+    assert body["params"][2]["dataSlice"] == {"offset": 0, "length": 0}  # account data is not needed
+
+
+def test_get_token_accounts_by_owner_rejects_malformed_result():
+    client = make_client(FakeTransport(ok({"value": [{"no": "pubkey"}]})))
+    with pytest.raises(ProviderError):
+        client.get_token_accounts_by_owner("wallet", "program")

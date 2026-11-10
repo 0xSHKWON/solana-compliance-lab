@@ -14,7 +14,7 @@ from compliance_contracts.runtime import ContractViolation, instant, link_evalua
 from kyt_engine import Detector
 
 REAL_ROOT = Path(__file__).resolve().parents[2] / "services" / "collector" / "fixtures"
-REAL_FIXTURES = ["mainnet-normal-wallet", "mainnet-ofac-sdn-exact", "mainnet-busy-wallet-partial"]
+REAL_FIXTURES = ["mainnet-normal-wallet", "mainnet-ofac-sdn-exact", "mainnet-busy-wallet-partial", "mainnet-rapid-fan-out"]
 NORMAL_ADDRESS = "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
 NOW = datetime(2026, 11, 10, 12, 0, tzinfo=timezone.utc)
 COLLECTOR_ENV = ("COLLECTOR_MAX_TRANSACTIONS", "COLLECTOR_LABEL_DATASET", "COLLECTOR_FIXTURE_ROOTS",
@@ -51,6 +51,9 @@ class FakeRpc:
         if self._slot_error is not None:
             raise self._slot_error
         return self._slot
+
+    def get_token_accounts_by_owner(self, owner, program_id, commitment="finalized"):
+        return []
 
     def get_signatures_for_address(self, address, before=None, limit=1000, commitment="finalized"):
         return list(self._signatures) if before is None else []
@@ -295,6 +298,26 @@ def test_exact_ofac_match_is_detected():
     evaluation = Detector().evaluate({"requestId": "x", "snapshot": snapshot, "rulesetVersion": "1.0.0"})
 
     assert "SANCTION_EXACT" in {rule["ruleId"] for rule in evaluation["detectedRules"]}
+
+
+def test_real_fan_out_pattern_is_detected_on_complete_data():
+    snapshot = load("mainnet-rapid-fan-out", "snapshot.json")
+
+    evaluation = Detector().evaluate({"requestId": "x", "snapshot": snapshot, "rulesetVersion": "1.0.0"})
+
+    assert snapshot["coverage"]["status"] == "COMPLETE"
+    assert [rule["ruleId"] for rule in evaluation["detectedRules"]] == ["RAPID_FAN_OUT"]
+    assert evaluation["riskLevel"] == "MEDIUM"
+
+
+def test_busy_wallet_includes_incoming_token_account_transfers():
+    """Regression: incoming SPL transfers that only list the wallet's token account must be collected."""
+    snapshot = load("mainnet-busy-wallet-partial", "snapshot.json")
+    address = snapshot["address"]
+
+    incoming = [t for t in snapshot["transfers"] if t["toAddress"] == address and t["destinationAccount"] != address]
+
+    assert incoming, "incoming token-account transfers are missing"
 
 
 def test_partial_snapshot_has_no_risk_score():

@@ -2,9 +2,9 @@
   "fixtureId": "mainnet-ofac-sdn-exact",
   "dataType": "ON_CHAIN",
   "description": "Real Solana address listed on the OFAC SDN list (Digital Currency Address - SOL). History contains only token-account creation and issuer freeze instructions, so there are no value transfers; the risk signal is the exact label match.",
-  "capturedAt": "2026-11-10T12:05:46Z",
+  "capturedAt": "2026-11-10T13:17:20Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-5ff93c7fb318fa6f81bd51a8b38508a3270c5b0a6a168ae87afda98467cc6299",
+  "liveSnapshotId": "snapshot-4a58e0e58f4631164bcc3c0b15cb1d1903112a262b2060b9a38d3de3fc888f09",
   "address": {
     "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
     "explorer": "https://explorer.solana.com/address/42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi"
