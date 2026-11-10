@@ -1,0 +1,173 @@
+# Standalone configuration: docker compose -f compose.dev.yaml up --build -d
+name: solana-compliance-lab-dev
+services:
+  kyt-engine:
+    build:
+      context: .
+      dockerfile: docker/python.Dockerfile
+      target: development
+    command:
+    - python
+    - -m
+    - kyt_engine
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8001'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    ports:
+    - 127.0.0.1:8001:8001
+    volumes:
+    - ./services:/app/services:ro
+    - ./contracts:/app/contracts:ro
+    - ./tests:/app/tests:ro
+    - ./scripts:/app/scripts:ro
+  policy-engine:
+    build:
+      context: .
+      dockerfile: docker/python.Dockerfile
+      target: development
+    command:
+    - python
+    - -m
+    - policy_engine
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8002'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    ports:
+    - 127.0.0.1:8002:8002
+    volumes:
+    - ./services:/app/services:ro
+    - ./contracts:/app/contracts:ro
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: development
+      args:
+        MODULE: simulations/gateway
+    environment:
+      GATEWAY_HOST: 0.0.0.0
+      SERVER_PORT: '8003'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    command:
+    - mvn
+    - -B
+    - -ntp
+    - -pl
+    - simulations/gateway
+    - spring-boot:run
+    ports:
+    - 127.0.0.1:8003:8003
+    volumes:
+    - ./simulations/gateway/src:/workspace/simulations/gateway/src:ro
+    - maven-cache:/root/.m2
+  constellation:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: development
+      args:
+        MODULE: simulations/constellation
+    environment:
+      CONSTELLATION_HOST: 0.0.0.0
+      SERVER_PORT: '8004'
+      CONSTELLATION_ATTESTATION_THRESHOLD: ${CONSTELLATION_ATTESTATION_THRESHOLD:-66.67}
+      CONSTELLATION_MOCK_ENABLED: 'true'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    command:
+    - mvn
+    - -B
+    - -ntp
+    - -pl
+    - simulations/constellation
+    - spring-boot:run
+    ports:
+    - 127.0.0.1:8004:8004
+    volumes:
+    - ./simulations/constellation/src:/workspace/simulations/constellation/src:ro
+    - maven-cache:/root/.m2
+  backend:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: development
+      args:
+        MODULE: apps/backend
+    environment:
+      BACKEND_HOST: 0.0.0.0
+      SERVER_PORT: '8080'
+      KYT_URL: http://kyt-engine:8001
+      POLICY_URL: http://policy-engine:8002
+      GATEWAY_URL: http://gateway:8003
+      CONSTELLATION_URL: http://constellation:8004
+      LOCAL_COLLECTOR_FIXTURES_DIR: /workspace/contracts/fixtures
+      DEFAULT_RULESET_VERSION: ${DEFAULT_RULESET_VERSION:-1.0.0}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+      LOCAL_COLLECTOR_ENABLED: 'true'
+    depends_on:
+      kyt-engine:
+        condition: service_healthy
+      policy-engine:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      constellation:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    command:
+    - mvn
+    - -B
+    - -ntp
+    - -pl
+    - apps/backend
+    - spring-boot:run
+    ports:
+    - 127.0.0.1:${BACKEND_PORT:-8080}:8080
+    volumes:
+    - ./apps/backend/src:/workspace/apps/backend/src:ro
+    - ./contracts/fixtures:/workspace/contracts/fixtures:ro
+    - maven-cache:/root/.m2
+volumes:
+  maven-cache: null

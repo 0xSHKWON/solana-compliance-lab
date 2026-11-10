@@ -26,6 +26,54 @@ Frontend ──▶ Backend (Public API, :8080)
 
 Java 모듈과 빌드·실행 도구는 [baypeline/be](https://github.com/baypeline/be)의 `f469cd1c46640d4870f14f7490088dac589e1c0d` 커밋에서 가져왔습니다.
 
+## Docker로 실행
+
+Docker와 Docker Compose만 설치되어 있으면 호스트에 JDK·Maven·Python을 설치하지 않아도 됩니다. `compose.dev.yaml`과 `compose.prod.yaml`은 각각 모든 서비스 설정을 포함하는 독립 파일입니다.
+
+### 개발 환경
+
+```bash
+docker compose -f compose.dev.yaml up --build -d --wait
+docker compose -f compose.dev.yaml ps
+docker compose -f compose.dev.yaml logs -f backend
+# 종료
+docker compose -f compose.dev.yaml down
+```
+
+Backend(`http://localhost:8080`)와 내부 모듈(8001~8004)은 호스트의 루프백 주소로 노출됩니다. 합성 fixture Collector와 화면 확인용 Constellation mock 버전이 활성화됩니다. Collector 서비스는 별도로 필요하지 않습니다.
+
+Java는 컨테이너의 JDK·Maven으로 실행하며 Maven 다운로드는 볼륨에 캐시합니다. Python은 editable 설치를 사용합니다. 소스와 fixture는 읽기 전용으로 마운트되며, 코드 변경 후 해당 서비스를 `docker compose -f compose.dev.yaml restart backend`와 같이 재시작합니다. 자동 재시작은 제공하지 않습니다. 의존성·POM·Dockerfile 변경 시에는 `up --build -d`로 이미지를 다시 빌드합니다.
+
+컨테이너 안에서 테스트도 실행할 수 있습니다.
+
+```bash
+# Java 세 모듈의 단위·API 테스트
+docker compose -f compose.dev.yaml run --rm --no-deps backend mvn -B -ntp test
+# Python 엔진·공통 계약 테스트
+docker compose -f compose.dev.yaml exec -T kyt-engine python -m pytest -q -p no:cacheprovider
+# 서비스 기동 후 전체 API 흐름 검증
+docker compose -f compose.dev.yaml exec -T -e BACKEND_URL=http://backend:8080 kyt-engine python scripts/e2e_smoke.py /app
+```
+
+### 운영 환경
+
+```bash
+cp .env.prod.example .env.prod
+# .env.prod의 COLLECTOR_URL과 CORS_ALLOWED_ORIGINS를 실제 환경에 맞게 수정
+docker compose --env-file .env.prod -f compose.prod.yaml up --build -d --wait
+docker compose --env-file .env.prod -f compose.prod.yaml logs -f backend
+# 종료
+docker compose --env-file .env.prod -f compose.prod.yaml down
+```
+
+운영 이미지는 Java 테스트와 패키징을 Docker 안에서 수행한 뒤 JRE만 포함하는 실행 이미지를 생성합니다. Python도 일반 설치를 사용하며, 소스 마운트 없이 일반 사용자와 읽기 전용 파일시스템으로 실행합니다. 서비스는 비정상 종료 시 자동으로 재시작합니다.
+
+운영에서는 fixture Collector와 Constellation mock 버전을 비활성화합니다. `COLLECTOR_URL`은 컨테이너에서 접근 가능한 외부 Collector 주소로 필수 지정해야 합니다. 호스트의 Collector에 연결하려면 Docker Desktop에서는 `http://host.docker.internal:8000`을 사용할 수 있으며, Collector도 컨테이너에서 접근 가능한 주소에 바인딩해야 합니다.
+
+외부로 노출하는 포트는 Backend 하나이며 기본값은 `127.0.0.1:8080`입니다. 직접 외부에 노출해야 한다면 `.env.prod`에서 `BACKEND_BIND_ADDRESS=0.0.0.0`을 지정합니다. 내부 모듈은 Compose 네트워크의 서비스 이름으로 연결하며, Backend는 내부 모듈의 `/health`가 정상인 뒤 시작합니다. 개발 환경과 운영 환경은 같은 호스트 포트를 사용하므로 하나씩 실행합니다.
+
+운영 구성에서도 분석·심사 기록은 메모리에 저장되어 재시작 시 사라집니다. Constellation 초안 모델의 리서치 승인 상태는 실행 환경과 무관합니다.
+
 ## Python 엔진 설치와 실행
 
 Python 3.11 이상이 필요합니다. 저장소 루트에서 실행합니다.

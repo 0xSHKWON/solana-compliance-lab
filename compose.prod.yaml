@@ -1,0 +1,145 @@
+# Standalone configuration: docker compose --env-file .env.prod -f compose.prod.yaml up --build -d
+name: solana-compliance-lab-prod
+services:
+  kyt-engine:
+    build:
+      context: .
+      dockerfile: docker/python.Dockerfile
+      target: runtime
+    command:
+    - python
+    - -m
+    - kyt_engine
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8001'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp
+  policy-engine:
+    build:
+      context: .
+      dockerfile: docker/python.Dockerfile
+      target: runtime
+    command:
+    - python
+    - -m
+    - policy_engine
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8002'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: runtime
+      args:
+        MODULE: simulations/gateway
+    environment:
+      GATEWAY_HOST: 0.0.0.0
+      SERVER_PORT: '8003'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp
+  constellation:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: runtime
+      args:
+        MODULE: simulations/constellation
+    environment:
+      CONSTELLATION_HOST: 0.0.0.0
+      SERVER_PORT: '8004'
+      CONSTELLATION_ATTESTATION_THRESHOLD: ${CONSTELLATION_ATTESTATION_THRESHOLD:-66.67}
+      CONSTELLATION_MOCK_ENABLED: 'false'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp
+  backend:
+    build:
+      context: .
+      dockerfile: docker/java.Dockerfile
+      target: runtime
+      args:
+        MODULE: apps/backend
+    environment:
+      BACKEND_HOST: 0.0.0.0
+      SERVER_PORT: '8080'
+      KYT_URL: http://kyt-engine:8001
+      POLICY_URL: http://policy-engine:8002
+      GATEWAY_URL: http://gateway:8003
+      CONSTELLATION_URL: http://constellation:8004
+      LOCAL_COLLECTOR_FIXTURES_DIR: /app/contracts/fixtures
+      DEFAULT_RULESET_VERSION: ${DEFAULT_RULESET_VERSION:-1.0.0}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+      COLLECTOR_URL: ${COLLECTOR_URL:?Set COLLECTOR_URL in .env.prod}
+      LOCAL_COLLECTOR_ENABLED: 'false'
+    depends_on:
+      kyt-engine:
+        condition: service_healthy
+      policy-engine:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      constellation:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -fsS "http://127.0.0.1:$${SERVER_PORT}/health" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp
+    ports:
+    - ${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8080}:8080

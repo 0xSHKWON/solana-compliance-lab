@@ -12,3 +12,5 @@ target/
 *.log
 .env
 .run/
+.env.*
+!.env.*.example
