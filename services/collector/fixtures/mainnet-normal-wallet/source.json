@@ -1,16 +1,17 @@
 {
   "fixtureId": "mainnet-normal-wallet",
   "dataType": "ON_CHAIN",
-  "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample).",
-  "capturedAt": "2026-11-10T13:31:43Z",
+  "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample). Includes a token account the wallet has since closed, discovered from its own later transactions.",
+  "capturedAt": "2026-11-10T14:15:56Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-5bce304addc897b1e22888c486786cb05b2899ded245abc83cf6e66fadb52876",
+  "liveSnapshotId": "snapshot-8ac3b43c8dc3937a5602e689b22123523b6df4bb2244acf871ae7fe18abc635d",
   "address": {
     "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
     "explorer": "https://explorer.solana.com/address/6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
   },
   "tokenAccountsScanned": [
-    "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM"
+    "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM",
+    "FQCT7aPiWefxTtC8LG3vsxQRndpHdtrxcZ3aazPFTVoo"
   ],
   "transactions": [
     {

@@ -48,6 +48,8 @@ class Collector:
             # Must stay below the Backend's upstream read timeout (30s by default).
             "time_budget": float(env.get("COLLECTOR_TIME_BUDGET_SECONDS") or 20),
             "max_token_accounts": int(env.get("COLLECTOR_MAX_TOKEN_ACCOUNTS") or 100),
+            # Wallet transactions read to find token accounts it held in the window but has since closed.
+            "max_discovery_transactions": int(env.get("COLLECTOR_MAX_DISCOVERY_TRANSACTIONS") or 1000),
             **(live_options or {}),
         }
         if self._max_transactions < 1:

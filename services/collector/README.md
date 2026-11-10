@@ -56,6 +56,7 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 | `COLLECTOR_MAX_TRANSACTIONS` | `1000` | 요청 `maxTransactions`의 상한 |
 | `COLLECTOR_FETCH_WORKERS` | `16` | 서명 페이지·거래 조회 동시 처리 수 |
 | `COLLECTOR_TIME_BUDGET_SECONDS` | `20` | LIVE 요청 하나의 RPC 작업 시간 예산(초). Backend의 상위 모듈 읽기 제한 시간(30초)보다 작게 유지합니다. |
+| `COLLECTOR_MAX_DISCOVERY_TRANSACTIONS` | `1000` | 닫힌 토큰 계정을 찾기 위해 읽을 지갑 거래 수 상한(구간 이후 거래 + 구간 안 지갑 거래). 넘거나 시간 예산 안에 다 읽지 못하면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. `0`이면 탐색을 끕니다. |
 | `COLLECTOR_MAX_TOKEN_ACCOUNTS` | `100` | 함께 조회할 지갑 토큰 계정 수 상한. 넘으면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. |
 | `COLLECTOR_LABEL_DATASET` | `services/collector/data/labels/ofac-sdn.json` | 제재 라벨 데이터셋 경로 |
 | `COLLECTOR_FIXTURE_ROOTS` | `services/collector/fixtures`, `contracts/fixtures` | FIXTURE 조회 경로 목록. OS 경로 구분자(Linux `:`, Windows `;`)로 구분하며 앞의 경로가 우선합니다. |
@@ -78,9 +79,10 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 3. `getSlot`(finalized)으로 기준 슬롯을 고정합니다.
 4. `getTokenAccountsByOwner`로 지갑이 현재 보유한 Token·Token-2022 토큰 계정을 찾습니다. 다른 지갑이 토큰을 보내면 거래에 지갑 주소 없이 토큰 계정만 등장하는 경우가 많으므로, 지갑과 토큰 계정의 이력을 함께 조회합니다.
 5. 지갑과 각 토큰 계정에 대해 `getSignaturesForAddress`(finalized)를 최신부터 페이지 조회합니다. 기준 슬롯보다 높은 서명과 `toTime` 이후 서명은 건너뛰고, `fromTime`보다 이전 `blockTime`을 만나거나 빈 페이지가 나오면 그 계정의 조회를 끝냅니다. 요청한 개수보다 적은 페이지는 이력의 끝으로 보지 않습니다. 계정마다 `maxTransactions + 1`개를 확인하면 더 오래된 서명은 결과에 들 수 없으므로 조기 종료합니다.
-6. 모든 계정의 서명을 합쳐 중복을 없애고 최신순으로 `maxTransactions`개를 고릅니다. 더 남아 있으면 `TRANSACTION_LIMIT_REACHED`를 기록합니다.
-7. 고른 서명마다 `getTransaction`(jsonParsed, finalized)을 동시에 호출합니다. 실패한 거래(`err`)는 `transactionCount`에는 포함되지만 조회하지 않고 전송 계산에서도 제외합니다. 서명에 `blockTime`이 없던 거래는 실제 거래 시각이 구간 밖이면 제거합니다.
-8. 거래를 정규화하여 전송을 모으고, 조회 주소와 거래 상대 주소에 대해서만 라벨을 붙입니다.
+6. **닫힌 토큰 계정 탐색**: 현재 보유 목록에는 이미 닫힌 토큰 계정이 없습니다. 토큰 계정을 닫으려면 소유자 서명이 필요하고 ATA는 지갑 주소를 계정 키로 넣어 만들어지므로, 그 거래는 지갑 자신의 이력에 남습니다. 지갑 서명 중 요청 구간 이후(현재까지)와 구간 안의 거래를 읽어, 토큰 잔액의 소유자·`closeAccount`·`initializeAccount*`·ATA `create`에서 지갑이 보유했던 토큰 계정을 찾고, 새로 찾은 계정의 구간 안 서명도 같은 방식으로 조회합니다. 여기서 읽은 거래는 다시 조회하지 않습니다.
+7. 모든 계정의 서명을 합쳐 중복을 없애고 최신순으로 `maxTransactions`개를 고릅니다. 더 남아 있으면 `TRANSACTION_LIMIT_REACHED`를 기록합니다.
+8. 고른 서명마다 `getTransaction`(jsonParsed, finalized)을 동시에 호출합니다. 실패한 거래(`err`)는 `transactionCount`에는 포함되지만 조회하지 않고 전송 계산에서도 제외합니다. 서명에 `blockTime`이 없던 거래는 실제 거래 시각이 구간 밖이면 제거합니다.
+9. 거래를 정규화하여 전송을 모으고, 조회 주소와 거래 상대 주소에 대해서만 라벨을 붙입니다.
 
 RPC 호출은 재시도 가능 오류(HTTP 429·5xx, JSON-RPC `-32005`·`-32429`·`-32603`, 네트워크 오류·응답 절단)에 대해 남은 시간 예산 안에서 최대 3회 지수 백오프로 재시도합니다. 리다이렉트는 따라가지 않습니다(API 키 헤더가 다른 주소로 전달되는 것을 막기 위해). 개별 거래 조회가 실패하거나 시간 예산이 끝나 가져오지 못한 거래는 건너뛰고 `TRANSACTION_FETCH_FAILED`를 기록합니다. 서명 조회 중 예산이 끝나면 `TIME_BOUNDARY_NOT_REACHED`를 기록합니다. 기준 슬롯·토큰 계정 조회 자체가 실패하면 스냅샷을 만들지 않고 구조화된 오류(502/503, 재시도 가능)를 반환합니다.
 
@@ -174,7 +176,8 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 
 ## 한계
 
-- **닫힌 토큰 계정**: 지갑이 현재 보유한 토큰 계정만 함께 조회합니다. 요청 구간 이후 닫혔거나 소유자가 바뀐 토큰 계정의 거래 중 지갑 주소가 등장하지 않는 것은 RPC로 찾을 수 없어 수집되지 않으며, 커버리지 사유로도 표시되지 않습니다.
+- **닫힌 토큰 계정**: 지갑 자신의 거래(구간 안과 구간 이후)에서 생성·종료·잔액 기록으로 드러난 토큰 계정은 찾아서 함께 조회합니다. 지갑 서명 없이 닫힌 경우(별도 close authority가 닫음)나, 지갑 이력에 전혀 나타나지 않고 소유자가 바뀐 계정은 찾을 수 없습니다. Nodit의 Solana RPC는 표준 메서드만 제공하고, Web3 Data API(Indexer)는 Solana를 지원 네트워크로 제공하지 않아 이 방법을 사용합니다.
+- **제공자 일관성**: 같은 확정 구간을 조회해도 제공자 응답이 드물게 달라질 수 있습니다(실측에서 거래 540건 → 538건). 실제 Fixture는 원본 응답을 함께 저장하므로 테스트 재현성에는 영향이 없습니다.
 - **지갑과 연결할 수 없는 전송**: 토큰 잔액·`initializeAccount*`·현재 토큰 계정 어디에서도 지갑과 연결되지 않는 토큰 전송은 지갑의 전송으로 보지 않습니다.
 - **`transferWithSeed`**: 시드로 파생된 송신 계정을 `fromAddress`로 기록합니다(SOL은 계정과 소유자를 같은 주소로 표기하는 계약 규칙). 파생 계정의 기준 지갑(`sourceBase`)으로는 조회되지 않습니다.
 - **추출 범위**: 전송으로 추적하는 명령어는 위에 나열한 것뿐입니다. 스왑이나 다른 프로그램의 내부 호출로 일어나는 토큰·SOL 이동은 그 안의 위 명령어로만 잡히며, 계정 잔액 변화만으로 추정하지 않습니다. RPC가 파싱하지 못하는 Token-2022 확장(기밀 전송 등)은 금액을 읽을 수 없습니다.

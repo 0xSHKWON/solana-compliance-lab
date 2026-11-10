@@ -2,9 +2,9 @@
   "fixtureId": "mainnet-busy-wallet-partial",
   "dataType": "ON_CHAIN",
   "description": "Real high-activity wallet collected with maxTransactions=20; the limit is reached before the time boundary, so coverage is PARTIAL (TRANSACTION_LIMIT_REACHED). Most of its activity is incoming USDT to its token account, which a wallet-only signature scan would miss.",
-  "capturedAt": "2026-11-10T13:31:51Z",
+  "capturedAt": "2026-11-10T14:16:04Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-58ce30efde7348f64cc2f9d6d8d4a983c81029c57bde5aad70975b1dc1d530d6",
+  "liveSnapshotId": "snapshot-d68d99a3372fb54ebc88a86dfc9e709b4ac0ec1dc839ecfea7dec5be5fe9af04",
   "address": {
     "address": "EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9",
     "explorer": "https://explorer.solana.com/address/EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9"

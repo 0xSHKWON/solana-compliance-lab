@@ -73,7 +73,8 @@ END = ts(400)
 
 
 def fetch(rpc, max_transactions=100, page_size=1000, start=START, end=END):
-    return LiveSource(rpc, page_size=page_size).fetch(ADDRESS, start, end, max_transactions)
+    # Selection tests run without closed-token-account discovery; discovery has its own tests below.
+    return LiveSource(rpc, page_size=page_size, max_discovery_transactions=0).fetch(ADDRESS, start, end, max_transactions)
 
 
 def test_pagination_follows_before_cursor_newest_first():
@@ -350,7 +351,8 @@ def test_time_budget_exhausted_during_fetch_is_partial():
     rpc = SlowRpc(history=[entry("fast", 390), entry("slow", 380)])
     try:
         # Generous budget: the fast fetch must finish well within it even on a loaded machine.
-        result = LiveSource(rpc, page_size=10, time_budget=2.0).fetch(ADDRESS, START, END, 10)
+        result = LiveSource(rpc, page_size=10, time_budget=2.0, max_discovery_transactions=0).fetch(
+            ADDRESS, START, END, 10)
     finally:
         release.set()
 
@@ -415,3 +417,76 @@ def test_budget_exhausted_while_paging_marks_scan_incomplete():
 
     assert [t["signature"] for t in result.transactions] == ["a", "b"]
     assert "TIME_BOUNDARY_NOT_REACHED" in result.reasons
+
+
+
+# --- discovery of token accounts the wallet no longer holds -------------------------------------
+
+def _close_tx(signature, account, owner=ADDRESS, block_time=500):
+    return {"slot": 990, "blockTime": block_time, "meta": {"err": None, "preTokenBalances": [], "postTokenBalances": []},
+            "transaction": {"signatures": [signature], "message": {"accountKeys": [owner, account], "instructions": [
+                {"programId": TOKEN, "parsed": {"type": "closeAccount",
+                                                "info": {"account": account, "destination": owner, "owner": owner}}}]}}}
+
+
+def test_closed_token_account_is_discovered_from_a_later_wallet_transaction():
+    """The wallet received into a token account in the window and closed it afterwards."""
+    rpc = FakeRpc(
+        history=[entry("close", 500, slot=990), entry("w1", 300, slot=850)],  # 'close' is newer than the window
+        streams={"closed-ata": [entry("close", 500, slot=990), entry("deposit", 390, slot=950)]},
+        transactions={"close": _close_tx("close", "closed-ata")},
+    )
+
+    result = LiveSource(rpc, page_size=10).fetch(ADDRESS, START, END, 10)
+
+    assert result.token_accounts == ["closed-ata"]
+    assert [t["signature"] for t in result.transactions] == ["deposit", "w1"]
+    assert result.reasons == set()
+
+
+def test_token_account_owned_in_window_balances_is_discovered():
+    tx = {"slot": 850, "blockTime": 300, "meta": {"err": None, "postTokenBalances": [
+        {"accountIndex": 1, "owner": ADDRESS, "mint": "m"}]},
+          "transaction": {"signatures": ["w1"], "message": {"accountKeys": [ADDRESS, "old-ata"], "instructions": []}}}
+    rpc = FakeRpc(history=[entry("w1", 300, slot=850)], streams={"old-ata": [entry("in", 350, slot=870)]},
+                  transactions={"w1": tx})
+
+    result = LiveSource(rpc, page_size=10).fetch(ADDRESS, START, END, 10)
+
+    assert result.token_accounts == ["old-ata"]
+    assert [row["signature"] for row in result.signatures] == ["in", "w1"]
+
+
+def test_discovery_over_the_cap_reports_incomplete_window():
+    rpc = FakeRpc(history=[entry(f"later{i}", 500 + i, slot=990) for i in range(3)][::-1])
+
+    result = LiveSource(rpc, page_size=10, max_discovery_transactions=2).fetch(ADDRESS, START, END, 10)
+
+    assert "TIME_BOUNDARY_NOT_REACHED" in result.reasons
+    assert len(rpc.transaction_calls) == 2
+
+
+def test_discovery_does_not_refetch_selected_transactions():
+    rpc = FakeRpc(history=[entry("a", 390), entry("b", 380)])
+
+    LiveSource(rpc, page_size=10).fetch(ADDRESS, START, END, 10)
+
+    assert sorted(rpc.transaction_calls) == ["a", "b"]  # fetched once, during discovery
+
+
+def test_owned_token_accounts_reads_balances_close_initialize_and_ata_create():
+    from collector.live import owned_token_accounts
+
+    tx = {"meta": {"preTokenBalances": [{"accountIndex": 1, "owner": ADDRESS}],
+                   "postTokenBalances": [{"accountIndex": 2, "owner": "someone-else"}],
+                   "innerInstructions": [{"index": 0, "instructions": [
+                       {"programId": TOKEN_2022, "parsed": {"type": "initializeAccount3",
+                                                            "info": {"account": "init", "owner": ADDRESS}}}]}]},
+          "transaction": {"message": {"accountKeys": [ADDRESS, "bal", "other"], "instructions": [
+              {"programId": TOKEN, "parsed": {"type": "closeAccount", "info": {"account": "closed", "owner": ADDRESS}}},
+              {"programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+               "parsed": {"type": "createIdempotent", "info": {"account": "ata", "wallet": ADDRESS}}},
+              {"programId": TOKEN, "parsed": {"type": "closeAccount", "info": {"account": "x", "owner": "someone-else"}}},
+          ]}}}
+
+    assert owned_token_accounts(tx, ADDRESS) == {"bal", "init", "closed", "ata"}
