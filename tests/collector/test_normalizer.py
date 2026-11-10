@@ -492,3 +492,24 @@ def test_duplicated_inner_instruction_group_does_not_duplicate_transfers():
     tx["meta"]["innerInstructions"] = tx["meta"]["innerInstructions"] * 2
 
     assert normalize_checked(tx, A).transfers == normalize_checked(load("inner_instructions"), A).transfers
+
+
+
+def test_real_token_2022_transfer_checked_with_fee_inside_a_swap():
+    """Real mainnet sample: transferCheckedWithFee as an inner instruction of a Jupiter swap.
+
+    The jsonParsed info carries "feeAmount" (not "fee"); amountRaw is the gross tokenAmount.
+    """
+    tx = load("real_token2022_transfer_checked_with_fee")
+    owner = "6ug4s5uoG2dxycww9wBxo7kQq9NPzEf1ZSmGMT6M76Ni"
+
+    result = normalize_checked(tx, owner)
+
+    fee_transfer = next(t for t in result.transfers if t["asset"]["type"] == "TOKEN_2022")
+    assert fee_transfer["amountRaw"] == "62651075"
+    assert fee_transfer["asset"]["mint"] == "Xsa62P5mvPszXL1krVUnU5ar38bBSVcWAB6fmPCo5Zu"
+    assert fee_transfer["asset"]["decimals"] == 8
+    assert fee_transfer["instructionIndex"] == 1 and fee_transfer["innerInstructionIndex"] == 1
+    assert fee_transfer["fromAddress"] == owner
+    assert fee_transfer["toAddress"] == "BWWcZrmV5djdZXJQNB7bcpDxeQcJTAASvFqDbAiswatp"
+    assert result.reasons == frozenset()

@@ -113,7 +113,12 @@
             "info": {
               "authority": "9TLxza8f2iXiPwCsppACcVBvp69vJUb1uNS11wiRisLh",
               "destination": "FNF4JSGgL1uBuQ2yKHpdgyuULkbMoxpp781B8cvtxxq3",
-              "fee": "50000",
+              "feeAmount": {
+                "amount": "50000",
+                "decimals": 6,
+                "uiAmount": 0.05,
+                "uiAmountString": "0.05"
+              },
               "mint": "DWbfoyVJM5mQin9j3tcnQ9buZfLXF9n7mLi5dUZJggrf",
               "source": "EL34YDvwFax6i37UUaABhH3rQjtrDMogeiM87nCP1tBe",
               "tokenAmount": {

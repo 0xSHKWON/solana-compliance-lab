@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from compliance_contracts.runtime import require
 
 from .errors import BudgetExhausted, ProviderError
+from .pda import associated_token_address
 
 REASON_LIMIT = "TRANSACTION_LIMIT_REACHED"
 REASON_FETCH_FAILED = "TRANSACTION_FETCH_FAILED"
@@ -27,7 +28,17 @@ TOKEN_PROGRAMS = (
     "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
 )
 ASSOCIATED_TOKEN_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+DISCOVERY_BUDGET_SHARE = 0.4
+SCAN_LIMIT_RPC_CODE = -32012  # "scan aborted: the accumulated scan results exceeded the limit"
 _INITIALIZE_ACCOUNT = frozenset({"initializeAccount", "initializeAccount2", "initializeAccount3"})
+# Widely held mints whose associated token account is always checked, even if the wallet's own history
+# never shows it (e.g. an ATA closed by a separate close authority). USDC, USDT, wrapped SOL, PYUSD.
+DEFAULT_ATA_MINTS = (
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    "So11111111111111111111111111111111111111112",
+    "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
+)
 
 
 @dataclass
@@ -61,6 +72,18 @@ def _utc(value: datetime, name: str) -> datetime:
 
 def _is_int(value) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def token_mints(tx: dict) -> set[tuple[str, str | None]]:
+    """(mint, token program) pairs appearing in a transaction's token balances."""
+    pairs: set[tuple[str, str | None]] = set()
+    meta = tx.get("meta") if isinstance(tx, dict) else None
+    for section in ("preTokenBalances", "postTokenBalances"):
+        for entry in (meta or {}).get(section) or []:
+            if isinstance(entry, dict) and isinstance(entry.get("mint"), str):
+                program = entry.get("programId")
+                pairs.add((entry["mint"], program if program in TOKEN_PROGRAMS else None))
+    return pairs
 
 
 def owned_token_accounts(tx: dict, owner: str) -> set[str]:
@@ -111,7 +134,7 @@ def _newest_first(entry: dict):
 class LiveSource:
     def __init__(self, rpc, page_size: int = 1000, max_pages: int = 50, max_token_accounts: int = 100,
                  fetch_workers: int = 16, time_budget: float = 20.0, max_discovery_transactions: int = 1000,
-                 clock=time.monotonic) -> None:
+                 ata_mints=DEFAULT_ATA_MINTS, derive_ata: bool = True, clock=time.monotonic) -> None:
         require(page_size >= 1, "page_size must be positive")
         require(max_pages >= 1, "max_pages must be positive")
         require(max_token_accounts >= 0, "max_token_accounts must not be negative")
@@ -120,6 +143,9 @@ class LiveSource:
         require(max_discovery_transactions >= 0, "max_discovery_transactions must not be negative")
         # 0 disables discovery of token accounts the wallet no longer holds.
         self._max_discovery = max_discovery_transactions
+        # Associated token accounts are computed for mints seen in the wallet's transactions plus ata_mints.
+        self._derive_ata = derive_ata
+        self._ata_mints = tuple(ata_mints)
         self._rpc = rpc
         self._page_size = page_size
         # Bounds the signature scan for very busy addresses whose window lies far in the past.
@@ -141,7 +167,20 @@ class LiveSource:
         reasons: set[str] = set()
 
         snapshot_slot = self._rpc.get_slot(commitment=FINALIZED)
-        token_accounts = self._token_accounts(address)
+        retained_from = self._retained_from()
+        if retained_from is None or retained_from > start.timestamp():
+            # The provider no longer serves history from the start of the window: an empty page there means
+            # "pruned", not "nothing happened", so the window cannot be claimed complete.
+            reasons.add(REASON_BOUNDARY)
+        try:
+            token_accounts = self._token_accounts(address)
+        except ProviderError as error:
+            if error.rpc_code != SCAN_LIMIT_RPC_CODE:
+                raise
+            # The provider refuses to list this wallet's token accounts (too many): collect what the wallet
+            # stream and discovery reveal, but the window cannot be claimed complete.
+            token_accounts = []
+            reasons.add(REASON_BOUNDARY)
         if len(token_accounts) > self._max_token_accounts:
             # Unscanned token accounts may hold in-range transfers: the window is not fully covered.
             token_accounts = token_accounts[:self._max_token_accounts]
@@ -159,16 +198,21 @@ class LiveSource:
         cache: dict[str, dict] = {}
         if self._max_discovery:
             wallet_scan = scans[0]
-            candidates = [e for e in wallet_scan.after + wallet_scan.entries if e.get("err") is None]
+            # In-window wallet transactions first: they are usually selected anyway, so reading them is not
+            # wasted. Discovery may use only part of the budget so the main fetch is never starved.
+            candidates = [e for e in wallet_scan.entries + wallet_scan.after if e.get("err") is None]
             complete = wallet_scan.after_complete and len(candidates) <= self._max_discovery
+            discovery_deadline = min(deadline, self._clock() + self._budget * DISCOVERY_BUDGET_SHARE)
             fetched, fetch_complete = self._fetch_all([e["signature"] for e in candidates[:self._max_discovery]],
-                                                      deadline)
+                                                      discovery_deadline)
             cache.update(fetched)
             if not (complete and fetch_complete):
                 reasons.add(REASON_BOUNDARY)  # a closed token account may have been missed
             discovered = set()
             for tx in fetched.values():
                 discovered |= owned_token_accounts(tx, address)
+            if self._derive_ata:
+                discovered |= self._derived_atas(address, fetched.values())
             extra = sorted(discovered - set(token_accounts) - {address})
             room = max(0, self._max_token_accounts - len(token_accounts))
             if len(extra) > room:
@@ -222,6 +266,45 @@ class LiveSource:
             token_accounts=token_accounts,
             signatures=signatures,
         )
+
+    def _retained_from(self) -> float | None:
+        """Unix time of the oldest block the provider serves, or None when it cannot be determined."""
+        first = getattr(self._rpc, "get_first_available_block", None)
+        block_time = getattr(self._rpc, "get_block_time", None)
+        if not callable(first) or not callable(block_time):
+            return float("-inf")  # a source without pruning information (test doubles, archive nodes)
+        try:
+            slot = first()
+        except ProviderError:
+            return None
+        for offset in range(0, 40, 4):  # the oldest slots can be skipped or pruned in between calls
+            try:
+                value = block_time(slot + offset)
+            except BudgetExhausted:
+                return None
+            except ProviderError:
+                continue
+            if value is not None:
+                return float(value)
+        return None
+
+    def _derived_atas(self, owner: str, transactions) -> set[str]:
+        """ATA addresses of ``owner`` for mints in its transactions and the configured mints.
+
+        The address exists whether or not the account is still open, so an ATA closed by someone other
+        than the wallet is still scanned. Scanning an address that never existed costs one empty page.
+        """
+        pairs: set[tuple[str, str | None]] = {(mint, None) for mint in self._ata_mints}
+        for tx in transactions:
+            pairs |= token_mints(tx)
+        addresses: set[str] = set()
+        for mint, program in pairs:
+            for token_program in ([program] if program else TOKEN_PROGRAMS):
+                try:
+                    addresses.add(associated_token_address(owner, mint, token_program))
+                except (KeyError, ValueError):
+                    continue  # not a base58 address
+        return addresses
 
     def _token_accounts(self, owner: str) -> list[str]:
         accounts: set[str] = set()

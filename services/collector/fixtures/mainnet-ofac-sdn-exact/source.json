@@ -1,10 +1,10 @@
 {
   "fixtureId": "mainnet-ofac-sdn-exact",
   "dataType": "ON_CHAIN",
-  "description": "Real Solana address listed on the OFAC SDN list (Digital Currency Address - SOL). History contains only token-account creation and issuer freeze instructions, so there are no value transfers; the risk signal is the exact label match.",
-  "capturedAt": "2026-11-10T14:16:00Z",
+  "description": "Real Solana address listed on the OFAC SDN list (Digital Currency Address - SOL). History contains only token-account creation and issuer freeze instructions, so there are no value transfers; the risk signal is the exact label match. The window lies inside the provider's ~14-day history retention.",
+  "capturedAt": "2026-11-10T14:46:37Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-747ef1752c83bb913ab83dcd9bf0133b59634e2e267b7917ba7b705fbe9f011b",
+  "liveSnapshotId": "snapshot-f2ebfde8e86585b41f68942dbef13095a7d9ab68d7901a7a8e09d75719315300",
   "address": {
     "address": "42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi",
     "explorer": "https://explorer.solana.com/address/42RLPACwZPx3vYYmxSueqsogfynBDqXK298EDsNoyoHi"
@@ -22,15 +22,18 @@
     "3uk1MSbjo7AAZcXMeUP8ufHC6gjzWCrvdQjJ5rahSDaJ",
     "49Z2bnuQy8td89WMBC6yCuk7c9xUdQ2vvr4xThqryBz7",
     "731QJ8KBgsagh5fajzVthvLHXBK861Y4J2hFomPGbz2v",
+    "7LXiUJdqAXYTzgf5v3cjPNh1TacfiuHvLav1XRv89ERi",
     "7QwsdV6jP8Tsi1qxW3bSdepgM6JnGnJJYvHMWWSCmrXW",
     "7SHLmES44L4HpC7jSq2iSr5Ebd3UUNyDvTA6Q13SyD6C",
     "7zS9tNWzZurjD5THhdAsPEM6QVmxB8FwEhDvURAKjAit",
+    "89WCdzNTb2aSNu83BfmJAVq9RS6bXrTtpyYmFdPvBjN3",
     "8PyyhLd1MiMYbJYT7VBhZ8x86JTXtoejPG4uMTw45Xgx",
     "8nshYZ58TBNZNz7z3mbjxhR5G1dSfL51DTGDgFaHEi9L",
     "8uwxUa5soZtPR2EiKisvmn1JMpbTiou5tC21ZCYw3sfi",
     "AUvozXBttxmq7zkSqWF7AhcupvKU2D924LaxsnvdQCe7",
     "AnYnA5bHwAwJF4CzW3TckzVhqQpKBG9unqp2H5mFWFGi",
     "B1jUqZENAXMJxBu3pX9v1yq2QDtMeXz1CUiFMr9hsi4f",
+    "B2nXHcUVXyAB59tSFxUgjxkG6pyVZynaY93CsmF4eYgG",
     "BFVav9Hh5TsGyizUoUdGnKLyZZUbGp2vLYbXCyHqnMSX",
     "BeqxdMBnV5PsXmxFNQC2VUEfPqRiDBAuxbvLAmpSeB4T",
     "Bg7vVD3f7tt1obmvag9KF8E2j7DKdJdqyKLZMCxHmrne",
@@ -48,8 +51,10 @@
     "GZ5wpkxLQi3hJtL4oSpe94m5VnYcxbHWQUaHTBRzgqJ5",
     "HNp5NAvCWQiXTC3oLiLvho8KUpbv9Nnm6uTJLsyeHMdq",
     "HWf9WcGRPAa6FJve9Fkap3oQPRXRNDvtTbDFHMFm14fY",
+    "HzTxK8U7WF3476jEYu19bJonQDUzB6yo26LF89S3WNHu",
     "JDztyyqRHqz7s6U5Q5LTRCWKTcbf4KowbQahaJjvRQR3",
-    "ZEDeSav3zMMgQ4trZPMHVjWpkNTCE7RnEMD8JPz2RXF"
+    "ZEDeSav3zMMgQ4trZPMHVjWpkNTCE7RnEMD8JPz2RXF",
+    "kC1XBPfy4Mbnu6HacgNEmveffsRJdbTJGxxHzEWziT9"
   ],
   "transactions": [
     {

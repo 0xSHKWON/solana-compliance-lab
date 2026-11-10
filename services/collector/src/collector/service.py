@@ -50,6 +50,10 @@ class Collector:
             "max_token_accounts": int(env.get("COLLECTOR_MAX_TOKEN_ACCOUNTS") or 100),
             # Wallet transactions read to find token accounts it held in the window but has since closed.
             "max_discovery_transactions": int(env.get("COLLECTOR_MAX_DISCOVERY_TRANSACTIONS") or 1000),
+            # Also scan computed associated token accounts (closed ones included) for seen and listed mints.
+            "derive_ata": (env.get("COLLECTOR_DERIVE_ATA") or "true").lower() not in ("0", "false", "no"),
+            **({"ata_mints": tuple(m.strip() for m in env["COLLECTOR_ATA_MINTS"].split(",") if m.strip())}
+               if env.get("COLLECTOR_ATA_MINTS") else {}),
             **(live_options or {}),
         }
         if self._max_transactions < 1:

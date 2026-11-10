@@ -46,6 +46,8 @@ class FakeRpc:
         return list(self.token_accounts.get(program_id, []))
 
     def get_signatures_for_address(self, address, before=None, limit=1000, commitment="finalized"):
+        if address != ADDRESS and address not in self.streams:
+            return []  # an address with no history (e.g. a derived ATA that never existed)
         if address in self.streams:
             history = self.streams[address]
             start = 0 if before is None else next(i for i, e in enumerate(history) if e["signature"] == before) + 1
@@ -490,3 +492,92 @@ def test_owned_token_accounts_reads_balances_close_initialize_and_ata_create():
           ]}}}
 
     assert owned_token_accounts(tx, ADDRESS) == {"bal", "init", "closed", "ata"}
+
+
+
+def test_associated_token_account_is_derived_for_configured_mints():
+    from collector.pda import associated_token_address
+
+    wallet = "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
+    usdc = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    ata = associated_token_address(wallet, usdc, TOKEN)
+    assert ata == "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM"  # verified against mainnet
+
+    class WalletRpc(FakeRpc):
+        def get_signatures_for_address(self, address, before=None, limit=1000, commitment="finalized"):
+            if address == wallet:
+                return [] if before else [dict(entry("w1", 300, slot=850))]
+            if address == ata:
+                return [] if before else [dict(entry("closed-by-authority", 390, slot=950))]
+            return []
+
+    result = LiveSource(WalletRpc(), page_size=10, ata_mints=(usdc,)).fetch(wallet, START, END, 10)
+
+    assert ata in result.token_accounts
+    assert [row["signature"] for row in result.signatures] == ["closed-by-authority", "w1"]
+
+    off = LiveSource(WalletRpc(), page_size=10, ata_mints=(usdc,), derive_ata=False).fetch(wallet, START, END, 10)
+    assert [row["signature"] for row in off.signatures] == ["w1"]
+
+
+
+# --- provider history retention -------------------------------------------------------------------
+
+class RetentionRpc(FakeRpc):
+    def __init__(self, *args, retained_from=None, block_time_errors=0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.retained_from, self.block_time_errors = retained_from, block_time_errors
+
+    def get_first_available_block(self):
+        return 500
+
+    def get_block_time(self, slot):
+        if self.block_time_errors:
+            self.block_time_errors -= 1
+            raise ProviderError("Solana RPC error -32007", retryable=False)
+        return self.retained_from
+
+
+def test_window_older_than_provider_retention_is_partial():
+    """Regression: pruned history returns empty pages, which must not be read as 'no activity'."""
+    rpc = RetentionRpc([entry("a", 390)], retained_from=250)  # window starts at 100
+
+    result = fetch(rpc, page_size=10)
+
+    assert "TIME_BOUNDARY_NOT_REACHED" in result.reasons
+    assert result.reached_time_boundary is False
+
+
+def test_window_inside_provider_retention_is_complete():
+    rpc = RetentionRpc([entry("a", 390)], retained_from=50, block_time_errors=2)  # skipped slots first
+
+    result = fetch(rpc, page_size=10)
+
+    assert result.reasons == set()
+
+
+def test_unknown_retention_is_treated_as_incomplete():
+    rpc = RetentionRpc([entry("a", 390)], retained_from=None)
+
+    assert "TIME_BOUNDARY_NOT_REACHED" in fetch(rpc, page_size=10).reasons
+
+
+
+def test_provider_scan_limit_on_token_accounts_degrades_to_partial():
+    class TooManyAccounts(FakeRpc):
+        def get_token_accounts_by_owner(self, owner, program_id, commitment="finalized"):
+            raise ProviderError("Solana RPC error -32012", retryable=False, rpc_code=-32012)
+
+    result = fetch(TooManyAccounts([entry("a", 390)]), page_size=10)
+
+    assert [t["signature"] for t in result.transactions] == ["a"]
+    assert "TIME_BOUNDARY_NOT_REACHED" in result.reasons
+
+
+def test_other_token_account_errors_still_fail_the_collection():
+    class Broken(FakeRpc):
+        def get_token_accounts_by_owner(self, owner, program_id, commitment="finalized"):
+            raise ProviderError("Solana RPC error -32600", retryable=False, rpc_code=-32600)
+
+    with pytest.raises(ProviderError):
+        fetch(Broken([entry("a", 390)]), page_size=10)

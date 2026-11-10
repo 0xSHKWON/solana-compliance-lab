@@ -1,17 +1,23 @@
 {
   "fixtureId": "mainnet-normal-wallet",
   "dataType": "ON_CHAIN",
-  "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample). Includes a token account the wallet has since closed, discovered from its own later transactions.",
-  "capturedAt": "2026-11-10T14:15:56Z",
+  "description": "Real low-activity wallet with SOL, USDC and USDT transfers; no label matches (normal sample). Includes a token account the wallet has since closed, discovered from its own later transactions. The window lies inside the provider's ~14-day history retention.",
+  "capturedAt": "2026-11-10T14:46:32Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-8ac3b43c8dc3937a5602e689b22123523b6df4bb2244acf871ae7fe18abc635d",
+  "liveSnapshotId": "snapshot-8086ad32744a54f797a42e1e7389dd02db0bfd976b6a92b4d868c3d9f5a63825",
   "address": {
     "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
     "explorer": "https://explorer.solana.com/address/6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
   },
   "tokenAccountsScanned": [
     "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM",
-    "FQCT7aPiWefxTtC8LG3vsxQRndpHdtrxcZ3aazPFTVoo"
+    "BdzGKaP8cLHATMU5x5VCQhA31gArb8uDgDySPMtFYatM",
+    "CMznDrxvTQCGWckJ9bHrSSZg6esvKNkRx8LASRM4yZq5",
+    "DaquBZy5LP7CYSzz3CQBax5jxRfAiqU16LUq3v2KBYhE",
+    "FKBdUv2GKn6NdHhNHmi4vNmMgrEriP5dBhYKa38AgWM9",
+    "FQCT7aPiWefxTtC8LG3vsxQRndpHdtrxcZ3aazPFTVoo",
+    "GdmaxWT6p3BavQVr8x5CssG8DR1sdYZX8QUoPFyZd1Hk",
+    "Gxcq7dTcoNdBpBfVyNsz6eiJ4katDahSf7Bkj9f8UTrH"
   ],
   "transactions": [
     {
@@ -53,26 +59,6 @@
       "signature": "4pPNf344bwU8FJZMkAUW71Fosc5e8ciqTjUdmsraJNAPhNp4WmuTedees6RRSemjKC4Kud8Rj6giQCrgNCVTHZxj",
       "failed": false,
       "explorer": "https://explorer.solana.com/tx/4pPNf344bwU8FJZMkAUW71Fosc5e8ciqTjUdmsraJNAPhNp4WmuTedees6RRSemjKC4Kud8Rj6giQCrgNCVTHZxj"
-    },
-    {
-      "signature": "3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM",
-      "failed": false,
-      "explorer": "https://explorer.solana.com/tx/3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM"
-    },
-    {
-      "signature": "3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1",
-      "failed": false,
-      "explorer": "https://explorer.solana.com/tx/3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1"
-    },
-    {
-      "signature": "3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1",
-      "failed": false,
-      "explorer": "https://explorer.solana.com/tx/3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1"
-    },
-    {
-      "signature": "5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd",
-      "failed": false,
-      "explorer": "https://explorer.solana.com/tx/5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd"
     }
   ],
   "labelDataset": {

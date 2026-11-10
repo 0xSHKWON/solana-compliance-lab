@@ -2,15 +2,22 @@
   "fixtureId": "mainnet-rapid-fan-out",
   "dataType": "ON_CHAIN",
   "description": "Real wallet that sends to many distinct recipients within minutes. KYT ruleset 1.0.0 detects RAPID_FAN_OUT (>=3 recipients within 300s). A pattern signal only: it does not establish wrongdoing (payout/distribution wallets show the same shape).",
-  "capturedAt": "2026-11-10T14:16:09Z",
+  "capturedAt": "2026-11-10T14:46:54Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-69aaea52a050bf63d7f11438a568d800651d6af3eec6e4369552fbeb6845261b",
+  "liveSnapshotId": "snapshot-f8d547a34a927a769a5b5f51453363f5d0fe5d8735e0f30f2e2c14a5ccc34eea",
   "address": {
     "address": "5sXRSSKdDNPAYuujdoVdTigXU6Zrudha656mHTkREC31",
     "explorer": "https://explorer.solana.com/address/5sXRSSKdDNPAYuujdoVdTigXU6Zrudha656mHTkREC31"
   },
   "tokenAccountsScanned": [
-    "FN9XvMnZxPucHhoG5rGSsjPVRjcrHCFjLEjM89jnFbjF"
+    "2mevWr2Sq6TGAFByq3qjcKS9YLsgtYetZGNeHn738ofU",
+    "4uYnD2uZWfoJh4W9qKhHanskVo8hovEaXfcDSy12JHky",
+    "6ak1BtoReAE61DY3DS6NbdQEVXJ2kYwAKhj3Ct4SwnWv",
+    "6eUXBsgfmL2x18FxPg9Z5m5dwGhTJtoXWPAtpnFsLZvm",
+    "8V7LKzrJEHSX8KKEPdDzqkKCfVJHasXTDH26yaxWoCe9",
+    "Eh8Qj2Twwej3JZJizS3gyJM3vkvMQDox6y2t5JHTvsj3",
+    "FN9XvMnZxPucHhoG5rGSsjPVRjcrHCFjLEjM89jnFbjF",
+    "W2Zxv8mhwtmZQGiqAjwGihaJYeyiK7eWwGfJzdmXN4V"
   ],
   "transactions": [
     {

@@ -19,7 +19,7 @@ NORMAL_ADDRESS = "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA"
 NOW = datetime(2026, 11, 10, 12, 0, tzinfo=timezone.utc)
 COLLECTOR_ENV = ("COLLECTOR_MAX_TRANSACTIONS", "COLLECTOR_LABEL_DATASET", "COLLECTOR_FIXTURE_ROOTS",
                  "COLLECTOR_FETCH_WORKERS", "COLLECTOR_TIME_BUDGET_SECONDS", "COLLECTOR_MAX_TOKEN_ACCOUNTS",
-                 "COLLECTOR_MAX_DISCOVERY_TRANSACTIONS",
+                 "COLLECTOR_MAX_DISCOVERY_TRANSACTIONS", "COLLECTOR_DERIVE_ATA", "COLLECTOR_ATA_MINTS",
                  "SOLANA_RPC_URL", "SOLANA_RPC_PROVIDER", "SOLANA_RPC_API_KEY", "SOLANA_RPC_API_KEY_HEADER",
                  "SOLANA_RPC_TIMEOUT", "SOLANA_RPC_MAX_TX_VERSION")
 
@@ -270,7 +270,7 @@ def test_failed_transaction_fetch_is_partial_not_empty():
     recording = load("mainnet-normal-wallet", "rpc-recording.json")
     stored = load("mainnet-normal-wallet", "snapshot.json")
     failing = stored["transfers"][0]["signature"]
-    request = live_request(NORMAL_ADDRESS, "2026-10-01T00:00:00Z", "2026-11-10T00:00:00Z", max_transactions=50)
+    request = live_request(NORMAL_ADDRESS, "2026-10-28T00:00:00Z", "2026-11-10T00:00:00Z", max_transactions=50)
 
     result = Collector(
         rpc_factory=lambda: ReplayWithFailure(recording["calls"], failing),
@@ -354,3 +354,10 @@ def test_window_reaching_into_the_future_is_not_complete():
 def test_explicit_max_transactions_is_not_replaced_by_env():
     with pytest.raises(ValueError):
         Collector(max_transactions=0, env={"COLLECTOR_MAX_TRANSACTIONS": "5"})
+
+
+def test_ata_settings_are_read_from_env():
+    off = Collector(env={"COLLECTOR_DERIVE_ATA": "false", "COLLECTOR_ATA_MINTS": "A, B"})
+    assert off._live_options["derive_ata"] is False and off._live_options["ata_mints"] == ("A", "B")
+    default = Collector(env={"COLLECTOR_ATA_MINTS": ""})
+    assert default._live_options["derive_ata"] is True and "ata_mints" not in default._live_options

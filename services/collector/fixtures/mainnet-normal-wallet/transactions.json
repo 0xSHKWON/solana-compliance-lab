@@ -47,30 +47,6 @@
       "slot": 462786405,
       "blockTime": 1793256694,
       "err": null
-    },
-    {
-      "signature": "3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM",
-      "slot": 462176789,
-      "blockTime": 1793126705,
-      "err": null
-    },
-    {
-      "signature": "3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1",
-      "slot": 462176759,
-      "blockTime": 1793126699,
-      "err": null
-    },
-    {
-      "signature": "3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1",
-      "slot": 462176704,
-      "blockTime": 1793126687,
-      "err": null
-    },
-    {
-      "signature": "5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd",
-      "slot": 462176686,
-      "blockTime": 1793126683,
-      "err": null
     }
   ]
 }

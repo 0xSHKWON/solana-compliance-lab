@@ -56,7 +56,9 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 | `COLLECTOR_MAX_TRANSACTIONS` | `1000` | 요청 `maxTransactions`의 상한 |
 | `COLLECTOR_FETCH_WORKERS` | `16` | 서명 페이지·거래 조회 동시 처리 수 |
 | `COLLECTOR_TIME_BUDGET_SECONDS` | `20` | LIVE 요청 하나의 RPC 작업 시간 예산(초). Backend의 상위 모듈 읽기 제한 시간(30초)보다 작게 유지합니다. |
-| `COLLECTOR_MAX_DISCOVERY_TRANSACTIONS` | `1000` | 닫힌 토큰 계정을 찾기 위해 읽을 지갑 거래 수 상한(구간 이후 거래 + 구간 안 지갑 거래). 넘거나 시간 예산 안에 다 읽지 못하면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. `0`이면 탐색을 끕니다. |
+| `COLLECTOR_MAX_DISCOVERY_TRANSACTIONS` | `1000` | 닫힌 토큰 계정을 찾기 위해 읽을 지갑 거래 수 상한(구간 안 지갑 거래 + 구간 이후 거래). 넘거나 탐색 몫의 시간(예산의 40%) 안에 다 읽지 못하면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. `0`이면 탐색을 끕니다. |
+| `COLLECTOR_DERIVE_ATA` | `true` | 지갑 거래에 나온 mint와 `COLLECTOR_ATA_MINTS`에 대해 ATA 주소를 계산해 함께 조회합니다(닫힌 ATA 포함). |
+| `COLLECTOR_ATA_MINTS` | USDC, USDT, wSOL, PYUSD | 항상 ATA를 계산할 mint 목록(쉼표 구분) |
 | `COLLECTOR_MAX_TOKEN_ACCOUNTS` | `100` | 함께 조회할 지갑 토큰 계정 수 상한. 넘으면 `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. |
 | `COLLECTOR_LABEL_DATASET` | `services/collector/data/labels/ofac-sdn.json` | 제재 라벨 데이터셋 경로 |
 | `COLLECTOR_FIXTURE_ROOTS` | `services/collector/fixtures`, `contracts/fixtures` | FIXTURE 조회 경로 목록. OS 경로 구분자(Linux `:`, Windows `;`)로 구분하며 앞의 경로가 우선합니다. |
@@ -76,10 +78,10 @@ curl -s -X POST http://127.0.0.1:8000/internal/v1/collect \
 
 1. 라벨 데이터셋을 먼저 읽습니다. 실패하면 RPC를 호출하지 않고 503을 반환합니다.
 2. 시간 예산(`COLLECTOR_TIME_BUDGET_SECONDS`)을 시작합니다. 이후 모든 RPC 호출과 재시도는 남은 예산 안에서만 실행됩니다.
-3. `getSlot`(finalized)으로 기준 슬롯을 고정합니다.
+3. `getSlot`(finalized)으로 기준 슬롯을 고정하고, `getFirstAvailableBlock`·`getBlockTime`으로 제공자가 보관 중인 가장 오래된 시각을 확인합니다. 요청 구간의 시작이 그보다 오래되면 그 이전 이력은 빈 페이지로 돌아오므로(활동 없음이 아니라 삭제됨) `TIME_BOUNDARY_NOT_REACHED`로 PARTIAL 처리합니다. 실측 기준 Nodit은 약 14.5일치 이력을 보관합니다.
 4. `getTokenAccountsByOwner`로 지갑이 현재 보유한 Token·Token-2022 토큰 계정을 찾습니다. 다른 지갑이 토큰을 보내면 거래에 지갑 주소 없이 토큰 계정만 등장하는 경우가 많으므로, 지갑과 토큰 계정의 이력을 함께 조회합니다.
 5. 지갑과 각 토큰 계정에 대해 `getSignaturesForAddress`(finalized)를 최신부터 페이지 조회합니다. 기준 슬롯보다 높은 서명과 `toTime` 이후 서명은 건너뛰고, `fromTime`보다 이전 `blockTime`을 만나거나 빈 페이지가 나오면 그 계정의 조회를 끝냅니다. 요청한 개수보다 적은 페이지는 이력의 끝으로 보지 않습니다. 계정마다 `maxTransactions + 1`개를 확인하면 더 오래된 서명은 결과에 들 수 없으므로 조기 종료합니다.
-6. **닫힌 토큰 계정 탐색**: 현재 보유 목록에는 이미 닫힌 토큰 계정이 없습니다. 토큰 계정을 닫으려면 소유자 서명이 필요하고 ATA는 지갑 주소를 계정 키로 넣어 만들어지므로, 그 거래는 지갑 자신의 이력에 남습니다. 지갑 서명 중 요청 구간 이후(현재까지)와 구간 안의 거래를 읽어, 토큰 잔액의 소유자·`closeAccount`·`initializeAccount*`·ATA `create`에서 지갑이 보유했던 토큰 계정을 찾고, 새로 찾은 계정의 구간 안 서명도 같은 방식으로 조회합니다. 여기서 읽은 거래는 다시 조회하지 않습니다.
+6. **닫힌 토큰 계정 탐색**: 현재 보유 목록에는 이미 닫힌 토큰 계정이 없습니다. 토큰 계정을 닫으려면 소유자 서명이 필요하고 ATA는 지갑 주소를 계정 키로 넣어 만들어지므로, 그 거래는 지갑 자신의 이력에 남습니다. 지갑 서명 중 요청 구간 이후(현재까지)와 구간 안의 거래를 읽어, 토큰 잔액의 소유자·`closeAccount`·`initializeAccount*`·ATA `create`에서 지갑이 보유했던 토큰 계정을 찾고, 새로 찾은 계정의 구간 안 서명도 같은 방식으로 조회합니다. 또한 지갑 거래에 나온 mint와 주요 mint(USDC·USDT·wSOL·PYUSD)의 ATA 주소를 계산해 조회합니다. ATA 주소는 (지갑, 토큰 프로그램, mint)로 정해지므로 다른 권한자가 닫은 ATA도 찾을 수 있습니다. 탐색은 구간 안의 지갑 거래부터 읽고 시간 예산의 40%까지만 쓰며, 여기서 읽은 거래는 다시 조회하지 않습니다.
 7. 모든 계정의 서명을 합쳐 중복을 없애고 최신순으로 `maxTransactions`개를 고릅니다. 더 남아 있으면 `TRANSACTION_LIMIT_REACHED`를 기록합니다.
 8. 고른 서명마다 `getTransaction`(jsonParsed, finalized)을 동시에 호출합니다. 실패한 거래(`err`)는 `transactionCount`에는 포함되지만 조회하지 않고 전송 계산에서도 제외합니다. 서명에 `blockTime`이 없던 거래는 실제 거래 시각이 구간 밖이면 제거합니다.
 9. 거래를 정규화하여 전송을 모으고, 조회 주소와 거래 상대 주소에 대해서만 라벨을 붙입니다.
@@ -159,8 +161,8 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 
 | fixtureId | 데이터 구분 | 주소 | 요청 구간 / maxTransactions | 수집 결과 | KYT 결과 |
 | --- | --- | --- | --- | --- | --- |
-| `mainnet-normal-wallet` | 실제 메인넷 (NODIT_SOLANA_RPC) | `6UuyGC…NTA` | 2026-10-01 ~ 2026-11-10 / 50 | COMPLETE, 거래 12건·전송 12건 (SOL, USDC, USDT) | LOW |
-| `mainnet-ofac-sdn-exact` | 실제 메인넷, OFAC SDN 일치 | `42RLPA…oHi` | 2026-01-01 ~ 2026-11-10 / 50 | COMPLETE, 거래 5건·전송 0건 (토큰 계정 생성·동결 명령어만) | SANCTION_EXACT, HIGH |
+| `mainnet-normal-wallet` | 실제 메인넷 (NODIT_SOLANA_RPC) | `6UuyGC…NTA` | 2026-10-28 ~ 2026-11-10 / 50 | COMPLETE, 거래 8건·전송 8건 (SOL, USDC, USDT), 이미 닫힌 토큰 계정 1개 포함 조회 | LOW |
+| `mainnet-ofac-sdn-exact` | 실제 메인넷, OFAC SDN 일치 | `42RLPA…oHi` | 2026-10-28 ~ 2026-11-10 / 50 | COMPLETE, 거래 5건·전송 0건 (토큰 계정 생성·동결 명령어만) | SANCTION_EXACT, HIGH |
 | `mainnet-busy-wallet-partial` | 실제 메인넷 (활동량 많음) | `EnKfhn…VNL9` | 2026-11-01 ~ 2026-11-10 / 20 | PARTIAL (`TRANSACTION_LIMIT_REACHED`), 거래 20건·전송 20건 (대부분 토큰 계정으로 들어온 USDT) | 점수 null |
 | `mainnet-rapid-fan-out` | 실제 메인넷 (이상 패턴) | `5sXRSS…EC31` | 2026-11-09 00:00 ~ 03:00 / 100 | COMPLETE, 거래 15건·전송 20건 | RAPID_FAN_OUT, MEDIUM |
 | `sender`, `sanctioned`, `normal`, `warn`, `partial`, `partial-sanctioned`, `repeat`, `direct-flow`, `spl`, `token-2022`, `unresolved`, `missing-time`, `empty` | 합성 (`contracts/fixtures`) | 합성 주소 | 각 `collection-request.json` 참고 | 계약 검증용 시나리오 | 시나리오별 |
@@ -176,8 +178,8 @@ python -m collector.capture --fixture-id mainnet-normal-wallet \
 
 ## 한계
 
-- **닫힌 토큰 계정**: 지갑 자신의 거래(구간 안과 구간 이후)에서 생성·종료·잔액 기록으로 드러난 토큰 계정은 찾아서 함께 조회합니다. 지갑 서명 없이 닫힌 경우(별도 close authority가 닫음)나, 지갑 이력에 전혀 나타나지 않고 소유자가 바뀐 계정은 찾을 수 없습니다. Nodit의 Solana RPC는 표준 메서드만 제공하고, Web3 Data API(Indexer)는 Solana를 지원 네트워크로 제공하지 않아 이 방법을 사용합니다.
-- **제공자 일관성**: 같은 확정 구간을 조회해도 제공자 응답이 드물게 달라질 수 있습니다(실측에서 거래 540건 → 538건). 실제 Fixture는 원본 응답을 함께 저장하므로 테스트 재현성에는 영향이 없습니다.
+- **이력 보관 기간**: Nodit RPC는 약 14.5일치 이력만 제공합니다. 그보다 오래된 구간은 PARTIAL로 표시되며 수집할 수 없습니다. 장기 이력이 필요하면 아카이브 노드나 Nodit Datashare(배치 내보내기)가 필요합니다.
+- **닫힌 토큰 계정**: 지갑 거래에서 드러난 토큰 계정과, 거래에 나온 mint·주요 mint의 ATA는 닫혔더라도 조회합니다. 지갑 이력에 나타나지 않는 mint의 보조(비 ATA) 토큰 계정이 다른 권한자에 의해 닫힌 경우만 찾을 수 없습니다. 실측(지갑 24개)에서는 이 탐색들로 추가된 거래가 없었습니다. 즉 현재 보유 계정과 지갑 이력만으로도 대부분 수집되며, 탐색은 남은 빈틈을 막는 안전장치입니다.
 - **지갑과 연결할 수 없는 전송**: 토큰 잔액·`initializeAccount*`·현재 토큰 계정 어디에서도 지갑과 연결되지 않는 토큰 전송은 지갑의 전송으로 보지 않습니다.
 - **`transferWithSeed`**: 시드로 파생된 송신 계정을 `fromAddress`로 기록합니다(SOL은 계정과 소유자를 같은 주소로 표기하는 계약 규칙). 파생 계정의 기준 지갑(`sourceBase`)으로는 조회되지 않습니다.
 - **추출 범위**: 전송으로 추적하는 명령어는 위에 나열한 것뿐입니다. 스왑이나 다른 프로그램의 내부 호출로 일어나는 토큰·SOL 이동은 그 안의 위 명령어로만 잡히며, 계정 잔액 변화만으로 추정하지 않습니다. RPC가 파싱하지 못하는 Token-2022 확장(기밀 전송 등)은 금액을 읽을 수 없습니다.

@@ -370,3 +370,18 @@ def test_deadline_bounds_attempt_timeout_and_stops_retries():
         client.get_slot()
     assert timeouts == [4.0]  # bounded by the remaining budget, then no retry past the deadline
     assert now[0] <= 4.0
+
+
+def test_retention_methods_validate_results():
+    assert make_client(FakeTransport(ok(461886947))).get_first_available_block() == 461886947
+    assert make_client(FakeTransport(ok(None))).get_block_time(1) is None
+    with pytest.raises(ProviderError):
+        make_client(FakeTransport(ok("x"))).get_block_time(1)
+
+
+def test_non_retryable_rpc_error_keeps_the_rpc_code():
+    client = make_client(FakeTransport((200, json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "error": {"code": -32012, "message": "scan aborted"}}).encode())))
+    with pytest.raises(ProviderError) as info:
+        client.get_slot()
+    assert info.value.rpc_code == -32012

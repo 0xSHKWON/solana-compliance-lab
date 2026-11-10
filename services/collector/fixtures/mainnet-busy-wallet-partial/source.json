@@ -2,15 +2,22 @@
   "fixtureId": "mainnet-busy-wallet-partial",
   "dataType": "ON_CHAIN",
   "description": "Real high-activity wallet collected with maxTransactions=20; the limit is reached before the time boundary, so coverage is PARTIAL (TRANSACTION_LIMIT_REACHED). Most of its activity is incoming USDT to its token account, which a wallet-only signature scan would miss.",
-  "capturedAt": "2026-11-10T14:16:04Z",
+  "capturedAt": "2026-11-10T14:46:46Z",
   "provider": "NODIT_SOLANA_RPC",
-  "liveSnapshotId": "snapshot-d68d99a3372fb54ebc88a86dfc9e709b4ac0ec1dc839ecfea7dec5be5fe9af04",
+  "liveSnapshotId": "snapshot-e50d10661f3e7a843f8c9088b7ad69397ac7e988b553813b03ee2f68abb8b704",
   "address": {
     "address": "EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9",
     "explorer": "https://explorer.solana.com/address/EnKfhnfxWaydpUrguSXN2BcH262Xqi77KEqH6UEvNVL9"
   },
   "tokenAccountsScanned": [
-    "CFTqrHSLVBtPcBQrG7v7zL4RWpnjmX4JmVVGYVL71VHM"
+    "13PA7LP3HwWWV4yNQGMhSjrdWvQLUhnbU3jbMNia9Jhg",
+    "3AgEe7MboMgd2DxrPxYivjaw5r4CBh5ppwsQiEfTgHVH",
+    "3sF4NPRAeV1nMbXZCgY2G4AW7FMpBegdAckXfweSbxW2",
+    "6nE6TJziUMk8iJecQpHeLQ5Q7LTnNy1FxppcGMsuPFi4",
+    "CFTqrHSLVBtPcBQrG7v7zL4RWpnjmX4JmVVGYVL71VHM",
+    "CNRaWSsm9tpj7jwMQj6HV1D5evYtiie1vngKaveFzBtS",
+    "FrQwR1hnjaaQvNUa7N9EaTFgwGhaZjBqd8weMDYiG2Tc",
+    "J1ZnBdQjsr51xnnmh2o1JNzCQKnR7Vdc8Fm5VnVAHUCw"
   ],
   "transactions": [
     {

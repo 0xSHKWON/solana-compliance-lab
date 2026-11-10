@@ -1,91 +1,11 @@
 {
   "schemaVersion": "0.1.0",
-  "snapshotId": "snapshot-8ac3b43c8dc3937a5602e689b22123523b6df4bb2244acf871ae7fe18abc635d",
+  "snapshotId": "snapshot-8086ad32744a54f797a42e1e7389dd02db0bfd976b6a92b4d868c3d9f5a63825",
   "requestId": "mainnet-normal-wallet-request",
   "address": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
   "network": "mainnet-beta",
   "mode": "FIXTURE",
   "transfers": [
-    {
-      "id": "transfer-16b65331979a33de192a3f378cbf792a0131f10fe3ffd869dc5faa2390b36029",
-      "signature": "5CZ6KzKrcueMGftvCENgLUq5xyUrRy8UtPLvfvmj6F8AvTPwtcWWauMPVAbVmBdVyGHutv8pYaEd3evEDcGSpVcd",
-      "slot": 462176686,
-      "timestamp": "2026-10-27T18:44:43Z",
-      "instructionIndex": 2,
-      "innerInstructionIndex": null,
-      "transferOrdinal": 0,
-      "fromAddress": "EUXEqvgRbjwFo112rLow5cLhAVKFvsvnKLS6cf43RMg4",
-      "toAddress": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "sourceAccount": "EUXEqvgRbjwFo112rLow5cLhAVKFvsvnKLS6cf43RMg4",
-      "destinationAccount": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "asset": {
-        "type": "SOL",
-        "mint": null,
-        "decimals": 9
-      },
-      "amountRaw": "2039985",
-      "ownerResolved": true
-    },
-    {
-      "id": "transfer-80de36b71010c2b774cdca44ad193c38211f1dfdaab5bdd45cbd1896f50c0c7a",
-      "signature": "3BhcQRqq9dNcyyUsqwzHDRpQnADaByz2wRtg5VSnxvwemEHX6AyDiipcVh6W3xzQkfwG7htSZ2WRSGpihYQxVQ1",
-      "slot": 462176704,
-      "timestamp": "2026-10-27T18:44:47Z",
-      "instructionIndex": 5,
-      "innerInstructionIndex": null,
-      "transferOrdinal": 0,
-      "fromAddress": "8tjDqRuhYN1PZcZkwLy9sRTUb1hbJNyijJeAESxG5zxv",
-      "toAddress": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "sourceAccount": "9un7p7bo7Y4TBwVdsQZTWtLZtkvW9hAUzdeV7mardWo5",
-      "destinationAccount": "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM",
-      "asset": {
-        "type": "SPL",
-        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "decimals": 6
-      },
-      "amountRaw": "2500",
-      "ownerResolved": true
-    },
-    {
-      "id": "transfer-70c5469c89a545a940bbb5d4083a39b721372e37f1cbbdd31302f2315a2537c6",
-      "signature": "3UxY57rqNXMxQEayR7aqU1D2GAXV3gfJuj8DuuNRq9125kLYp78ibTvXakKbHFRaRWpHYDja6gKLGN1Z5qzWUya1",
-      "slot": 462176759,
-      "timestamp": "2026-10-27T18:44:59Z",
-      "instructionIndex": 3,
-      "innerInstructionIndex": null,
-      "transferOrdinal": 0,
-      "fromAddress": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "toAddress": "WP562LX14X6gHW8VohTKfctSb1qLkQoK9dKF9aAt8vG",
-      "sourceAccount": "4H689ZPSTPFNNd8qcQAWXGgucpQRuFCB7MCM53jsiEPM",
-      "destinationAccount": "AzsULgRoJbibzT9cEY46bhpRaDJXS9WQnxGjZb1WFzUU",
-      "asset": {
-        "type": "SPL",
-        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "decimals": 6
-      },
-      "amountRaw": "100",
-      "ownerResolved": true
-    },
-    {
-      "id": "transfer-42680ee3911446a9b303b01f928aeafb2bb17ddd61ae7348e6834c6f0176d9d0",
-      "signature": "3rQSCvn1REZn9wL11bpKBcKKdqxsPZCbAGX3iQehDz4pKA3bsxVXtNARf1QhcXEiNzR93RvJB48R4gNVurjod7KM",
-      "slot": 462176789,
-      "timestamp": "2026-10-27T18:45:05Z",
-      "instructionIndex": 2,
-      "innerInstructionIndex": null,
-      "transferOrdinal": 0,
-      "fromAddress": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "toAddress": "WP562LX14X6gHW8VohTKfctSb1qLkQoK9dKF9aAt8vG",
-      "sourceAccount": "6UuyGCx5J5WjL1oiMnWAEoqGX6iNM2TcG6DUtjyr8NTA",
-      "destinationAccount": "WP562LX14X6gHW8VohTKfctSb1qLkQoK9dKF9aAt8vG",
-      "asset": {
-        "type": "SOL",
-        "mint": null,
-        "decimals": 9
-      },
-      "amountRaw": "1000",
-      "ownerResolved": true
-    },
     {
       "id": "transfer-7f2465ccb8b5420e6812c0fa3b1c8e58971ce9fa9c8be7b77bc24fa32d69ecc8",
       "signature": "4pPNf344bwU8FJZMkAUW71Fosc5e8ciqTjUdmsraJNAPhNp4WmuTedees6RRSemjKC4Kud8Rj6giQCrgNCVTHZxj",
@@ -256,14 +176,14 @@
   "coverage": {
     "status": "COMPLETE",
     "reasons": [],
-    "fromTime": "2026-10-01T00:00:00Z",
+    "fromTime": "2026-10-28T00:00:00Z",
     "toTime": "2026-11-10T00:00:00Z",
-    "snapshotSlot": 467750689,
-    "transactionCount": 12,
-    "transferCount": 12,
+    "snapshotSlot": 467759284,
+    "transactionCount": 8,
+    "transferCount": 8,
     "reachedTimeBoundary": true
   },
-  "collectedAt": "2026-11-10T14:15:56Z",
+  "collectedAt": "2026-11-10T14:46:32Z",
   "dataProvenance": {
     "dataType": "ON_CHAIN",
     "source": "NODIT_SOLANA_RPC",

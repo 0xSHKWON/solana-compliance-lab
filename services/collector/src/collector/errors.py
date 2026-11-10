@@ -13,8 +13,9 @@ class CollectionError(ContractViolation):
 class ProviderError(CollectionError):
     """Data provider (RPC/indexer) failure. Messages must never contain URLs or API keys."""
 
-    def __init__(self, message, retryable=True, status=502, code="UPSTREAM_UNAVAILABLE"):
+    def __init__(self, message, retryable=True, status=502, code="UPSTREAM_UNAVAILABLE", rpc_code=None):
         super().__init__(message, code, status, retryable)
+        self.rpc_code = rpc_code  # JSON-RPC error code from the provider, when there was one
 
 
 class FixtureNotFound(CollectionError):

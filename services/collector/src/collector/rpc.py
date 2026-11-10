@@ -196,7 +196,7 @@ class SolanaRpcClient:
                     else:
                         last_error = ProviderError("Solana RPC unavailable", retryable=True, status=502)
                     continue
-                raise ProviderError(f"Solana RPC error {code}", retryable=False, status=502)
+                raise ProviderError(f"Solana RPC error {code}", retryable=False, status=502, rpc_code=code)
 
             if "result" not in payload:
                 raise ProviderError("Solana RPC returned an invalid response", retryable=False, status=502)
@@ -225,6 +225,19 @@ class SolanaRpcClient:
         result = self.call("getSignaturesForAddress", [address, options])
         if not isinstance(result, list):
             raise ProviderError("Solana RPC returned an invalid signature list", retryable=False, status=502)
+        return result
+
+    def get_first_available_block(self) -> int:
+        """Lowest slot the provider still serves; older history has been pruned."""
+        result = self.call("getFirstAvailableBlock", [])
+        if not isinstance(result, int) or isinstance(result, bool):
+            raise ProviderError("Solana RPC returned an invalid slot", retryable=False, status=502)
+        return result
+
+    def get_block_time(self, slot: int) -> int | None:
+        result = self.call("getBlockTime", [slot])
+        if result is not None and (not isinstance(result, int) or isinstance(result, bool)):
+            raise ProviderError("Solana RPC returned an invalid block time", retryable=False, status=502)
         return result
 
     def get_token_accounts_by_owner(self, owner: str, program_id: str, commitment: str = "finalized") -> list[str]:
