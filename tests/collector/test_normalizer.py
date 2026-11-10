@@ -346,3 +346,12 @@ def test_normalize_result_is_frozen():
     result = normalize_transaction(load("failed_transaction"), A)
     with pytest.raises(dataclasses.FrozenInstanceError):
         result.failed = False
+
+
+def test_program_ids_decode_to_32_bytes():
+    """Regression: a mistyped program ID silently drops every transfer of that program."""
+    from compliance_contracts.runtime import base58_size
+    from collector.normalizer import SYSTEM_PROGRAM, TOKEN_2022_PROGRAM, TOKEN_PROGRAM
+
+    assert TOKEN_2022_PROGRAM == "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+    assert all(base58_size(program) == 32 for program in (SYSTEM_PROGRAM, TOKEN_PROGRAM, TOKEN_2022_PROGRAM))
